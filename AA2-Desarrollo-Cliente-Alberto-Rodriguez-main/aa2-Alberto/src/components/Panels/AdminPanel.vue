@@ -20,6 +20,7 @@ const userSearch = ref('')
 const itemSearch = ref('')
 const { t, locale } = useI18n()
 locale.value = 'es'
+
 onMounted(async () => {
     if (loggedUser.value?.email && loggedUser.value.passwordhash) {
         await store.getItems(loggedUser.value.email, loggedUser.value.passwordhash)

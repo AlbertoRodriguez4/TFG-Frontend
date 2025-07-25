@@ -1,8 +1,8 @@
 import type { Item } from "../components/Models/Item"
 import { defineStore } from "pinia"
 import { ref } from "vue"
+import { BASE_URL } from "../components/Models/BaseURL";
 
-const BASE_URL = "http://a7f6f3513ee60417e8e3e0ed50c28649-94590623.us-east-1.elb.amazonaws.com:6873";
 
 export const usePurchaseStore = defineStore('purchase', () => {
     const purchase = ref<Item[]>([]) 

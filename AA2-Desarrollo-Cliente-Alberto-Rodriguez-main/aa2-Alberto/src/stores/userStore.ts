@@ -3,9 +3,10 @@ import { ref } from "vue";
 import { decodeToken } from "../JWT/JWTDecode";
 import type { User } from "@/components/Models/User";
 import type { PurchasedItem } from "@/components/Models/PurchasedItem";
+import { BASE_URL } from "../components/Models/BaseURL";
 
 export const purchasedItems = ref<PurchasedItem[]>([]);
-const BASE_URL = "http://a7f6f3513ee60417e8e3e0ed50c28649-94590623.us-east-1.elb.amazonaws.com:6873";
+
 
 export const useUserStore = defineStore('user', () => {
   const user = ref<User[]>([]);
