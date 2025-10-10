@@ -86,65 +86,156 @@ const handleDelete = async () => {
 </script>
 
 <template>
-  <v-dialog v-model="dialogVisible" max-width="500">
-    <v-card>
-      <v-card-title class="text-h6">Editar Ítem</v-card-title>
+  <v-dialog v-model="dialogVisible" max-width="600" class="item-dialog">
+    <v-card class="item-card">
+      <!-- Header personalizado -->
+      <div class="item-header">
+        <div class="header-content">
+          <v-icon class="header-icon">mdi-shopping</v-icon>
+          <h2 class="header-title">Editar Ítem</h2>
+        </div>
+        <v-btn 
+          icon 
+          class="close-button" 
+          @click="closePopup"
+          size="small"
+        >
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </div>
 
-      <v-card-text>
-        <v-alert v-if="errorMessage" type="error" dense class="mb-4">
+      <v-card-text class="item-content">
+        <!-- Error message -->
+        <v-alert 
+          v-if="errorMessage" 
+          type="error" 
+          variant="tonal"
+          class="error-alert"
+        >
           {{ errorMessage }}
         </v-alert>
 
-        <v-text-field
-          v-model="editedItem.name"
-          label="Nombre"
-          required
-          outlined
-          dense
-          class="mb-3"
-        />
+        <!-- Nombre del ítem -->
+        <div class="form-group">
+          <label class="field-label">
+            <v-icon size="small" class="label-icon">mdi-dumbbell</v-icon>
+            Nombre del Ítem
+          </label>
+          <v-text-field
+            v-model="editedItem.name"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            class="custom-input"
+          />
+        </div>
 
-        <v-select
-          v-model="editedItem.type"
-          :items="['Strength', 'Endurance']"
-          label="Tipo"
-          required
-          outlined
-          dense
-          class="mb-3"
-        />
+        <!-- Selector de tipo con botones -->
+        <div class="form-group">
+          <label class="field-label">Tipo de Bonus</label>
+          <div class="type-selector">
+            <button
+              type="button"
+              :class="['type-button', { active: editedItem.type === 'Strength' }]"
+              @click="editedItem.type = 'Strength'"
+            >
+              <v-icon size="large" class="type-icon">mdi-lightning-bolt</v-icon>
+              <span class="type-name">Fuerza</span>
+            </button>
+            <button
+              type="button"
+              :class="['type-button', { active: editedItem.type === 'Endurance' }]"
+              @click="editedItem.type = 'Endurance'"
+            >
+              <v-icon size="large" class="type-icon">mdi-heart-pulse</v-icon>
+              <span class="type-name">Resistencia</span>
+            </button>
+          </div>
+        </div>
 
-        <v-text-field
-          v-model.number="editedItem.bonus"
-          label="Bono"
-          type="number"
-          min="0"
-          required
-          outlined
-          dense
-          class="mb-3"
-        />
+        <!-- Stats grid -->
+        <div class="stats-grid">
+          <div class="stat-card bonus-card">
+            <div class="stat-header">
+              <v-icon class="stat-icon">mdi-trending-up</v-icon>
+              <span class="stat-label">Bonus</span>
+            </div>
+            <div class="stat-input-wrapper">
+              <input
+                v-model.number="editedItem.bonus"
+                type="number"
+                min="0"
+                class="stat-input"
+              />
+              <span class="stat-suffix">+</span>
+            </div>
+          </div>
 
-        <v-text-field
-          v-model.number="editedItem.price"
-          label="Precio"
-          type="number"
-          min="0"
-          required
-          outlined
-          dense
-        />
+          <div class="stat-card price-card">
+            <div class="stat-header">
+              <v-icon class="stat-icon">mdi-currency-usd</v-icon>
+              <span class="stat-label">Precio</span>
+            </div>
+            <div class="stat-input-wrapper">
+              <input
+                v-model.number="editedItem.price"
+                type="number"
+                min="0"
+                class="stat-input"
+              />
+              <v-icon class="stat-suffix-icon">mdi-coin</v-icon>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vista previa -->
+        <div class="preview-card">
+          <div class="preview-label">Vista Previa</div>
+          <div class="preview-content">
+            <div class="preview-icon-wrapper" :class="editedItem.type === 'Strength' ? 'strength-preview' : 'endurance-preview'">
+              <v-icon size="large">
+                {{ editedItem.type === 'Strength' ? 'mdi-lightning-bolt' : 'mdi-heart-pulse' }}
+              </v-icon>
+            </div>
+            <div class="preview-info">
+              <div class="preview-name">{{ editedItem.name || 'Nombre del ítem' }}</div>
+              <div class="preview-stats">+{{ editedItem.bonus }} {{ editedItem.type === 'Strength' ? 'Fuerza' : 'Resistencia' }}</div>
+            </div>
+            <div class="preview-price">
+              <v-icon size="small">mdi-coin</v-icon>
+              {{ editedItem.price }}
+            </div>
+          </div>
+        </div>
       </v-card-text>
 
-      <v-card-actions class="justify-end">
-        <v-btn color="error" variant="outlined" @click="handleDelete">
+      <!-- Footer con acciones -->
+      <v-card-actions class="item-actions">
+        <v-btn
+          color="error"
+          variant="outlined"
+          @click="handleDelete"
+          class="action-btn delete-btn"
+        >
+          <v-icon left>mdi-delete</v-icon>
           Eliminar
         </v-btn>
         <v-spacer />
-        <v-btn color="secondary" variant="outlined" @click="closePopup">
+        <v-btn
+          color="grey"
+          variant="outlined"
+          @click="closePopup"
+          class="action-btn cancel-btn"
+        >
           Cancelar
         </v-btn>
-        <v-btn color="primary" @click="handleEdit">
+        <v-btn
+          color="primary"
+          variant="elevated"
+          @click="handleEdit"
+          class="action-btn save-btn"
+        >
+          <v-icon left>mdi-content-save</v-icon>
           Guardar
         </v-btn>
       </v-card-actions>
@@ -152,134 +243,426 @@ const handleDelete = async () => {
   </v-dialog>
 </template>
 
-
 <style scoped>
-.popup-overlay {
-  position: fixed;
+/* Dialog y Card base */
+.item-card {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 16px !important;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Header */
+.item-header {
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.item-header::before {
+  content: '';
+  position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+
+.header-content {
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.error-message {
-  color: red;
-  font-weight: bold;
-  margin-top: 10px;
-  text-align: center;
-}
-
-.popup-content {
-  background-color: #fff;
-  padding: 24px;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  width: 90%;
-  max-width: 400px;
+  gap: 12px;
   position: relative;
-  font-family: Arial, sans-serif;
-  animation: fadeIn 0.3s ease-in-out;
+  z-index: 1;
 }
 
-.popup-content h2 {
-  text-align: center;
-  font-size: 20px;
-  margin-bottom: 16px;
-  color: #333;
+.header-icon {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 8px;
+  border-radius: 8px;
+  color: white !important;
 }
 
-.item-details {
+.header-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.5px;
+}
+
+.close-button {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px);
+  color: white !important;
+  position: relative;
+  z-index: 1;
+}
+
+.close-button:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Content */
+.item-content {
+  padding: 24px !important;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.error-alert {
+  margin-bottom: 20px;
+  border-radius: 12px !important;
+}
+
+/* Form groups */
+.form-group {
+  margin-bottom: 24px;
+}
+
+.field-label {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.label-icon {
+  color: #3b82f6 !important;
+}
+
+.custom-input {
+  background: rgba(30, 41, 59, 0.5);
+  border-radius: 12px;
+}
+
+.custom-input :deep(.v-field) {
+  border-radius: 12px;
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.custom-input :deep(.v-field__outline) {
+  color: rgba(148, 163, 184, 0.3);
+}
+
+.custom-input :deep(.v-field--focused .v-field__outline) {
+  color: #3b82f6;
+}
+
+.custom-input :deep(input) {
+  color: white;
+}
+
+/* Type selector */
+.type-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
-.item-details label {
+.type-button {
+  background: rgba(30, 41, 59, 0.5);
+  border: 2px solid rgba(148, 163, 184, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+}
+
+.type-button:hover {
+  border-color: rgba(148, 163, 184, 0.5);
+  transform: translateY(-2px);
+}
+
+.type-button.active {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%);
+  border-color: #ef4444;
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+}
+
+.type-button.active .type-icon {
+  color: #ef4444 !important;
+}
+
+.type-button.active .type-name {
+  color: #fca5a5;
+}
+
+.type-button:nth-child(2).active {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.1) 100%);
+  border-color: #22c55e;
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
+}
+
+.type-button:nth-child(2).active .type-icon {
+  color: #22c55e !important;
+}
+
+.type-button:nth-child(2).active .type-name {
+  color: #86efac;
+}
+
+.type-icon {
+  color: #64748b !important;
+}
+
+.type-name {
+  font-weight: 600;
   font-size: 14px;
-  color: #444;
 }
 
-.item-details input,
-.item-details select {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 14px;
-  margin-top: 4px;
-  transition: border-color 0.2s ease;
+/* Stats grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
 }
 
-.item-details input:focus,
-.item-details select:focus {
-  border-color: #4a90e2;
-  outline: none;
+.stat-card {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.05) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  padding: 16px;
 }
 
-.buttons {
-  margin-top: 20px;
+.bonus-card {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(168, 85, 247, 0.05) 100%);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.price-card {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(251, 191, 36, 0.05) 100%);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.stat-header {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
-.buttons button {
-  padding: 10px 16px;
-  font-size: 14px;
+.stat-icon {
+  color: #8b5cf6 !important;
+  font-size: 20px !important;
+}
+
+.price-card .stat-icon {
+  color: #f59e0b !important;
+}
+
+.stat-label {
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.stat-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-input {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(139, 92, 246, 0.2);
   border-radius: 8px;
-  cursor: pointer;
-  border: none;
-  transition: background-color 0.2s ease;
-}
-
-.buttons button:first-child {
-  background-color: #4caf50;
+  padding: 12px;
   color: white;
+  font-size: 24px;
+  font-weight: 700;
+  width: 100%;
+  outline: none;
+  transition: all 0.2s ease;
 }
 
-.buttons button:first-child:hover {
-  background-color: #43a047;
+.stat-input:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.price-card .stat-input {
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.price-card .stat-input:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.stat-suffix {
+  color: #8b5cf6;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.stat-suffix-icon {
+  color: #f59e0b !important;
+  font-size: 24px !important;
+}
+
+/* Preview card */
+.preview-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(30, 41, 59, 0.4) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.preview-label {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.preview-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.preview-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.strength-preview {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.endurance-preview {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.preview-info {
+  flex: 1;
+}
+
+.preview-name {
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.preview-stats {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.preview-price {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #f59e0b;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* Actions */
+.item-actions {
+  background: rgba(15, 23, 42, 0.5);
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+  padding: 16px 24px !important;
+}
+
+.action-btn {
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.3px;
+  border-radius: 10px !important;
+  padding: 0 24px !important;
+  height: 44px !important;
 }
 
 .delete-btn {
-  background-color: #e53935;
-  color: white;
+  border-color: #dc2626 !important;
+  color: #dc2626 !important;
 }
 
 .delete-btn:hover {
-  background-color: #c62828;
+  background: rgba(220, 38, 38, 0.1) !important;
 }
 
-.close-btn {
-  position: absolute;
-  top: 12px;
-  right: 16px;
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: #888;
-  cursor: pointer;
-  transition: color 0.2s ease;
+.cancel-btn {
+  border-color: #64748b !important;
+  color: #94a3b8 !important;
 }
 
-.close-btn:hover {
-  color: #000;
+.cancel-btn:hover {
+  background: rgba(100, 116, 139, 0.1) !important;
 }
 
+.save-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%) !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+}
+
+.save-btn:hover {
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+/* Scrollbar */
+.item-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.item-content::-webkit-scrollbar-track {
+  background: rgba(30, 41, 59, 0.3);
+  border-radius: 4px;
+}
+
+.item-content::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 4px;
+}
+
+.item-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
+
+/* Animaciones */
 @keyframes fadeIn {
   from {
-    transform: scale(0.95);
     opacity: 0;
+    transform: scale(0.95);
   }
-
   to {
-    transform: scale(1);
     opacity: 1;
+    transform: scale(1);
   }
+}
+
+.item-card {
+  animation: fadeIn 0.3s ease-out;
 }
 </style>

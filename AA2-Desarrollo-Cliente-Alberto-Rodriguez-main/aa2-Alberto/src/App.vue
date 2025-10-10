@@ -1,225 +1,338 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router';
+import { RouterView } from 'vue-router';
 import HeaderView from './views/HeaderView.vue';
 import FooterView from './views/FooterView.vue';
-import HomeView from './views/HomeView.vue';
 </script>
 
 <template>
-  <v-app>
-    <!-- Patrón de fondo animado -->
-    <div class="background-pattern"></div>
-    <div class="background-overlay"></div>
+  <v-app class="app-root">
+    <!-- Fondo base con textura -->
+    <div class="background-base"></div>
     
-    <HeaderView class="header" />
+    <!-- Gradiente animado superior -->
+    <div class="gradient-top"></div>
+    
+    <!-- Grid pattern sutil -->
+    <div class="grid-pattern"></div>
+    
+    <!-- Header fijo -->
+    <HeaderView />
 
-    <v-main class="main-content">
-      <v-container fluid class="content-wrapper">
-        <!-- Decoración de partículas flotantes -->
-        <div class="particle particle-1"></div>
-        <div class="particle particle-2"></div>
-        <div class="particle particle-3"></div>
-        <div class="particle particle-4"></div>
+    <!-- Contenedor principal -->
+    <v-main class="main-wrapper">
+      <div class="content-container">
+        <!-- Partículas flotantes decorativas -->
+        <div class="particles-container">
+          <div class="particle particle-1"></div>
+          <div class="particle particle-2"></div>
+          <div class="particle particle-3"></div>
+          <div class="particle particle-4"></div>
+          <div class="particle particle-5"></div>
+        </div>
         
-        <div class="router-container">
+        <!-- RouterView con transiciones -->
+        <div class="router-content">
           <RouterView v-slot="{ Component }">
-            <transition name="fade-slide" mode="out-in">
+            <transition name="page-transition" mode="out-in">
               <component :is="Component" />
             </transition>
           </RouterView>
         </div>
-      </v-container>
+      </div>
     </v-main>
 
+    <!-- Footer -->
     <FooterView />
   </v-app>
 </template>
 
+<style>
+/* Reset global para eliminar bordes blancos */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: scroll; /* permite el scroll */
+  scrollbar-width: none; /* oculta la barra en Firefox */
+}
+
+/* Oculta la barra en Chrome, Edge y Safari */
+body::-webkit-scrollbar {
+  display: none;
+}
+
+
+/* Vuetify overrides para eliminar espacios */
+.v-application {
+  background: transparent !important;
+}
+
+.v-application__wrap {
+  min-height: 100vh !important;
+  background: transparent !important;
+}
+</style>
+
 <style scoped>
-/* Patrón de fondo animado */
-.background-pattern {
+.app-root {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Fondo base oscuro */
+.background-base {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: 
-    linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  z-index: -2;
+  background: radial-gradient(
+    ellipse at top,
+    #0a0a0a 0%,
+    #000000 100%
+  );
+  z-index: -3;
 }
 
-.background-pattern::before {
-  content: '';
-  position: absolute;
+/* Gradiente superior animado */
+.gradient-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60%;
+  background: radial-gradient(
+    ellipse at top,
+    rgba(255, 204, 0, 0.15) 0%,
+    rgba(255, 153, 0, 0.08) 25%,
+    transparent 70%
+  );
+  z-index: -2;
+  animation: gradientPulse 8s ease-in-out infinite;
+}
+
+@keyframes gradientPulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+/* Grid pattern */
+.grid-pattern {
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background-image: 
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 20%, rgba(79, 172, 254, 0.1) 0%, transparent 50%);
-  animation: patternMove 20s ease-in-out infinite;
+    linear-gradient(rgba(255, 204, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 204, 0, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.5;
 }
 
-@keyframes patternMove {
-  0%, 100% { transform: translate(0, 0); }
-  25% { transform: translate(50px, 50px); }
-  50% { transform: translate(-30px, 30px); }
-  75% { transform: translate(30px, -50px); }
+/* Main wrapper */
+.main-wrapper {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  padding: 0 !important;
+  background: transparent !important;
 }
 
-.background-overlay {
+/* Contenedor de contenido */
+.content-container {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  padding: 0;
+  margin: 0;
+}
+
+/* Partículas decorativas */
+.particles-container {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: 
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(255, 255, 255, 0.03) 2px,
-      rgba(255, 255, 255, 0.03) 4px
-    );
-  z-index: -1;
   pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
 }
 
-/* Header */
-.header {
-  height: 100px;
-  flex-shrink: 0;
-  z-index: 100;
-  position: relative;
-}
-
-/* Main content */
-.main-content {
-  position: relative;
-  min-height: calc(100vh - 200px);
-  padding: 2rem 0;
-}
-
-.content-wrapper {
-  position: relative;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-/* Partículas decorativas */
 .particle {
   position: absolute;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.3), transparent);
+  background: radial-gradient(
+    circle,
+    rgba(255, 204, 0, 0.15),
+    rgba(255, 204, 0, 0.05),
+    transparent
+  );
+  filter: blur(40px);
   pointer-events: none;
-  animation: floatParticle 15s ease-in-out infinite;
+  animation: floatParticle 20s ease-in-out infinite;
 }
 
 .particle-1 {
-  width: 100px;
-  height: 100px;
+  width: 300px;
+  height: 300px;
   top: 10%;
   left: 5%;
+  animation-duration: 18s;
   animation-delay: 0s;
 }
 
 .particle-2 {
-  width: 150px;
-  height: 150px;
-  top: 60%;
+  width: 250px;
+  height: 250px;
+  top: 50%;
   right: 10%;
-  animation-delay: 3s;
+  animation-duration: 22s;
+  animation-delay: 4s;
 }
 
 .particle-3 {
-  width: 80px;
-  height: 80px;
+  width: 200px;
+  height: 200px;
   bottom: 20%;
   left: 15%;
-  animation-delay: 6s;
+  animation-duration: 25s;
+  animation-delay: 8s;
 }
 
 .particle-4 {
-  width: 120px;
-  height: 120px;
-  top: 40%;
-  right: 20%;
-  animation-delay: 9s;
+  width: 280px;
+  height: 280px;
+  top: 30%;
+  right: 25%;
+  animation-duration: 20s;
+  animation-delay: 12s;
+}
+
+.particle-5 {
+  width: 220px;
+  height: 220px;
+  bottom: 30%;
+  right: 15%;
+  animation-duration: 24s;
+  animation-delay: 16s;
 }
 
 @keyframes floatParticle {
   0%, 100% {
     transform: translate(0, 0) scale(1);
-    opacity: 0.2;
-  }
-  25% {
-    transform: translate(30px, -50px) scale(1.1);
     opacity: 0.3;
   }
+  25% {
+    transform: translate(50px, -80px) scale(1.1);
+    opacity: 0.5;
+  }
   50% {
-    transform: translate(-20px, -30px) scale(0.9);
+    transform: translate(-40px, -50px) scale(0.9);
     opacity: 0.4;
   }
   75% {
-    transform: translate(40px, 20px) scale(1.05);
-    opacity: 0.25;
+    transform: translate(60px, 30px) scale(1.05);
+    opacity: 0.35;
   }
 }
 
-/* Container del router */
-.router-container {
+/* Router content */
+.router-content {
   position: relative;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 24px;
-  padding: 2rem;
-  box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.2) inset;
-  min-height: 500px;
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  z-index: 1;
+  padding: 0;
+  margin: 0;
 }
 
-/* Transiciones de vistas */
-.fade-slide-enter-active,
-.fade-slide-leave-active {
+/* Transiciones de página */
+.page-transition-enter-active {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.fade-slide-enter-from {
-  opacity: 0;
-  transform: translateY(20px);
+.page-transition-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 1, 1);
 }
 
-.fade-slide-leave-to {
+.page-transition-enter-from {
   opacity: 0;
-  transform: translateY(-20px);
+  transform: translateY(30px) scale(0.98);
 }
 
-/* Responsive */
+.page-transition-leave-to {
+  opacity: 0;
+  transform: translateY(-20px) scale(1.02);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .particle {
+    filter: blur(30px);
+  }
+}
+
 @media (max-width: 768px) {
-  .content-wrapper {
-    padding: 1rem;
+  .gradient-top {
+    height: 40%;
   }
-  
-  .router-container {
-    padding: 1rem;
-    border-radius: 16px;
+
+  .grid-pattern {
+    background-size: 30px 30px;
   }
-  
+
   .particle {
     display: none;
   }
 }
 
 @media (max-width: 480px) {
-  .main-content {
-    padding: 1rem 0;
+  .gradient-top {
+    height: 30%;
   }
-  
-  .router-container {
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  }
+}
+
+/* Scroll suave */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Scrollbar personalizada */
+:deep(::-webkit-scrollbar) {
+  width: 10px;
+}
+
+:deep(::-webkit-scrollbar-track) {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+:deep(::-webkit-scrollbar-thumb) {
+  background: rgba(255, 204, 0, 0.5);
+  border-radius: 5px;
+}
+
+:deep(::-webkit-scrollbar-thumb:hover) {
+  background: rgba(255, 204, 0, 0.7);
 }
 </style>

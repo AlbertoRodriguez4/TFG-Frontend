@@ -10,7 +10,7 @@ export const useMapStore = defineStore('map', () => {
         return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
     }
     async function getEstablecimientos(lat: number, lon: number, tipo: string) {
-        const response = await fetch(`http://localhost:6873/api/establecimientos?lat=${lat}&lon=${lon}&tipo=${encodeURIComponent(tipo)}`);
+        const response = await fetch(`http://localhost:6873/api/geocodificacion/establecimientos?lat=${lat}&lon=${lon}&tipo=${encodeURIComponent(tipo)}&radio=1000`);
         const data = await response.json();
         return data;
     }
