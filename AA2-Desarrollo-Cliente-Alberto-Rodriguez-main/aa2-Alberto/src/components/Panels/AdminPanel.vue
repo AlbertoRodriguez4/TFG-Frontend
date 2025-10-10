@@ -6,8 +6,8 @@ import EditUserPopup from '../PopUps/EditUserPopup.vue'
 import EditItemPopup from '../PopUps/EditItemPopup.vue'
 import type { User } from '@/components/Models/User'
 import type { Item } from '@/components/Models/Item'
-import { useI18n } from 'vue-i18n'
 import router from '@/router'
+import { useI18n } from 'vue-i18n'
 
 const store = useUserStore()
 const loggedUser = computed(() => store.loggedUser)

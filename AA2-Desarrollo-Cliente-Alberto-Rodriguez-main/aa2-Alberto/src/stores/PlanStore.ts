@@ -2,7 +2,7 @@ import type { Plan } from "../components/Models/Plan"
 import { defineStore } from "pinia"
 import { ref } from "vue"
 
-const BASE_URL = "http://a7f6f3513ee60417e8e3e0ed50c28649-94590623.us-east-1.elb.amazonaws.com:6873";
+const BASE_URL = "http://localhost:6873";
 
 export const usePlanStore = defineStore('plan', () => {
     const plan = ref<Plan[]>([])

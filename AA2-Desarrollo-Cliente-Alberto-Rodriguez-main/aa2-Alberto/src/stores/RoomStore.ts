@@ -2,7 +2,7 @@ import type { Room } from "../components/Models/Room"
 import { defineStore } from "pinia"
 import { ref } from "vue"
 
-const BASE_URL = "http://a7f6f3513ee60417e8e3e0ed50c28649-94590623.us-east-1.elb.amazonaws.com:6873";
+const BASE_URL = "http://localhost:6873";
 
 export const useRoomStore = defineStore('room', () => {
     const room = ref<Room[]>([])
