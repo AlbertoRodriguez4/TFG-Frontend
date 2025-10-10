@@ -70,7 +70,7 @@ function scrollToTop() {
         </div>
 
         <!-- Stats Section -->
-        <section class="panel-section">
+        <section class="panel-section"  v-if="loggedUser?.role !== 'userMaster'">
           <div class="section-header">
             <div class="section-icon">📊</div>
             <h2 class="section-title">{{ $t('estadisticas') || 'Tus Estadísticas' }}</h2>
@@ -82,7 +82,7 @@ function scrollToTop() {
         </section>
 
         <!-- Inventory Section -->
-        <section class="panel-section">
+        <section class="panel-section"  v-if="loggedUser?.role !== 'userMaster'">
           <div class="section-header">
             <div class="section-icon">🎒</div>
             <h2 class="section-title">{{ $t('inventario') || 'Tu Inventario' }}</h2>

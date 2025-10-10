@@ -96,14 +96,13 @@ const filteredItems = computed(() =>
                 </v-avatar>
                 <div>
                   <h1 class="text-h3 font-weight-black mb-2">
-                    {{ $t('panel') }}
+                    {{ $t('panel') }} {{ loggedUser?.name }}
                   </h1>
                   <div class="d-flex align-center">
                     <v-chip color="success" size="small" class="mr-2">
                       <v-icon start size="small">mdi-shield-check</v-icon>
                       Admin
                     </v-chip>
-                    <span class="text-h6">{{ loggedUser?.name }}</span>
                   </div>
                 </div>
               </div>
