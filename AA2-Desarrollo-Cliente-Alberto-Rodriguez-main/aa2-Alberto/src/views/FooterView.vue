@@ -1,65 +1,216 @@
 <template>
   <footer class="footer">
-    <!-- Onda decorativa superior -->
+    <!-- Partículas flotantes -->
+    <div class="particles-footer">
+      <div class="particle" v-for="n in 15" :key="n" :style="{ 
+        left: `${Math.random() * 100}%`, 
+        animationDelay: `${Math.random() * 5}s`,
+        animationDuration: `${8 + Math.random() * 4}s`
+      }"></div>
+    </div>
+
+    <!-- Onda decorativa superior con gradiente -->
     <div class="footer-wave">
       <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
-        <path d="M0,0 C150,80 350,0 600,50 C850,100 1050,20 1200,80 L1200,120 L0,120 Z" 
-              class="wave-path"></path>
+        <defs>
+          <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#667eea;stop-opacity:0.1" />
+            <stop offset="50%" style="stop-color:#764ba2;stop-opacity:0.1" />
+            <stop offset="100%" style="stop-color:#667eea;stop-opacity:0.1" />
+          </linearGradient>
+        </defs>
+        <path d="M0,40 C300,100 600,20 900,60 C1050,80 1150,40 1200,60 L1200,120 L0,120 Z" 
+              class="wave-path-1"></path>
+        <path d="M0,60 C250,20 550,80 800,50 C1000,30 1100,70 1200,50 L1200,120 L0,120 Z" 
+              class="wave-path-2"></path>
       </svg>
     </div>
 
-    <div class="footer-content">
-      <!-- Sección izquierda: Copyright -->
-      <div class="footer-section copyright-section">
-        <div class="brand-text">
-          <span class="brand-icon">💪</span>
-          <p class="copyright-text">©2025 The Training Hub</p>
+    <div class="footer-container">
+      <!-- Contenido principal en grid -->
+      <div class="footer-grid">
+        <!-- Columna 1: Branding -->
+        <div class="footer-column brand-column">
+          <div class="brand-section">
+            <div class="logo-wrapper">
+              <div class="logo-glow-ring"></div>
+              <img src="../assets/imgs/Logo.png" alt="Logo" class="footer-logo" />
+            </div>
+            <h3 class="brand-name">The Training Hub</h3>
+            <p class="brand-tagline">🎮 Level Up Your Fitness Journey</p>
+            <p class="brand-description">
+              La plataforma gamificada definitiva para transformar tus entrenamientos en una aventura épica.
+            </p>
+          </div>
+
+          <!-- Stats badge -->
+          <div class="stats-badge">
+            <div class="stat-item">
+              <span class="stat-icon">👥</span>
+              <div class="stat-info">
+                <span class="stat-value">10K+</span>
+                <span class="stat-label">Usuarios</span>
+              </div>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">🏆</span>
+              <div class="stat-info">
+                <span class="stat-value">50K+</span>
+                <span class="stat-label">Retos</span>
+              </div>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">⚡</span>
+              <div class="stat-info">
+                <span class="stat-value">100K+</span>
+                <span class="stat-label">Check-ins</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <p class="tagline">Level Up Your Fitness Journey</p>
+
+        <!-- Columna 2: Quick Links -->
+        <div class="footer-column links-column">
+          <h4 class="column-title">
+            <span class="title-icon">🔗</span>
+            Enlaces Rápidos
+          </h4>
+          <ul class="footer-links">
+            <li><a href="#" class="footer-link">
+              <span class="link-icon">🏠</span>
+              <span class="link-text">Inicio</span>
+            </a></li>
+            <li><a href="#" class="footer-link">
+              <span class="link-icon">🎯</span>
+              <span class="link-text">Retos</span>
+            </a></li>
+            <li><a href="#" class="footer-link">
+              <span class="link-icon">👥</span>
+              <span class="link-text">Salas</span>
+            </a></li>
+            <li><a href="#" class="footer-link">
+              <span class="link-icon">📊</span>
+              <span class="link-text">Estadísticas</span>
+            </a></li>
+            <li><a href="#" class="footer-link">
+              <span class="link-icon">🏅</span>
+              <span class="link-text">Logros</span>
+            </a></li>
+          </ul>
+        </div>
+
+        <!-- Columna 3: Recursos -->
+        <div class="footer-column resources-column">
+          <h4 class="column-title">
+            <span class="title-icon">📚</span>
+            Recursos
+          </h4>
+          <ul class="footer-links">
+            <li><a href="#" class="footer-link">
+              <span class="link-icon">❓</span>
+              <span class="link-text">Centro de Ayuda</span>
+            </a></li>
+            <li><a href="#" class="footer-link">
+              <span class="link-icon">📖</span>
+              <span class="link-text">Guía de Usuario</span>
+            </a></li>
+            <li><a href="#" class="footer-link">
+              <span class="link-icon">💡</span>
+              <span class="link-text">Tips de Entrenamiento</span>
+            </a></li>
+            <li><a href="#" class="footer-link">
+              <span class="link-icon">🎓</span>
+              <span class="link-text">Tutoriales</span>
+            </a></li>
+            <li><a href="#" class="footer-link">
+              <span class="link-icon">📰</span>
+              <span class="link-text">Blog</span>
+            </a></li>
+          </ul>
+        </div>
+
+        <!-- Columna 4: Comunidad -->
+        <div class="footer-column community-column">
+          <h4 class="column-title">
+            <span class="title-icon">🌟</span>
+            Comunidad
+          </h4>
+          
+          <p class="social-intro">Únete a nuestra comunidad y conecta con miles de entrenadores</p>
+          
+          <div class="social-grid">
+            <a href="#" class="social-card twitter" aria-label="Twitter">
+              <div class="social-bg"></div>
+              <img src="../assets/imgs/twitter.png" alt="Twitter" class="social-icon" />
+              <span class="social-name">Twitter</span>
+            </a>
+            <a href="#" class="social-card facebook" aria-label="Facebook">
+              <div class="social-bg"></div>
+              <img src="../assets/imgs/facebook.png" alt="Facebook" class="social-icon" />
+              <span class="social-name">Facebook</span>
+            </a>
+            <a href="#" class="social-card instagram" aria-label="Instagram">
+              <div class="social-bg"></div>
+              <img src="../assets/imgs/instagram.png" alt="Instagram" class="social-icon" />
+              <span class="social-name">Instagram</span>
+            </a>
+            <a href="#" class="social-card tiktok" aria-label="TikTok">
+              <div class="social-bg"></div>
+              <img src="../assets/imgs/tik-tok.png" alt="TikTok" class="social-icon" />
+              <span class="social-name">TikTok</span>
+            </a>
+          </div>
+
+          <!-- Newsletter -->
+          <div class="newsletter-box">
+            <div class="newsletter-icon">📧</div>
+            <p class="newsletter-text">Recibe tips y actualizaciones</p>
+            <button class="newsletter-btn">Suscribirse</button>
+          </div>
+        </div>
       </div>
 
-      <!-- Sección central: Logo -->
-      <div class="footer-section logo-section">
-        <div class="logo-container">
-          <div class="logo-glow"></div>
-          <img src="../assets/imgs/Logo.png" alt="Logo" class="logo" />
-        </div>
+      <!-- Separador decorativo -->
+      <div class="footer-divider">
+        <div class="divider-line"></div>
+        <div class="divider-icon">💪</div>
+        <div class="divider-line"></div>
       </div>
 
-      <!-- Sección derecha: Redes sociales -->
-      <div class="footer-section social-section">
-        <p class="social-title">Join Our Community</p>
-        <div class="social">
-          <a href="#" class="social-link twitter" aria-label="Twitter">
-            <img src="../assets/imgs/twitter.png" alt="Twitter" class="rrss" />
-            <span class="social-hover-bg"></span>
-          </a>
-          <a href="#" class="social-link facebook" aria-label="Facebook">
-            <img src="../assets/imgs/facebook.png" alt="Facebook" class="rrss" />
-            <span class="social-hover-bg"></span>
-          </a>
-          <a href="#" class="social-link instagram" aria-label="Instagram">
-            <img src="../assets/imgs/instagram.png" alt="Instagram" class="rrss" />
-            <span class="social-hover-bg"></span>
-          </a>
-          <a href="#" class="social-link tiktok" aria-label="TikTok">
-            <img src="../assets/imgs/tik-tok.png" alt="TikTok" class="rrss" />
-            <span class="social-hover-bg"></span>
-          </a>
+      <!-- Footer Bottom -->
+      <div class="footer-bottom">
+        <div class="bottom-left">
+          <p class="copyright">© 2025 The Training Hub. All rights reserved.</p>
+          <p class="made-with">
+            Made with <span class="heart">❤️</span> by fitness enthusiasts
+          </p>
+        </div>
+
+        <div class="bottom-center">
+          <div class="badge-container">
+            <div class="achievement-badge">
+              <span class="badge-emoji">🎮</span>
+              <span class="badge-text">Gamified Platform</span>
+            </div>
+            <div class="achievement-badge">
+              <span class="badge-emoji">🔒</span>
+              <span class="badge-text">Secure & Safe</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-right">
+          <div class="legal-links">
+            <a href="#" class="legal-link">Privacy Policy</a>
+            <span class="dot">•</span>
+            <a href="#" class="legal-link">Terms of Service</a>
+            <span class="dot">•</span>
+            <a href="#" class="legal-link">Cookies</a>
+            <span class="dot">•</span>
+            <a href="#" class="legal-link">Contact</a>
+          </div>
         </div>
       </div>
-    </div>
-
-    <!-- Barra inferior con links adicionales -->
-    <div class="footer-bottom">
-      <div class="footer-links">
-        <a href="#" class="footer-link">Privacy Policy</a>
-        <span class="separator">|</span>
-        <a href="#" class="footer-link">Terms of Service</a>
-        <span class="separator">|</span>
-        <a href="#" class="footer-link">Contact Us</a>
-      </div>
-      <p class="made-with">Made with <span class="heart">❤️</span> for fitness lovers</p>
     </div>
   </footer>
 </template>
@@ -67,360 +218,666 @@
 <style scoped>
 .footer {
   position: relative;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
   color: white;
   padding-top: 0;
   overflow: hidden;
-  margin-top: 4rem;
+  margin-top: 5rem;
+  font-family: 'Patrick Hand', cursive;
 }
 
-/* Onda decorativa */
+/* Partículas flotantes */
+.particles-footer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: #ffc107;
+  border-radius: 50%;
+  opacity: 0;
+  animation: float-up linear infinite;
+  box-shadow: 0 0 8px #ffc107;
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(0) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-800px) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Ondas decorativas */
 .footer-wave {
   position: absolute;
   top: -1px;
   left: 0;
   width: 100%;
-  height: 60px;
+  height: 120px;
   overflow: hidden;
   line-height: 0;
+  z-index: 2;
 }
 
 .footer-wave svg {
   position: relative;
   display: block;
   width: calc(100% + 1.3px);
-  height: 60px;
+  height: 120px;
 }
 
-.wave-path {
-  fill: rgba(255, 255, 255, 0.95);
-  animation: waveAnimation 10s ease-in-out infinite;
+.wave-path-1 {
+  fill: rgba(255, 255, 255, 0.05);
+  animation: waveMove1 8s ease-in-out infinite;
 }
 
-@keyframes waveAnimation {
-  0%, 100% { d: path("M0,0 C150,80 350,0 600,50 C850,100 1050,20 1200,80 L1200,120 L0,120 Z"); }
-  50% { d: path("M0,20 C150,60 350,20 600,70 C850,80 1050,40 1200,60 L1200,120 L0,120 Z"); }
+.wave-path-2 {
+  fill: rgba(255, 255, 255, 0.03);
+  animation: waveMove2 12s ease-in-out infinite;
 }
 
-/* Contenido principal del footer */
-.footer-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 3rem 4rem 2rem;
+@keyframes waveMove1 {
+  0%, 100% {
+    d: path("M0,40 C300,100 600,20 900,60 C1050,80 1150,40 1200,60 L1200,120 L0,120 Z");
+  }
+  50% {
+    d: path("M0,60 C300,30 600,80 900,40 C1050,60 1150,70 1200,50 L1200,120 L0,120 Z");
+  }
+}
+
+@keyframes waveMove2 {
+  0%, 100% {
+    d: path("M0,60 C250,20 550,80 800,50 C1000,30 1100,70 1200,50 L1200,120 L0,120 Z");
+  }
+  50% {
+    d: path("M0,50 C250,90 550,30 800,70 C1000,50 1100,40 1200,60 L1200,120 L0,120 Z");
+  }
+}
+
+/* Container principal */
+.footer-container {
+  position: relative;
+  z-index: 3;
   max-width: 1400px;
   margin: 0 auto;
-  margin-top: 60px;
-  position: relative;
+  padding: 120px 3rem 2rem;
 }
 
-/* Secciones del footer */
-.footer-section {
-  flex: 1;
+/* Grid del footer */
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+  gap: 3rem;
+  margin-bottom: 3rem;
+}
+
+/* Columnas */
+.footer-column {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  gap: 1.5rem;
 }
 
-/* Sección de copyright */
-.copyright-section {
-  align-items: flex-start;
-}
-
-.brand-text {
+/* Columna de Branding */
+.brand-section {
   display: flex;
-  align-items: center;
-  gap: 0.8rem;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.logo-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
   margin-bottom: 0.5rem;
 }
 
-.brand-icon {
-  font-size: 2rem;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-}
-
-.copyright-text {
-  font-size: 1.5rem;
-  font-weight: 800;
-  margin: 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  letter-spacing: 0.5px;
-}
-
-.tagline {
-  font-size: 0.95rem;
-  font-weight: 500;
-  margin: 0;
-  opacity: 0.9;
-  font-style: italic;
-  margin-left: 3rem;
-}
-
-/* Logo central */
-.logo-section {
-  position: relative;
-}
-
-.logo-container {
-  position: relative;
-  width: 140px;
-  height: 140px;
-}
-
-.logo {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 10px 40px rgba(0, 0, 0, 0.3),
-    0 0 0 8px rgba(255, 255, 255, 0.1);
-  transition: transform 0.3s ease;
-  object-fit: cover;
-}
-
-.logo:hover {
-  transform: scale(1.05) rotate(5deg);
-}
-
-.logo-glow {
+.logo-glow-ring {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 160px;
-  height: 160px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent);
-  animation: logoGlow 3s ease-in-out infinite;
-  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 193, 7, 0.3), transparent);
+  animation: ringPulse 3s ease-in-out infinite;
 }
 
-@keyframes logoGlow {
-  0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-  50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
+@keyframes ringPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.8;
+  }
 }
 
-/* Redes sociales */
-.social-section {
-  align-items: flex-end;
+.footer-logo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 193, 7, 0.5);
+  box-shadow: 0 8px 32px rgba(255, 193, 7, 0.3);
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-.social-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
+.footer-logo:hover {
+  transform: rotate(10deg) scale(1.05);
+}
+
+.brand-name {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #ffc107;
+  margin: 0;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.social {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
+.brand-tagline {
+  font-size: 1.1rem;
+  color: #ccc;
+  margin: 0;
+  font-weight: 600;
 }
 
-.social-link {
-  position: relative;
+.brand-description {
+  font-size: 0.95rem;
+  color: #aaa;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Stats Badge */
+.stats-badge {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.stat-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 12px;
+  padding: 0.8rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  gap: 0.3rem;
   backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-.social-link:hover {
+.stat-item:hover {
   transform: translateY(-5px);
-  border-color: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 193, 7, 0.6);
+  background: rgba(255, 255, 255, 0.08);
 }
 
-.social-hover-bg {
+.stat-icon {
+  font-size: 1.5rem;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ffc107;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #ccc;
+}
+
+/* Títulos de columnas */
+.column-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.3rem;
+  color: #ffc107;
+  margin: 0 0 1rem 0;
+  font-weight: bold;
+}
+
+.title-icon {
+  font-size: 1.5rem;
+}
+
+/* Links */
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.footer-link {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: #ccc;
+  text-decoration: none;
+  font-size: 0.95rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.footer-link:hover {
+  color: #ffc107;
+  background: rgba(255, 193, 7, 0.1);
+  transform: translateX(8px);
+}
+
+.link-icon {
+  font-size: 1.1rem;
+}
+
+.link-text {
+  font-weight: 500;
+}
+
+/* Comunidad */
+.social-intro {
+  font-size: 0.9rem;
+  color: #aaa;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.social-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+}
+
+.social-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.social-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.social-bg {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  border-radius: 50%;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
-.social-link.twitter:hover .social-hover-bg {
+.social-card.twitter:hover .social-bg {
   background: linear-gradient(135deg, #1DA1F2, #0d8bd9);
-  opacity: 1;
+  opacity: 0.2;
 }
 
-.social-link.facebook:hover .social-hover-bg {
+.social-card.facebook:hover .social-bg {
   background: linear-gradient(135deg, #4267B2, #365899);
-  opacity: 1;
+  opacity: 0.2;
 }
 
-.social-link.instagram:hover .social-hover-bg {
+.social-card.instagram:hover .social-bg {
   background: linear-gradient(135deg, #E1306C, #C13584, #833AB4);
-  opacity: 1;
+  opacity: 0.2;
 }
 
-.social-link.tiktok:hover .social-hover-bg {
+.social-card.tiktok:hover .social-bg {
   background: linear-gradient(135deg, #000000, #fe2c55);
-  opacity: 1;
+  opacity: 0.2;
 }
 
-.rrss {
-  width: 28px;
-  height: 28px;
+.social-icon {
+  width: 32px;
+  height: 32px;
+  filter: brightness(0) invert(1);
   position: relative;
   z-index: 2;
-  filter: brightness(0) invert(1);
   transition: transform 0.3s ease;
 }
 
-.social-link:hover .rrss {
+.social-card:hover .social-icon {
   transform: scale(1.1);
 }
 
-/* Barra inferior */
-.footer-bottom {
-  background: rgba(0, 0, 0, 0.2);
-  padding: 1.5rem 4rem;
+.social-name {
+  font-size: 0.85rem;
+  color: white;
+  font-weight: 600;
+  position: relative;
+  z-index: 2;
+}
+
+/* Newsletter */
+.newsletter-box {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+  border: 2px solid rgba(102, 126, 234, 0.4);
+  border-radius: 16px;
+  padding: 1.2rem;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
+  gap: 0.8rem;
+  text-align: center;
   backdrop-filter: blur(10px);
+}
+
+.newsletter-icon {
+  font-size: 2rem;
+}
+
+.newsletter-text {
+  font-size: 0.9rem;
+  color: #ccc;
+  margin: 0;
+  font-weight: 600;
+}
+
+.newsletter-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Patrick Hand', cursive;
+}
+
+.newsletter-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Separador decorativo */
+.footer-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.divider-line {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 193, 7, 0.5), transparent);
+}
+
+.divider-icon {
+  font-size: 1.8rem;
+  filter: drop-shadow(0 0 8px rgba(255, 193, 7, 0.5));
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Footer Bottom */
+.footer-bottom {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem 0 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.footer-links {
+.bottom-left {
   display: flex;
-  gap: 1rem;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.footer-link {
-  color: white;
-  text-decoration: none;
+.copyright {
   font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  opacity: 0.9;
-}
-
-.footer-link:hover {
-  opacity: 1;
-  text-decoration: underline;
-  transform: translateY(-1px);
-}
-
-.separator {
-  opacity: 0.5;
-  font-size: 0.8rem;
+  color: #aaa;
+  margin: 0;
 }
 
 .made-with {
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 0.85rem;
+  color: #999;
   margin: 0;
-  opacity: 0.9;
 }
 
 .heart {
   color: #ff6b6b;
-  animation: heartbeat 1.5s ease-in-out infinite;
   display: inline-block;
+  animation: heartbeat 1.5s ease-in-out infinite;
 }
 
 @keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  10%, 30% { transform: scale(1.2); }
-  20%, 40% { transform: scale(1); }
+  0%, 100% {
+    transform: scale(1);
+  }
+  10%, 30% {
+    transform: scale(1.2);
+  }
+  20%, 40% {
+    transform: scale(1);
+  }
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-  .footer-content {
-    padding: 2.5rem 2rem 1.5rem;
+.bottom-center {
+  display: flex;
+  justify-content: center;
+}
+
+.badge-container {
+  display: flex;
+  gap: 1rem;
+}
+
+.achievement-badge {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.badge-emoji {
+  font-size: 1.1rem;
+}
+
+.badge-text {
+  font-size: 0.8rem;
+  color: #ffc107;
+  font-weight: 600;
+}
+
+.bottom-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.legal-links {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.legal-link {
+  color: #aaa;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.3s ease;
+}
+
+.legal-link:hover {
+  color: #ffc107;
+}
+
+.dot {
+  color: #666;
+  font-size: 0.7rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .footer-grid {
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 2rem;
   }
-  
-  .footer-bottom {
-    padding: 1.5rem 2rem;
+
+  .community-column {
+    grid-column: 1 / -1;
+  }
+
+  .social-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  .footer-content {
-    flex-direction: column;
-    gap: 2rem;
-    padding: 2rem 1.5rem;
+  .footer-container {
+    padding: 100px 2rem 2rem;
   }
-  
-  .footer-section {
-    align-items: center !important;
-    width: 100%;
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
   }
-  
-  .copyright-section {
+
+  .stats-badge {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .social-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .footer-bottom {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
     text-align: center;
   }
-  
-  .brand-text {
+
+  .bottom-left,
+  .bottom-right {
     justify-content: center;
   }
-  
-  .tagline {
-    margin-left: 0;
-    text-align: center;
+
+  .legal-links {
+    justify-content: center;
   }
-  
-  .social-section {
-    align-items: center !important;
-  }
-  
-  .footer-bottom {
+
+  .badge-container {
     flex-direction: column;
-    gap: 1rem;
-    padding: 1.5rem;
-    text-align: center;
+    width: 100%;
   }
-  
-  .footer-links {
-    flex-wrap: wrap;
+
+  .achievement-badge {
     justify-content: center;
   }
 }
 
 @media (max-width: 480px) {
-  .copyright-text {
+  .footer-container {
+    padding: 80px 1.5rem 1.5rem;
+  }
+
+  .footer-grid {
+    gap: 2rem;
+  }
+
+  .logo-wrapper {
+    width: 80px;
+    height: 80px;
+  }
+
+  .brand-name {
+    font-size: 1.5rem;
+  }
+
+  .brand-tagline {
+    font-size: 1rem;
+  }
+
+  .brand-description {
+    font-size: 0.9rem;
+  }
+
+  .stats-badge {
+    grid-template-columns: 1fr;
+  }
+
+  .social-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .column-title {
     font-size: 1.2rem;
   }
-  
-  .logo-container {
-    width: 100px;
-    height: 100px;
-  }
-  
-  .social-link {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .rrss {
-    width: 24px;
-    height: 24px;
-  }
-  
+
   .footer-link {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
+  }
+
+  .legal-links {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .dot {
+    display: none;
   }
 }
 </style>

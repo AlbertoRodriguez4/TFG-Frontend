@@ -7,107 +7,175 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
 <template>
   <v-app>
     <v-main class="main">
-      <v-container fluid class="fill-height d-flex flex-column pa-0">
+      <!-- Particles Background -->
+      <div class="particles-bg">
+        <div class="particle" v-for="i in 35" :key="i" :style="{ 
+          left: Math.random() * 100 + '%', 
+          animationDelay: Math.random() * 10 + 's',
+          animationDuration: (5 + Math.random() * 8) + 's'
+        }"></div>
+      </div>
+
+      <v-container fluid class="main-container">
         <!-- Hero Section -->
         <div class="hero-section">
-          <div class="hero-overlay"></div>
-          <div class="hero-content">
-            <!-- Animated Background Elements -->
-            <div class="floating-shapes">
-              <div class="shape shape-1"></div>
-              <div class="shape shape-2"></div>
-              <div class="shape shape-3"></div>
+          <div class="hero-glow"></div>
+          
+          <!-- Trophy Icon -->
+          <div class="trophy-container">
+            <div class="trophy-rings">
+              <div class="ring ring-1"></div>
+              <div class="ring ring-2"></div>
+              <div class="ring ring-3"></div>
+            </div>
+            <v-icon class="trophy-icon">mdi-trophy-variant</v-icon>
+          </div>
+
+          <!-- Title Section -->
+          <div class="hero-title-section">
+            <h1 class="hero-title">
+              <span class="title-top">DESBLOQUEA TU</span>
+              <span class="title-main">POTENCIAL</span>
+            </h1>
+            <p class="hero-subtitle">Elige el plan perfecto para alcanzar tus objetivos de fitness</p>
+          </div>
+
+          <!-- Divider -->
+          <div class="hero-divider">
+            <div class="divider-line"></div>
+            <v-icon class="divider-icon">mdi-fire</v-icon>
+            <div class="divider-line"></div>
+          </div>
+
+          <!-- Benefits Pills -->
+          <div class="benefits-grid">
+            <div class="benefit-card benefit-1">
+              <div class="benefit-icon-wrapper">
+                <v-icon size="32" color="#00ff88">mdi-lightning-bolt</v-icon>
+              </div>
+              <div class="benefit-content">
+                <div class="benefit-title">Activación Inmediata</div>
+                <div class="benefit-text">Acceso instantáneo al contenido</div>
+              </div>
             </div>
 
-            <!-- Title Section -->
-            <div class="title-container">
-              <div class="title-decoration">
-                <v-icon size="60" color="#ffcc00">mdi-trophy-variant</v-icon>
+            <div class="benefit-card benefit-2">
+              <div class="benefit-icon-wrapper">
+                <v-icon size="32" color="#00D2FF">mdi-account-group</v-icon>
               </div>
-              <h1 class="hero-title">Planes Premium</h1>
-              <p class="hero-subtitle">Impulsa tu entrenamiento al siguiente nivel</p>
-              
-              <!-- Benefits Banner -->
-              <div class="benefits-banner">
-                <div class="benefit-pill">
-                  <v-icon size="18" color="#00ff88">mdi-lightning-bolt</v-icon>
-                  <span>Acceso Inmediato</span>
-                </div>
-                <div class="benefit-pill">
-                  <v-icon size="18" color="#00d9ff">mdi-account-group</v-icon>
-                  <span>Comunidad Exclusiva</span>
-                </div>
-                <div class="benefit-pill">
-                  <v-icon size="18" color="#ff6b9d">mdi-chart-line</v-icon>
-                  <span>Tracking Avanzado</span>
-                </div>
+              <div class="benefit-content">
+                <div class="benefit-title">Comunidad Élite</div>
+                <div class="benefit-text">Entrena con los mejores</div>
               </div>
             </div>
 
-            <!-- Stats Counter -->
-            <div class="stats-counter">
-              <div class="stat-box">
-                <span class="stat-number">1000+</span>
-                <span class="stat-label">Miembros Activos</span>
+            <div class="benefit-card benefit-3">
+              <div class="benefit-icon-wrapper">
+                <v-icon size="32" color="#A855F7">mdi-chart-line-variant</v-icon>
               </div>
-              <div class="stat-divider"></div>
-              <div class="stat-box">
-                <span class="stat-number">98%</span>
-                <span class="stat-label">Satisfacción</span>
-              </div>
-              <div class="stat-divider"></div>
-              <div class="stat-box">
-                <span class="stat-number">24/7</span>
-                <span class="stat-label">Soporte</span>
+              <div class="benefit-content">
+                <div class="benefit-title">Progreso Detallado</div>
+                <div class="benefit-text">Analytics y estadísticas avanzadas</div>
               </div>
             </div>
           </div>
 
-          <!-- Scroll Indicator -->
-          <div class="scroll-indicator">
-            <v-icon size="32" color="#00ff88" class="bounce">mdi-chevron-down</v-icon>
+          <!-- Stats Banner -->
+          <div class="stats-banner">
+            <div class="stat-item">
+              <div class="stat-value">10K+</div>
+              <div class="stat-label">Atletas Activos</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+              <div class="stat-value">98%</div>
+              <div class="stat-label">Satisfacción</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+              <div class="stat-value">24/7</div>
+              <div class="stat-label">Soporte Premium</div>
+            </div>
           </div>
         </div>
 
         <!-- Plans Section -->
         <div class="plans-section">
+          <div class="section-header">
+            <h2 class="section-title">NUESTROS PLANES</h2>
+            <p class="section-subtitle">Selecciona el que mejor se adapte a ti</p>
+          </div>
           <PlanRender />
         </div>
 
-        <!-- CTA Section -->
-        <div class="cta-section">
-          <div class="cta-content">
-            <h2 class="cta-title">¿No estás seguro qué plan elegir?</h2>
-            <p class="cta-text">Nuestro equipo puede ayudarte a encontrar el plan perfecto para tus objetivos</p>
+        <!-- FAQ/Help Section -->
+        <div class="help-section">
+          <div class="help-card">
+            <div class="help-icon">
+              <v-icon size="48" color="#FFD700">mdi-chat-question</v-icon>
+            </div>
+            <h3 class="help-title">¿Necesitas ayuda para decidir?</h3>
+            <p class="help-text">Nuestro equipo de expertos está listo para asesorarte y ayudarte a encontrar el plan perfecto según tus objetivos</p>
             <v-btn
-              size="x-large"
-              class="cta-button"
-              elevation="0"
+              size="large"
+              class="help-btn"
             >
-              <v-icon class="mr-2">mdi-chat</v-icon>
-              Hablar con un Asesor
+              <v-icon class="mr-2">mdi-headset</v-icon>
+              CONTACTAR ASESOR
             </v-btn>
           </div>
         </div>
 
         <!-- Trust Badges -->
         <div class="trust-section">
-          <div class="trust-badge">
-            <v-icon size="32" color="#00ff88">mdi-shield-check</v-icon>
-            <span>Pago Seguro</span>
+          <div class="trust-badge badge-1">
+            <div class="badge-icon">
+              <v-icon size="36" color="#00ff88">mdi-shield-check</v-icon>
+            </div>
+            <div class="badge-text">
+              <div class="badge-title">Pago 100% Seguro</div>
+              <div class="badge-subtitle">Encriptación SSL</div>
+            </div>
           </div>
-          <div class="trust-badge">
-            <v-icon size="32" color="#00d9ff">mdi-lock</v-icon>
-            <span>Datos Protegidos</span>
+
+          <div class="trust-badge badge-2">
+            <div class="badge-icon">
+              <v-icon size="36" color="#00D2FF">mdi-lock-check</v-icon>
+            </div>
+            <div class="badge-text">
+              <div class="badge-title">Datos Protegidos</div>
+              <div class="badge-subtitle">Privacidad garantizada</div>
+            </div>
           </div>
-          <div class="trust-badge">
-            <v-icon size="32" color="#ffcc00">mdi-clock-fast</v-icon>
-            <span>Activación Instantánea</span>
+
+          <div class="trust-badge badge-3">
+            <div class="badge-icon">
+              <v-icon size="36" color="#FFD700">mdi-flash</v-icon>
+            </div>
+            <div class="badge-text">
+              <div class="badge-title">Acceso Instantáneo</div>
+              <div class="badge-subtitle">Sin esperas</div>
+            </div>
           </div>
-          <div class="trust-badge">
-            <v-icon size="32" color="#ff6b9d">mdi-cancel</v-icon>
-            <span>Cancela Cuando Quieras</span>
+
+          <div class="trust-badge badge-4">
+            <div class="badge-icon">
+              <v-icon size="36" color="#FF6B9D">mdi-calendar-remove</v-icon>
+            </div>
+            <div class="badge-text">
+              <div class="badge-title">Cancela Cuando Quieras</div>
+              <div class="badge-subtitle">Sin compromisos</div>
+            </div>
           </div>
+        </div>
+
+        <!-- Money Back Guarantee -->
+        <div class="guarantee-section">
+          <div class="guarantee-badge">
+            <v-icon size="64" color="#FFD700">mdi-shield-star</v-icon>
+          </div>
+          <h3 class="guarantee-title">Garantía de 30 Días</h3>
+          <p class="guarantee-text">Si no estás completamente satisfecho, te devolvemos tu dinero. Sin preguntas.</p>
         </div>
       </v-container>
     </v-main>
@@ -115,405 +183,614 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
 </template>
 
 <style scoped>
+/* Main Container */
 .main {
-  background: linear-gradient(180deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
-  min-height: 100vh;
   position: relative;
+  min-height: 100vh;
+  background: 
+    radial-gradient(ellipse at top, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+    linear-gradient(180deg, #0a0e1a 0%, #0f1419 50%, #0a0e1a 100%);
   overflow-x: hidden;
+}
+
+/* Particles */
+.particles-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(255, 215, 0, 0.5);
+  border-radius: 50%;
+  animation: particle-rise linear infinite;
+}
+
+@keyframes particle-rise {
+  0% {
+    transform: translateY(100vh) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) scale(1);
+    opacity: 0;
+  }
+}
+
+.main-container {
+  position: relative;
+  z-index: 1;
+  padding: 3rem 2rem;
 }
 
 /* Hero Section */
 .hero-section {
   position: relative;
-  min-height: 600px;
-  width: 100%;
-  background-image: url('../assets/imgs/gimansio-fondo.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+  text-align: center;
+  padding: 3rem 0 4rem;
+  margin-bottom: 4rem;
 }
 
-.hero-overlay {
+.hero-glow {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.5) 0%,
-    rgba(10, 10, 10, 0.85) 70%,
-    rgba(10, 10, 10, 1) 100%
-  );
-  backdrop-filter: blur(3px);
-}
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  max-width: 1200px;
-  padding: 4rem 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3rem;
-}
-
-/* Floating Shapes */
-.floating-shapes {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1000px;
+  height: 1000px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
   pointer-events: none;
 }
 
-.shape {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(60px);
-  opacity: 0.15;
-  animation: float 20s infinite ease-in-out;
+/* Trophy Container */
+.trophy-container {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 2rem;
 }
 
-.shape-1 {
-  width: 300px;
-  height: 300px;
-  background: #00ff88;
-  top: 10%;
-  left: 10%;
+.trophy-rings {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+}
+
+.ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 3px solid rgba(255, 215, 0, 0.3);
+  border-radius: 50%;
+  animation: ring-expand 4s ease-out infinite;
+}
+
+.ring-1 {
+  width: 100px;
+  height: 100px;
   animation-delay: 0s;
 }
 
-.shape-2 {
-  width: 400px;
-  height: 400px;
-  background: #00d9ff;
-  top: 50%;
-  right: 10%;
-  animation-delay: -7s;
+.ring-2 {
+  width: 100px;
+  height: 100px;
+  animation-delay: 1.3s;
 }
 
-.shape-3 {
-  width: 250px;
-  height: 250px;
-  background: #ffcc00;
-  bottom: 20%;
-  left: 50%;
-  animation-delay: -14s;
+.ring-3 {
+  width: 100px;
+  height: 100px;
+  animation-delay: 2.6s;
 }
 
-@keyframes float {
+@keyframes ring-expand {
+  0% {
+    width: 100px;
+    height: 100px;
+    opacity: 1;
+  }
+  100% {
+    width: 280px;
+    height: 280px;
+    opacity: 0;
+  }
+}
+
+.trophy-icon {
+  font-size: 5rem !important;
+  color: #FFD700;
+  filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.8));
+  animation: trophy-float 3s ease-in-out infinite;
+}
+
+@keyframes trophy-float {
   0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-  33% {
-    transform: translate(30px, -30px) scale(1.1);
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.9);
-  }
-}
-
-/* Title Container */
-.title-container {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  max-width: 900px;
-}
-
-.title-decoration {
-  display: inline-flex;
-  padding: 1.5rem;
-  background: rgba(255, 204, 0, 0.1);
-  border-radius: 50%;
-  border: 3px solid rgba(255, 204, 0, 0.3);
-  animation: pulse 3s ease-in-out infinite;
-  box-shadow: 0 0 40px rgba(255, 204, 0, 0.3);
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.7);
+    transform: translateY(0) rotate(-5deg);
+    filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.8));
   }
   50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 20px rgba(255, 204, 0, 0);
+    transform: translateY(-15px) rotate(5deg);
+    filter: drop-shadow(0 0 60px rgba(255, 215, 0, 1));
   }
+}
+
+/* Hero Title */
+.hero-title-section {
+  margin-bottom: 2.5rem;
 }
 
 .hero-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+
+.title-top {
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 8px;
+  text-transform: uppercase;
+}
+
+.title-main {
   font-size: clamp(3rem, 8vw, 5.5rem);
   font-weight: 900;
-  background: linear-gradient(135deg, #ffcc00 0%, #ff6b9d 50%, #00d9ff 100%);
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FFD700 100%);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin: 0;
-  letter-spacing: -0.02em;
+  letter-spacing: 4px;
   text-transform: uppercase;
-  text-shadow: 0 0 80px rgba(255, 204, 0, 0.5);
-  animation: titleGlow 4s ease-in-out infinite;
+  animation: gradient-shift 4s ease infinite;
 }
 
-@keyframes titleGlow {
+@keyframes gradient-shift {
   0%, 100% {
-    filter: brightness(1);
+    background-position: 0% center;
   }
   50% {
-    filter: brightness(1.3);
+    background-position: 100% center;
   }
 }
 
 .hero-subtitle {
-  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
-  color: rgba(255, 255, 255, 0.8);
-  font-weight: 300;
-  letter-spacing: 0.05em;
-  margin: 0;
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 400;
+  letter-spacing: 1px;
+  max-width: 700px;
+  margin: 0 auto;
 }
 
-/* Benefits Banner */
-.benefits-banner {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 1rem;
-}
-
-.benefit-pill {
+/* Hero Divider */
+.hero-divider {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 50px;
-  color: #fff;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  animation: slideUp 0.6s ease-out backwards;
+  justify-content: center;
+  gap: 1.5rem;
+  max-width: 600px;
+  margin: 0 auto 3rem;
 }
 
-.benefit-pill:nth-child(1) {
+.divider-line {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.5), transparent);
+}
+
+.divider-icon {
+  color: #FF6B35;
+  font-size: 2rem !important;
+  animation: fire-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes fire-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.2);
+  }
+}
+
+/* Benefits Grid */
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto 3rem;
+}
+
+.benefit-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: linear-gradient(135deg, rgba(20, 30, 48, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  border: 2px solid;
+  border-radius: 20px;
+  padding: 1.75rem;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: benefit-entrance 0.6s ease-out backwards;
+}
+
+.benefit-1 {
+  border-color: rgba(0, 255, 136, 0.3);
+  animation-delay: 0.1s;
+}
+
+.benefit-2 {
+  border-color: rgba(0, 210, 255, 0.3);
   animation-delay: 0.2s;
 }
 
-.benefit-pill:nth-child(2) {
-  animation-delay: 0.4s;
+.benefit-3 {
+  border-color: rgba(168, 85, 247, 0.3);
+  animation-delay: 0.3s;
 }
 
-.benefit-pill:nth-child(3) {
-  animation-delay: 0.6s;
+@keyframes benefit-entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-.benefit-pill:hover {
-  transform: translateY(-3px);
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.3);
+.benefit-card:hover {
+  transform: translateY(-8px) scale(1.02);
 }
 
-@keyframes slideUp {
-  from {
+.benefit-1:hover {
+  border-color: rgba(0, 255, 136, 0.6);
+  box-shadow: 0 15px 40px rgba(0, 255, 136, 0.3);
+}
+
+.benefit-2:hover {
+  border-color: rgba(0, 210, 255, 0.6);
+  box-shadow: 0 15px 40px rgba(0, 210, 255, 0.3);
+}
+
+.benefit-3:hover {
+  border-color: rgba(168, 85, 247, 0.6);
+  box-shadow: 0 15px 40px rgba(168, 85, 247, 0.3);
+}
+
+.benefit-icon-wrapper {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.benefit-content {
+  flex: 1;
+  text-align: left;
+}
+
+.benefit-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 0.25rem;
+}
+
+.benefit-text {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Stats Banner */
+.stats-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  background: linear-gradient(135deg, rgba(20, 30, 48, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 100px;
+  padding: 2rem 3rem;
+  max-width: 800px;
+  margin: 0 auto;
+  box-shadow: 0 10px 40px rgba(255, 215, 0, 0.2);
+  animation: fadeIn 0.8s ease-out 0.4s backwards;
+}
+
+@keyframes fadeIn {
+  0% {
     opacity: 0;
     transform: translateY(20px);
   }
-  to {
+  100% {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* Stats Counter */
-.stats-counter {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(20px);
-  padding: 2rem 3rem;
-  border-radius: 100px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  animation: fadeIn 0.8s ease-out 0.8s backwards;
-}
-
-.stat-box {
+.stat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
 }
 
-.stat-number {
-  font-size: 2rem;
+.stat-value {
+  font-size: 2.5rem;
   font-weight: 900;
-  background: linear-gradient(135deg, #00ff88, #00d9ff);
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  line-height: 1;
 }
 
 .stat-label {
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 1px;
   font-weight: 600;
 }
 
 .stat-divider {
-  width: 1px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* Scroll Indicator */
-.scroll-indicator {
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 3;
-}
-
-.bounce {
-  animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-20px);
-  }
-  60% {
-    transform: translateY(-10px);
-  }
+  width: 2px;
+  height: 50px;
+  background: linear-gradient(180deg, transparent, rgba(255, 215, 0, 0.3), transparent);
 }
 
 /* Plans Section */
 .plans-section {
-  position: relative;
-  z-index: 3;
-  margin-top: -80px;
-  padding: 0 2rem 4rem;
+  margin-bottom: 4rem;
 }
 
-/* CTA Section */
-.cta-section {
-  padding: 4rem 2rem;
-  background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 217, 255, 0.1));
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.section-header {
+  text-align: center;
+  margin-bottom: 3rem;
 }
 
-.cta-content {
+.section-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  color: white;
+  letter-spacing: 3px;
+  margin: 0 0 0.75rem;
+  text-transform: uppercase;
+}
+
+.section-subtitle {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+/* Help Section */
+.help-section {
+  margin-bottom: 4rem;
+  padding: 0 1rem;
+}
+
+.help-card {
   max-width: 700px;
   margin: 0 auto;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 165, 0, 0.1) 100%);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 24px;
+  padding: 3rem 2rem;
   text-align: center;
-}
-
-.cta-title {
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
-  font-weight: 800;
-  color: #fff;
-  margin: 0 0 1rem 0;
-}
-
-.cta-text {
-  font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0 0 2rem 0;
-  line-height: 1.6;
-}
-
-.cta-button {
-  background: linear-gradient(135deg, #00ff88, #00d9ff) !important;
-  color: #000 !important;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 1.5rem 3rem !important;
-  border-radius: 50px !important;
-  box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
   transition: all 0.3s ease;
 }
 
-.cta-button:hover {
+.help-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(0, 255, 136, 0.6);
+  box-shadow: 0 20px 60px rgba(255, 215, 0, 0.3);
+}
+
+.help-icon {
+  margin-bottom: 1.5rem;
+}
+
+.help-title {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: white;
+  margin: 0 0 1rem;
+}
+
+.help-text {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  margin: 0 0 2rem;
+}
+
+.help-btn {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%) !important;
+  color: #000 !important;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 1.5rem 2.5rem !important;
+  border-radius: 50px !important;
+  box-shadow: 0 8px 30px rgba(255, 215, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.help-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 40px rgba(255, 215, 0, 0.6);
 }
 
 /* Trust Section */
 .trust-section {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2rem;
-  padding: 3rem 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0 auto 4rem;
+  padding: 0 1rem;
 }
 
 .trust-badge {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1.25rem;
+  background: linear-gradient(135deg, rgba(20, 30, 48, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  min-width: 180px;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: badge-entrance 0.6s ease-out backwards;
+}
+
+.badge-1 { animation-delay: 0.1s; }
+.badge-2 { animation-delay: 0.2s; }
+.badge-3 { animation-delay: 0.3s; }
+.badge-4 { animation-delay: 0.4s; }
+
+@keyframes badge-entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .trust-badge:hover {
-  background: rgba(255, 255, 255, 0.06);
-  transform: translateY(-5px);
-  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-8px);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
 }
 
-.trust-badge span {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
-  font-weight: 600;
+.badge-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.badge-text {
+  flex: 1;
+}
+
+.badge-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 0.25rem;
+}
+
+.badge-subtitle {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Guarantee Section */
+.guarantee-section {
   text-align: center;
+  background: linear-gradient(135deg, rgba(20, 30, 48, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 24px;
+  padding: 3rem 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 10px 40px rgba(255, 215, 0, 0.2);
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
+.guarantee-badge {
+  margin-bottom: 1.5rem;
+}
+
+.guarantee-title {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #FFD700;
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.guarantee-text {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .benefits-grid {
+    grid-template-columns: 1fr;
+    max-width: 600px;
   }
 }
 
-/* Responsive */
 @media (max-width: 960px) {
-  .hero-section {
-    min-height: 500px;
+  .main-container {
+    padding: 2rem 1.5rem;
   }
 
-  .stats-counter {
+  .hero-section {
+    padding: 2rem 0 3rem;
+    margin-bottom: 3rem;
+  }
+
+  .trophy-icon {
+    font-size: 4rem !important;
+  }
+
+  .title-top {
+    font-size: 1.1rem;
+    letter-spacing: 6px;
+  }
+
+  .title-main {
+    font-size: 2.5rem;
+    letter-spacing: 2px;
+  }
+
+  .stats-banner {
     flex-direction: column;
     gap: 1.5rem;
     padding: 2rem;
@@ -522,51 +799,106 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
 
   .stat-divider {
     width: 80%;
-    height: 1px;
-  }
-
-  .benefits-banner {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .benefit-pill {
-    justify-content: center;
-  }
-
-  .plans-section {
-    margin-top: -40px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent);
   }
 
   .trust-section {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
-  }
-
-  .trust-badge {
-    min-width: 150px;
-    padding: 1rem;
   }
 }
 
 @media (max-width: 600px) {
-  .hero-content {
-    padding: 2rem 1rem;
+  .main-container {
+    padding: 1.5rem 1rem;
   }
 
-  .title-decoration {
-    padding: 1rem;
+  .trophy-icon {
+    font-size: 3.5rem !important;
   }
 
-  .title-decoration v-icon {
-    font-size: 40px !important;
+  .title-top {
+    font-size: 1rem;
+    letter-spacing: 4px;
   }
 
-  .cta-section {
-    padding: 2rem 1rem;
+  .title-main {
+    font-size: 2rem;
   }
 
-  .cta-button {
+  .hero-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .benefit-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem;
+  }
+
+  .benefit-content {
+    text-align: center;
+  }
+
+  .stats-banner {
+    padding: 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+  }
+
+  .help-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .help-title {
+    font-size: 1.5rem;
+  }
+
+  .help-text {
+    font-size: 0.95rem;
+  }
+
+  .help-btn {
     width: 100%;
+    padding: 1.25rem 2rem !important;
+  }
+
+  .trust-section {
+    grid-template-columns: 1fr;
+  }
+
+  .trust-badge {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .badge-text {
+    text-align: center;
+  }
+
+  .guarantee-section {
+    padding: 2rem 1.5rem;
+  }
+
+  .guarantee-title {
+    font-size: 1.5rem;
+  }
+
+  .guarantee-text {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .title-main {
+    font-size: 1.8rem;
+  }
+
+  .section-title {
+    font-size: 1.6rem;
   }
 }
 </style>

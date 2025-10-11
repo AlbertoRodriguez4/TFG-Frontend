@@ -60,6 +60,10 @@ const toggleMobileMenu = () => {
           <i class="nav-icon">👥</i>
           <span>{{ $t('users') }}</span>
         </RouterLink>
+        <RouterLink to="/rutina" class="nav-link" :class="{ disabled: !isLogged }">
+          <v-icon class="nav-icon">mdi-calendar</v-icon>
+          <span>{{ $t('routines') }}</span>
+        </RouterLink>
       </nav>
 
       <!-- Actions Section -->

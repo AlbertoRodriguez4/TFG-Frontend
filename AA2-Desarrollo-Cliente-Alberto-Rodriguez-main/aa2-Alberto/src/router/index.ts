@@ -10,6 +10,7 @@ import UserView from '@/views/UserView.vue'
 import RoomView from '@/views/RoomView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import LoginView from '@/views/LoginView.vue'
+import RutinaView from '@/views/RutinaView.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -59,7 +60,12 @@ const routes: RouteRecordRaw[] = [
     name: 'login',
     component: LoginView,
     meta: { requiresGuest: true },
-  },
+  }, 
+  {
+    path: '/rutina',
+    name: 'rutina',
+    component: RutinaView,
+  }
 ]
 
 const router = createRouter({
