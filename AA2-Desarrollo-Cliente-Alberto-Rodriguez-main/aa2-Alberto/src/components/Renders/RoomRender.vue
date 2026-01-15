@@ -91,6 +91,7 @@ const goToRoom = (room: any) => {
         name: 'sala',
         params: { id: room.id },
         query: {
+            id: room.id,
             name: room.name,
             minlevel: room.minlevel,
             minstats: room.minstats,

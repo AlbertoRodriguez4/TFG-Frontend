@@ -3,50 +3,70 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
 import { useRoomStore } from '@/stores/RoomStore'
+import { useUserRoomStore } from '@/stores/UsersRoomStore'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const roomStore = useRoomStore()
+const userRoomStore = useUserRoomStore()
 
 const loggedUser = ref(userStore.loggedUser)
 const showJoinPopup = ref(false)
-const isJoined = ref(false)
 const isLoading = ref(true)
 
 // Datos de la sala
 const roomData = ref({
-  id: Number(route.params.id),
+id: Number(route.query.id || route.params.id),
   name: route.query.name as string || '',
   minlevel: Number(route.query.minlevel) || 0,
   minstats: Number(route.query.minstats) || 0,
   minconsistency: Number(route.query.minconsistency) || 0
 })
 
-// Usuarios en la sala (simulación - reemplazar con datos reales del backend)
-const roomUsers = ref([
-  { id: 1, username: 'Usuario1', level: 25, stats: 1200, avatar: '👤', status: 'online' },
-  { id: 2, username: 'Usuario2', level: 30, stats: 1500, avatar: '🦸', status: 'online' },
-  { id: 3, username: 'Usuario3', level: 22, stats: 1100, avatar: '🧑', status: 'training' },
-  { id: 4, username: 'Usuario4', level: 28, stats: 1350, avatar: '👨', status: 'offline' }
-])
-
-onMounted(async () => {
-  // Aquí deberías hacer una petición al backend para obtener los datos actualizados de la sala
-  // y los usuarios que están dentro
-  setTimeout(() => {
-    isLoading.value = false
-  }, 500)
-  
-  // Verificar si el usuario ya está en la sala
-  checkIfUserIsInRoom()
+// Computed para verificar si el usuario está en la sala
+const isJoined = computed(() => {
+  if (!loggedUser.value?.name) return false
+  return userRoomStore.isMemberInRoom(loggedUser.value.name)
 })
 
-const checkIfUserIsInRoom = () => {
-  // Aquí deberías verificar en el backend si el usuario ya está en la sala
-  // Por ahora simulamos que no está
-  isJoined.value = false
+// Computed para obtener los usuarios de la sala formateados
+const roomUsers = computed(() => {
+  return userRoomStore.currentRoomMembers.map(member => ({
+    id: member.name, // Usando name como id único
+    username: member.name,
+    level: member.level,
+    stats: member.strength + member.endurance, // Suma de stats como total
+    strength: member.strength,
+    endurance: member.endurance,
+    experience: member.experience,
+    consistency: member.consistencyStreak,
+    avatar: getRandomAvatar(),
+    status: 'online' // Por defecto online, puedes implementar lógica de estado real
+  }))
+})
+
+// Función para obtener avatares aleatorios
+const getRandomAvatar = () => {
+  const avatars = ['👤', '🦸', '🧑', '👨', '👩', '🧔', '👱', '🧑‍🦰']
+  return avatars[Math.floor(Math.random() * avatars.length)]
 }
+
+onMounted(async () => {
+  try {
+    // Cargar los miembros de la sala desde el backend
+    await userRoomStore.fetchMembersByRoomId(roomData.value.id)
+    
+    // Verificar si el usuario actual está en la sala
+    if (loggedUser.value?.id) {
+      await userRoomStore.fetchRoomsByUserId(loggedUser.value.id)
+    }
+  } catch (error) {
+    console.error('Error al cargar la información de la sala:', error)
+  } finally {
+    isLoading.value = false
+  }
+})
 
 const getRoomDifficulty = (level: number) => {
   if (level >= 50) return 'legendary'
@@ -84,14 +104,16 @@ const canJoinRoom = computed(() => {
   if (!loggedUser.value) return false
   
   const userLevel = loggedUser.value.level || 0
-  const userStats = loggedUser.value.stats || 0
+  const userStats = (loggedUser.value.strength || 0) + (loggedUser.value.endurance || 0)
+  const userConsistency = loggedUser.value.consistencyStreak || 0
   
   return userLevel >= roomData.value.minlevel && 
-         userStats >= roomData.value.minstats
+         userStats >= roomData.value.minstats &&
+         userConsistency >= roomData.value.minconsistency
 })
 
 const openJoinPopup = () => {
-  if (canJoinRoom.value) {
+  if (canJoinRoom.value && !isJoined.value) {
     showJoinPopup.value = true
   }
 }
@@ -101,29 +123,48 @@ const closeJoinPopup = () => {
 }
 
 const confirmJoinRoom = async () => {
+  if (!loggedUser.value?.id) {
+    console.error('No hay usuario logueado')
+    return
+  }
+
   try {
-    // Aquí deberías hacer la petición al backend para unirte a la sala
-    // await roomStore.joinRoom(roomData.value.id, loggedUser.value?.id)
+    await userRoomStore.joinRoom(loggedUser.value.id, roomData.value.id)
     
-    isJoined.value = true
+    // Recargar los miembros de la sala
+    await userRoomStore.fetchMembersByRoomId(roomData.value.id)
+    
     showJoinPopup.value = false
     
     // Opcional: mostrar notificación de éxito
     console.log('Te has unido a la sala correctamente')
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error al unirse a la sala:', error)
+    alert(error.message || 'No se pudo unir a la sala')
   }
 }
 
 const leaveRoom = async () => {
+  if (!loggedUser.value?.id) {
+    console.error('No hay usuario logueado')
+    return
+  }
+
+  // Confirmación antes de salir
+  if (!confirm('¿Estás seguro de que quieres salir de esta sala?')) {
+    return
+  }
+
   try {
-    // Aquí deberías hacer la petición al backend para salir de la sala
-    // await roomStore.leaveRoom(roomData.value.id, loggedUser.value?.id)
+    await userRoomStore.leaveRoom(loggedUser.value.id, roomData.value.id)
     
-    isJoined.value = false
-    console.log('Has salido de la sala')
-  } catch (error) {
+    // Recargar los miembros de la sala
+    await userRoomStore.fetchMembersByRoomId(roomData.value.id)
+    
+    console.log('Has salido de la sala correctamente')
+  } catch (error: any) {
     console.error('Error al salir de la sala:', error)
+    alert(error.message || 'No se pudo salir de la sala')
   }
 }
 
@@ -142,7 +183,7 @@ const goBack = () => {
       </button>
     </div>
 
-    <div v-if="isLoading" class="loading-container">
+    <div v-if="isLoading || userRoomStore.loading" class="loading-container">
       <div class="loading-spinner"></div>
       <p>Cargando sala...</p>
     </div>
@@ -194,7 +235,7 @@ const goBack = () => {
 
         <!-- Botón de unirse/salir -->
         <div class="join-section">
-          <div v-if="!canJoinRoom" class="requirements-warning">
+          <div v-if="!canJoinRoom && !isJoined" class="requirements-warning">
             <span class="warning-icon">⚠️</span>
             <span>No cumples los requisitos mínimos para unirte a esta sala</span>
           </div>
@@ -228,10 +269,15 @@ const goBack = () => {
             <span class="users-icon">👥</span>
             <span>Usuarios en la sala</span>
           </h2>
-          <div class="users-count-badge">{{ roomUsers.length }}</div>
+          <div class="users-count-badge">{{ userRoomStore.memberCount }}</div>
         </div>
 
-        <div class="users-grid">
+        <div v-if="roomUsers.length === 0" class="empty-users">
+          <div class="empty-icon">👤</div>
+          <p>No hay usuarios en esta sala todavía</p>
+        </div>
+
+        <div v-else class="users-grid">
           <div 
             v-for="user in roomUsers" 
             :key="user.id"
@@ -262,9 +308,25 @@ const goBack = () => {
                 <span class="stat-value">{{ user.level }}</span>
               </div>
               <div class="user-stat">
-                <span class="stat-label">Stats</span>
-                <span class="stat-value">{{ user.stats }}</span>
+                <span class="stat-label">Experiencia</span>
+                <span class="stat-value">{{ user.experience }}</span>
               </div>
+            </div>
+
+            <div class="user-stats-row">
+              <div class="user-stat">
+                <span class="stat-label">💪 Fuerza</span>
+                <span class="stat-value">{{ user.strength }}</span>
+              </div>
+              <div class="user-stat">
+                <span class="stat-label">🏃 Resistencia</span>
+                <span class="stat-value">{{ user.endurance }}</span>
+              </div>
+            </div>
+
+            <div class="user-consistency">
+              <span class="consistency-label">🎯 Racha de consistencia</span>
+              <span class="consistency-value">{{ user.consistency }} días</span>
             </div>
           </div>
         </div>
@@ -303,8 +365,13 @@ const goBack = () => {
             <button @click="closeJoinPopup" class="popup-btn cancel-btn">
               <span>Cancelar</span>
             </button>
-            <button @click="confirmJoinRoom" class="popup-btn confirm-btn">
-              <span>Acepto y me uno</span>
+            <button 
+              @click="confirmJoinRoom" 
+              class="popup-btn confirm-btn"
+              :disabled="userRoomStore.loading"
+            >
+              <span v-if="!userRoomStore.loading">Acepto y me uno</span>
+              <span v-else>Uniéndose...</span>
             </button>
           </div>
         </div>
@@ -400,6 +467,11 @@ const goBack = () => {
   height: 200%;
   background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
   animation: glow-pulse 3s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 
 .room-info-header {
@@ -623,6 +695,21 @@ const goBack = () => {
   font-size: 1.1rem;
 }
 
+.empty-users {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+  color: #94a3b8;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  opacity: 0.5;
+}
+
 .users-grid {
   display: grid;
   gap: 1.25rem;
@@ -696,6 +783,7 @@ const goBack = () => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .user-stat {
@@ -717,6 +805,28 @@ const goBack = () => {
   font-size: 1.25rem;
   font-weight: 700;
   color: #f8fafc;
+}
+
+.user-consistency {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 10px;
+}
+
+.consistency-label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.consistency-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #3b82f6;
 }
 
 /* Popup Styles */
