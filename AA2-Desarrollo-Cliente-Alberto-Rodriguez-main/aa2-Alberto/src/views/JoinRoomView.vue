@@ -1,0 +1,893 @@
+<script setup lang="ts">
+import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/userStore'
+import { useRoomStore } from '@/stores/RoomStore'
+
+const route = useRoute()
+const router = useRouter()
+const userStore = useUserStore()
+const roomStore = useRoomStore()
+
+const loggedUser = ref(userStore.loggedUser)
+const showJoinPopup = ref(false)
+const isJoined = ref(false)
+const isLoading = ref(true)
+
+// Datos de la sala
+const roomData = ref({
+  id: Number(route.params.id),
+  name: route.query.name as string || '',
+  minlevel: Number(route.query.minlevel) || 0,
+  minstats: Number(route.query.minstats) || 0,
+  minconsistency: Number(route.query.minconsistency) || 0
+})
+
+// Usuarios en la sala (simulación - reemplazar con datos reales del backend)
+const roomUsers = ref([
+  { id: 1, username: 'Usuario1', level: 25, stats: 1200, avatar: '👤', status: 'online' },
+  { id: 2, username: 'Usuario2', level: 30, stats: 1500, avatar: '🦸', status: 'online' },
+  { id: 3, username: 'Usuario3', level: 22, stats: 1100, avatar: '🧑', status: 'training' },
+  { id: 4, username: 'Usuario4', level: 28, stats: 1350, avatar: '👨', status: 'offline' }
+])
+
+onMounted(async () => {
+  // Aquí deberías hacer una petición al backend para obtener los datos actualizados de la sala
+  // y los usuarios que están dentro
+  setTimeout(() => {
+    isLoading.value = false
+  }, 500)
+  
+  // Verificar si el usuario ya está en la sala
+  checkIfUserIsInRoom()
+})
+
+const checkIfUserIsInRoom = () => {
+  // Aquí deberías verificar en el backend si el usuario ya está en la sala
+  // Por ahora simulamos que no está
+  isJoined.value = false
+}
+
+const getRoomDifficulty = (level: number) => {
+  if (level >= 50) return 'legendary'
+  if (level >= 30) return 'epic'
+  if (level >= 15) return 'rare'
+  return 'common'
+}
+
+const getRoomIcon = (level: number) => {
+  if (level >= 50) return '👑'
+  if (level >= 30) return '🔥'
+  if (level >= 15) return '⚡'
+  return '🏋️'
+}
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'online': return '#22c55e'
+    case 'training': return '#f59e0b'
+    case 'offline': return '#6b7280'
+    default: return '#6b7280'
+  }
+}
+
+const getStatusText = (status: string) => {
+  switch (status) {
+    case 'online': return 'En línea'
+    case 'training': return 'Entrenando'
+    case 'offline': return 'Desconectado'
+    default: return 'Desconocido'
+  }
+}
+
+const canJoinRoom = computed(() => {
+  if (!loggedUser.value) return false
+  
+  const userLevel = loggedUser.value.level || 0
+  const userStats = loggedUser.value.stats || 0
+  
+  return userLevel >= roomData.value.minlevel && 
+         userStats >= roomData.value.minstats
+})
+
+const openJoinPopup = () => {
+  if (canJoinRoom.value) {
+    showJoinPopup.value = true
+  }
+}
+
+const closeJoinPopup = () => {
+  showJoinPopup.value = false
+}
+
+const confirmJoinRoom = async () => {
+  try {
+    // Aquí deberías hacer la petición al backend para unirte a la sala
+    // await roomStore.joinRoom(roomData.value.id, loggedUser.value?.id)
+    
+    isJoined.value = true
+    showJoinPopup.value = false
+    
+    // Opcional: mostrar notificación de éxito
+    console.log('Te has unido a la sala correctamente')
+  } catch (error) {
+    console.error('Error al unirse a la sala:', error)
+  }
+}
+
+const leaveRoom = async () => {
+  try {
+    // Aquí deberías hacer la petición al backend para salir de la sala
+    // await roomStore.leaveRoom(roomData.value.id, loggedUser.value?.id)
+    
+    isJoined.value = false
+    console.log('Has salido de la sala')
+  } catch (error) {
+    console.error('Error al salir de la sala:', error)
+  }
+}
+
+const goBack = () => {
+  router.push('/room')
+}
+</script>
+
+<template>
+  <div class="room-view-wrapper">
+    <!-- Header con botón volver -->
+    <div class="view-header">
+      <button @click="goBack" class="back-btn">
+        <span class="back-icon">←</span>
+        <span>Volver a salas</span>
+      </button>
+    </div>
+
+    <div v-if="isLoading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Cargando sala...</p>
+    </div>
+
+    <div v-else class="room-view-container">
+      <!-- Información de la Sala -->
+      <div class="room-info-card" :class="`difficulty-${getRoomDifficulty(roomData.minlevel)}`">
+        <div class="info-card-glow"></div>
+        
+        <div class="room-info-header">
+          <div class="room-main-avatar">
+            <div class="main-avatar-icon">{{ getRoomIcon(roomData.minlevel) }}</div>
+            <div class="main-avatar-ring"></div>
+          </div>
+          
+          <div class="room-title-section">
+            <h1 class="room-title">{{ roomData.name }}</h1>
+            <div class="difficulty-badge-large" :class="`badge-${getRoomDifficulty(roomData.minlevel)}`">
+              {{ getRoomDifficulty(roomData.minlevel).toUpperCase() }}
+            </div>
+          </div>
+        </div>
+
+        <div class="room-requirements-grid">
+          <div class="requirement-card">
+            <div class="req-card-icon">📊</div>
+            <div class="req-card-content">
+              <span class="req-card-label">Nivel Mínimo</span>
+              <span class="req-card-value">{{ roomData.minlevel }}</span>
+            </div>
+          </div>
+
+          <div class="requirement-card">
+            <div class="req-card-icon">💪</div>
+            <div class="req-card-content">
+              <span class="req-card-label">Stats Mínimas</span>
+              <span class="req-card-value">{{ roomData.minstats }}</span>
+            </div>
+          </div>
+
+          <div class="requirement-card">
+            <div class="req-card-icon">🎯</div>
+            <div class="req-card-content">
+              <span class="req-card-label">Consistencia</span>
+              <span class="req-card-value">{{ roomData.minconsistency }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón de unirse/salir -->
+        <div class="join-section">
+          <div v-if="!canJoinRoom" class="requirements-warning">
+            <span class="warning-icon">⚠️</span>
+            <span>No cumples los requisitos mínimos para unirte a esta sala</span>
+          </div>
+          
+          <button 
+            v-if="!isJoined"
+            @click="openJoinPopup" 
+            class="main-join-btn"
+            :disabled="!canJoinRoom"
+            :class="{ disabled: !canJoinRoom }"
+          >
+            <span class="btn-icon">🚀</span>
+            <span>Unirse a la Sala</span>
+          </button>
+
+          <button 
+            v-else
+            @click="leaveRoom" 
+            class="leave-btn"
+          >
+            <span class="btn-icon">🚪</span>
+            <span>Salir de la Sala</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Usuarios en la Sala -->
+      <div class="users-section">
+        <div class="users-header">
+          <h2 class="users-title">
+            <span class="users-icon">👥</span>
+            <span>Usuarios en la sala</span>
+          </h2>
+          <div class="users-count-badge">{{ roomUsers.length }}</div>
+        </div>
+
+        <div class="users-grid">
+          <div 
+            v-for="user in roomUsers" 
+            :key="user.id"
+            class="user-card"
+          >
+            <div class="user-card-header">
+              <div class="user-avatar">
+                <span class="user-avatar-icon">{{ user.avatar }}</span>
+                <div 
+                  class="user-status-dot" 
+                  :style="{ backgroundColor: getStatusColor(user.status) }"
+                ></div>
+              </div>
+              <div class="user-info">
+                <h3 class="user-name">{{ user.username }}</h3>
+                <span 
+                  class="user-status-text"
+                  :style="{ color: getStatusColor(user.status) }"
+                >
+                  {{ getStatusText(user.status) }}
+                </span>
+              </div>
+            </div>
+
+            <div class="user-stats-row">
+              <div class="user-stat">
+                <span class="stat-label">Nivel</span>
+                <span class="stat-value">{{ user.level }}</span>
+              </div>
+              <div class="user-stat">
+                <span class="stat-label">Stats</span>
+                <span class="stat-value">{{ user.stats }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popup de Confirmación -->
+    <Transition name="popup">
+      <div v-if="showJoinPopup" class="popup-overlay" @click="closeJoinPopup">
+        <div class="popup-content" @click.stop>
+          <div class="popup-icon-container">
+            <div class="popup-icon">⚠️</div>
+          </div>
+          
+          <h2 class="popup-title">Código de Conducta</h2>
+          
+          <div class="popup-body">
+            <p class="popup-text">
+              Al unirte a esta sala de entrenamiento, aceptas cumplir con las siguientes normas:
+            </p>
+            
+            <ul class="rules-list">
+              <li>🤝 Respetar a todos los miembros de la sala</li>
+              <li>💬 Mantener un lenguaje apropiado y constructivo</li>
+              <li>🎯 Enfocarte en el entrenamiento y la mejora</li>
+              <li>🚫 No hacer spam ni contenido inapropiado</li>
+              <li>⚖️ Aceptar las consecuencias por incumplimiento</li>
+            </ul>
+
+            <p class="popup-warning">
+              El incumplimiento de estas normas puede resultar en la expulsión de la sala o sanciones adicionales.
+            </p>
+          </div>
+
+          <div class="popup-actions">
+            <button @click="closeJoinPopup" class="popup-btn cancel-btn">
+              <span>Cancelar</span>
+            </button>
+            <button @click="confirmJoinRoom" class="popup-btn confirm-btn">
+              <span>Acepto y me uno</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </div>
+</template>
+
+<style scoped>
+.room-view-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  padding: 2rem;
+}
+
+.view-header {
+  max-width: 1400px;
+  margin: 0 auto 2rem;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #e2e8f0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateX(-4px);
+}
+
+.back-icon {
+  font-size: 1.2rem;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 1rem;
+  color: #e2e8f0;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.room-view-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+/* Room Info Card */
+.room-info-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border-radius: 24px;
+  padding: 2.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  height: fit-content;
+}
+
+.info-card-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.room-info-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.room-main-avatar {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-avatar-icon {
+  font-size: 3.5rem;
+  z-index: 2;
+  position: relative;
+}
+
+.main-avatar-ring {
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  border: 3px solid rgba(59, 130, 246, 0.3);
+  animation: ring-rotate 3s linear infinite;
+}
+
+@keyframes ring-rotate {
+  to { transform: rotate(360deg); }
+}
+
+.room-title-section {
+  flex: 1;
+}
+
+.room-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 0.75rem;
+}
+
+.difficulty-badge-large {
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.badge-common {
+  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+  color: #f1f5f9;
+}
+
+.badge-rare {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: #f0f9ff;
+}
+
+.badge-epic {
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+  color: #faf5ff;
+}
+
+.badge-legendary {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #fffbeb;
+}
+
+.room-requirements-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.requirement-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.requirement-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.req-card-icon {
+  font-size: 2rem;
+}
+
+.req-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.req-card-label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.req-card-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.join-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.requirements-warning {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  color: #fca5a5;
+  font-size: 0.9rem;
+}
+
+.warning-icon {
+  font-size: 1.5rem;
+}
+
+.main-join-btn,
+.leave-btn {
+  width: 100%;
+  padding: 1.25rem;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.main-join-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+
+.main-join-btn:hover:not(.disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+}
+
+.main-join-btn.disabled {
+  background: rgba(100, 116, 139, 0.5);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.leave-btn {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.leave-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+}
+
+/* Users Section */
+.users-section {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border-radius: 24px;
+  padding: 2.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.users-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.users-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.users-icon {
+  font-size: 2rem;
+}
+
+.users-count-badge {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.users-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.user-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.user-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateX(4px);
+}
+
+.user-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.user-avatar {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-avatar-icon {
+  font-size: 2rem;
+}
+
+.user-status-dot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid #1e293b;
+}
+
+.user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.user-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.user-status-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.user-stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.user-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+/* Popup Styles */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.popup-content {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 24px;
+  padding: 2.5rem;
+  max-width: 550px;
+  width: 100%;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+.popup-icon-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.popup-icon {
+  font-size: 4rem;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.popup-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #f8fafc;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.popup-body {
+  margin-bottom: 2rem;
+}
+
+.popup-text {
+  color: #cbd5e1;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.rules-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.rules-list li {
+  color: #e2e8f0;
+  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border-left: 4px solid #3b82f6;
+}
+
+.popup-warning {
+  color: #fca5a5;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+}
+
+.popup-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.popup-btn {
+  padding: 1rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.confirm-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+
+.confirm-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+}
+
+/* Transitions */
+.popup-enter-active,
+.popup-leave-active {
+  transition: all 0.3s ease;
+}
+
+.popup-enter-from,
+.popup-leave-to {
+  opacity: 0;
+}
+
+.popup-enter-from .popup-content,
+.popup-leave-to .popup-content {
+  transform: scale(0.9) translateY(20px);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .room-view-container {
+    grid-template-columns: 1fr;
+  }
+
+  .room-requirements-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .room-view-wrapper {
+    padding: 1rem;
+  }
+
+  .room-info-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .room-title {
+    font-size: 1.75rem;
+  }
+
+  .room-requirements-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .popup-actions {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

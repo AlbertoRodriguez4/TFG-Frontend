@@ -566,12 +566,236 @@ const getItemColor = (type: string) => {
   margin-top: auto;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: all 0.3s ease;
+  letter-spacing: 1.2px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px !important;
+  height: auto !important;
+  min-height: 52px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-.buy-btn:not(:disabled):hover {
-  transform: scale(1.02);
+/* Contenedor interno del botón */
+.btn-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.75rem 1.25rem;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.btn-icon {
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.btn-text {
+  font-size: clamp(0.85rem, 1.5vw, 0.95rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Estado: Puede comprar */
+.btn-can-afford {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%) !important;
+  color: #1a1a1a !important;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-can-afford::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.btn-can-afford:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 
+    0 8px 25px rgba(255, 215, 0, 0.5),
+    0 0 30px rgba(255, 215, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.btn-can-afford:hover::before {
+  opacity: 1;
+}
+
+.btn-can-afford:hover .btn-icon {
+  transform: scale(1.15) rotate(5deg);
+  animation: cartBounce 0.6s ease;
+}
+
+.btn-can-afford:active {
+  transform: translateY(-1px) scale(0.98);
+  box-shadow: 
+    0 4px 15px rgba(255, 215, 0, 0.4),
+    0 0 20px rgba(255, 215, 0, 0.2);
+}
+
+/* Efecto de brillo animado */
+.btn-shine {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  animation: shine 3s ease-in-out infinite;
+}
+
+@keyframes shine {
+  0%, 100% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  50% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
+}
+
+@keyframes cartBounce {
+  0%, 100% {
+    transform: scale(1.15) rotate(5deg) translateY(0);
+  }
+  50% {
+    transform: scale(1.15) rotate(5deg) translateY(-5px);
+  }
+}
+
+/* Estado: Oro insuficiente */
+.btn-insufficient {
+  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%) !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  cursor: not-allowed;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-insufficient::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(0, 0, 0, 0.1) 10px,
+    rgba(0, 0, 0, 0.1) 20px
+  );
+  pointer-events: none;
+}
+
+.btn-insufficient .btn-icon {
+  opacity: 0.6;
+  animation: shake 2s ease-in-out infinite;
+}
+
+.btn-insufficient .btn-text {
+  opacity: 0.7;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .buy-btn {
+    min-height: 48px !important;
+  }
+
+  .btn-content {
+    gap: 0.5rem;
+    padding: 0.65rem 1rem;
+  }
+
+  .btn-icon {
+    font-size: 18px !important;
+  }
+
+  .btn-text {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .buy-btn {
+    min-height: 44px !important;
+    letter-spacing: 0.8px;
+  }
+
+  .btn-content {
+    gap: 0.4rem;
+    padding: 0.6rem 0.85rem;
+  }
+
+  .btn-text {
+    font-size: 0.8rem;
+  }
+}
+
+/* Mejoras para dispositivos táctiles */
+@media (hover: none) and (pointer: coarse) {
+  .buy-btn {
+    min-height: 52px !important;
+  }
+
+  .btn-can-afford:active {
+    transform: scale(0.97);
+  }
+}
+
+/* Animación de entrada */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.buy-btn {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+/* Estados de focus para accesibilidad */
+.buy-btn:focus-visible {
+  outline: 3px solid rgba(255, 215, 0, 0.5);
+  outline-offset: 2px;
+}
+
+.btn-insufficient:focus-visible {
+  outline-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Estilos del diálogo */

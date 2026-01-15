@@ -11,6 +11,7 @@ import RoomView from '@/views/RoomView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RutinaView from '@/views/RutinaView.vue'
+import JoinRoomView from '@/views/JoinRoomView.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -65,6 +66,12 @@ const routes: RouteRecordRaw[] = [
     path: '/rutina',
     name: 'rutina',
     component: RutinaView,
+  },
+  {
+    path: '/sala',
+    name: 'sala',
+    component: JoinRoomView,
+    meta: { requiresAuth: true },
   }
 ]
 

@@ -91,18 +91,24 @@ async function createRoom() {
 <template>
   <v-dialog 
     v-model="dialogVisible" 
-    max-width="600" 
+    max-width="680" 
     persistent
     transition="dialog-bottom-transition"
+    :fullscreen="$vuetify.display.mobile"
+    scrollable
   >
     <v-card class="create-room-card">
       <!-- Header con gradiente -->
       <div class="card-header">
-        <div class="header-icon">
-          <v-icon size="40" color="#00ff88">mdi-plus-circle</v-icon>
+        <div class="header-content">
+          <div class="header-icon">
+            <v-icon size="large" color="#00ff88">mdi-plus-circle</v-icon>
+          </div>
+          <div class="header-text">
+            <h2 class="card-title">{{ $t('crear') }}</h2>
+            <p class="card-subtitle">Configura tu nueva sala de entrenamiento</p>
+          </div>
         </div>
-        <h2 class="card-title">{{ $t('crear') }}</h2>
-        <p class="card-subtitle">Configura tu nueva sala de entrenamiento</p>
         
         <v-btn
           icon
@@ -110,30 +116,32 @@ async function createRoom() {
           @click="closePopup"
           size="small"
         >
-          <v-icon>mdi-close</v-icon>
+          <v-icon size="20">mdi-close</v-icon>
         </v-btn>
       </div>
 
       <v-card-text class="card-content">
         <v-form @submit.prevent="createRoom" ref="formRef">
           <!-- Error Alert -->
-          <v-alert 
-            v-if="error" 
-            type="error" 
-            class="error-alert mb-6"
-            closable
-            @click:close="error = ''"
-          >
-            <div class="d-flex align-center">
-              <v-icon class="mr-2">mdi-alert-circle</v-icon>
-              {{ error }}
-            </div>
-          </v-alert>
+          <transition name="slide-fade">
+            <v-alert 
+              v-if="error" 
+              type="error" 
+              class="error-alert"
+              closable
+              @click:close="error = ''"
+            >
+              <div class="d-flex align-center">
+                <v-icon class="mr-2" size="20">mdi-alert-circle</v-icon>
+                <span class="error-text">{{ error }}</span>
+              </div>
+            </v-alert>
+          </transition>
 
           <!-- Room Name -->
           <div class="form-field">
             <label class="field-label">
-              <v-icon size="20" class="mr-2">mdi-door-open</v-icon>
+              <v-icon size="18" class="label-icon">mdi-door-open</v-icon>
               {{ $t('nombre de la sala') }}
             </label>
             <v-text-field
@@ -144,9 +152,10 @@ async function createRoom() {
               density="comfortable"
               class="custom-field"
               bg-color="rgba(255, 255, 255, 0.05)"
+              hide-details
             >
               <template v-slot:prepend-inner>
-                <v-icon color="#00ff88">mdi-format-text</v-icon>
+                <v-icon color="#00ff88" size="20">mdi-format-text</v-icon>
               </template>
             </v-text-field>
           </div>
@@ -154,7 +163,7 @@ async function createRoom() {
           <!-- Requirements Section -->
           <div class="requirements-section">
             <div class="section-header">
-              <v-icon color="#ffcc00" class="mr-2">mdi-shield-lock</v-icon>
+              <v-icon color="#ffcc00" size="20">mdi-shield-lock</v-icon>
               <span class="section-title">Requisitos de Acceso</span>
             </div>
 
@@ -162,7 +171,7 @@ async function createRoom() {
               <!-- Min Level -->
               <div class="form-field">
                 <label class="field-label">
-                  <v-icon size="18" class="mr-1">mdi-chevron-triple-up</v-icon>
+                  <v-icon size="16" class="label-icon">mdi-chevron-triple-up</v-icon>
                   {{ $t('nivel minimo') }}
                 </label>
                 <v-text-field
@@ -174,9 +183,10 @@ async function createRoom() {
                   density="comfortable"
                   class="custom-field"
                   bg-color="rgba(255, 255, 255, 0.05)"
+                  hide-details
                 >
                   <template v-slot:prepend-inner>
-                    <v-icon color="#00d9ff">mdi-numeric</v-icon>
+                    <v-icon color="#00d9ff" size="20">mdi-numeric</v-icon>
                   </template>
                 </v-text-field>
               </div>
@@ -184,7 +194,7 @@ async function createRoom() {
               <!-- Min Stats -->
               <div class="form-field">
                 <label class="field-label">
-                  <v-icon size="18" class="mr-1">mdi-chart-line</v-icon>
+                  <v-icon size="16" class="label-icon">mdi-chart-line</v-icon>
                   {{ $t('Stats Minimas') }}
                 </label>
                 <v-text-field
@@ -196,9 +206,10 @@ async function createRoom() {
                   density="comfortable"
                   class="custom-field"
                   bg-color="rgba(255, 255, 255, 0.05)"
+                  hide-details
                 >
                   <template v-slot:prepend-inner>
-                    <v-icon color="#ff6b9d">mdi-numeric</v-icon>
+                    <v-icon color="#ff6b9d" size="20">mdi-numeric</v-icon>
                   </template>
                 </v-text-field>
               </div>
@@ -206,7 +217,7 @@ async function createRoom() {
               <!-- Min Consistency -->
               <div class="form-field full-width">
                 <label class="field-label">
-                  <v-icon size="18" class="mr-1">mdi-calendar-check</v-icon>
+                  <v-icon size="16" class="label-icon">mdi-calendar-check</v-icon>
                   Consistencia Mínima
                 </label>
                 <v-text-field
@@ -217,9 +228,10 @@ async function createRoom() {
                   density="comfortable"
                   class="custom-field"
                   bg-color="rgba(255, 255, 255, 0.05)"
+                  hide-details
                 >
                   <template v-slot:prepend-inner>
-                    <v-icon color="#ffcc00">mdi-numeric</v-icon>
+                    <v-icon color="#ffcc00" size="20">mdi-numeric</v-icon>
                   </template>
                 </v-text-field>
               </div>
@@ -235,19 +247,19 @@ async function createRoom() {
           @click="closePopup"
           variant="outlined"
           size="large"
-          class="cancel-button"
+          class="action-btn cancel-button"
         >
-          <v-icon class="mr-2">mdi-close-circle</v-icon>
-          {{ $t('cancelar') }}
+          <v-icon class="btn-icon">mdi-close-circle</v-icon>
+          <span class="btn-text">{{ $t('cancelar') }}</span>
         </v-btn>
         
         <v-btn
           @click="createRoom"
           size="large"
-          class="create-button"
+          class="action-btn create-button"
         >
-          <v-icon class="mr-2">mdi-check-circle</v-icon>
-          {{ $t('creacion') }}
+          <v-icon class="btn-icon">mdi-check-circle</v-icon>
+          <span class="btn-text">{{ $t('creacion') }}</span>
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -255,6 +267,7 @@ async function createRoom() {
 </template>
 
 <style scoped>
+/* Base Card */
 .create-room-card {
   background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%) !important;
   border: 1px solid rgba(0, 255, 136, 0.2);
@@ -263,64 +276,75 @@ async function createRoom() {
   box-shadow: 
     0 20px 60px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  animation: fadeIn 0.3s ease-out;
 }
 
 /* Header */
 .card-header {
   position: relative;
-  padding: 2.5rem 2rem 2rem;
+  padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1.25rem, 4vw, 2rem) clamp(1.25rem, 3vw, 2rem);
   background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 217, 255, 0.1) 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: center;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 1.25rem);
 }
 
 .header-icon {
-  display: inline-flex;
-  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(3rem, 10vw, 4.5rem);
+  height: clamp(3rem, 10vw, 4.5rem);
   background: rgba(0, 255, 136, 0.1);
   border-radius: 50%;
-  margin-bottom: 1rem;
   border: 2px solid rgba(0, 255, 136, 0.3);
+  flex-shrink: 0;
   animation: iconPulse 2s ease-in-out infinite;
 }
 
-@keyframes iconPulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.5);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 10px rgba(0, 255, 136, 0);
-  }
+.header-icon .v-icon {
+  font-size: clamp(1.5rem, 5vw, 2.5rem) !important;
+}
+
+.header-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .card-title {
-  font-size: 2rem;
+  font-size: clamp(1.25rem, 4vw, 2rem);
   font-weight: 800;
   background: linear-gradient(135deg, #00ff88 0%, #00d9ff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 clamp(0.25rem, 1vw, 0.5rem) 0;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  line-height: 1.2;
 }
 
 .card-subtitle {
   color: rgba(255, 255, 255, 0.6);
-  font-size: 0.95rem;
+  font-size: clamp(0.8rem, 2vw, 0.95rem);
   margin: 0;
   font-weight: 300;
+  line-height: 1.4;
 }
 
 .close-btn {
   position: absolute !important;
-  top: 1rem;
-  right: 1rem;
+  top: clamp(0.75rem, 2vw, 1rem);
+  right: clamp(0.75rem, 2vw, 1rem);
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
+  width: clamp(2rem, 5vw, 2.5rem) !important;
+  height: clamp(2rem, 5vw, 2.5rem) !important;
 }
 
 .close-btn:hover {
@@ -331,7 +355,7 @@ async function createRoom() {
 
 /* Content */
 .card-content {
-  padding: 2rem !important;
+  padding: clamp(1.25rem, 4vw, 2rem) !important;
 }
 
 /* Error Alert */
@@ -339,35 +363,45 @@ async function createRoom() {
   border-left: 4px solid #ff6b9d !important;
   background: rgba(255, 107, 157, 0.1) !important;
   border-radius: 12px !important;
-  animation: shake 0.5s ease;
+  margin-bottom: clamp(1rem, 3vw, 1.5rem);
 }
 
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-10px); }
-  75% { transform: translateX(10px); }
+.error-text {
+  font-size: clamp(0.8rem, 2vw, 0.9rem);
+  line-height: 1.4;
 }
 
 /* Form Fields */
 .form-field {
-  margin-bottom: 1.5rem;
+  margin-bottom: clamp(1rem, 3vw, 1.5rem);
 }
 
 .field-label {
   display: flex;
   align-items: center;
+  gap: 0.35rem;
   color: rgba(255, 255, 255, 0.9);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: clamp(0.75rem, 2vw, 0.9rem);
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.label-icon {
+  flex-shrink: 0;
 }
 
 .custom-field :deep(.v-field) {
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
+  font-size: clamp(0.875rem, 2vw, 1rem);
+}
+
+.custom-field :deep(.v-field__input) {
+  padding: clamp(0.5rem, 2vw, 0.75rem) clamp(0.75rem, 2vw, 1rem);
+  min-height: clamp(2.5rem, 8vw, 3.5rem);
 }
 
 .custom-field :deep(.v-field:hover) {
@@ -390,33 +424,39 @@ async function createRoom() {
   display: none;
 }
 
+.custom-field :deep(.v-field__prepend-inner) {
+  padding-right: clamp(0.5rem, 1.5vw, 0.75rem);
+}
+
 /* Requirements Section */
 .requirements-section {
   background: rgba(255, 204, 0, 0.05);
   border: 1px solid rgba(255, 204, 0, 0.2);
   border-radius: 16px;
-  padding: 1.5rem;
-  margin-top: 1.5rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  margin-top: clamp(1rem, 3vw, 1.5rem);
 }
 
 .section-header {
   display: flex;
   align-items: center;
-  margin-bottom: 1.5rem;
+  gap: 0.5rem;
+  margin-bottom: clamp(1rem, 3vw, 1.5rem);
 }
 
 .section-title {
-  font-size: 1rem;
+  font-size: clamp(0.85rem, 2vw, 1rem);
   font-weight: 700;
   color: #ffcc00;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  line-height: 1.2;
 }
 
 .requirements-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: clamp(0.75rem, 2vw, 1rem);
 }
 
 .requirements-grid .full-width {
@@ -425,20 +465,39 @@ async function createRoom() {
 
 /* Action Buttons */
 .card-actions {
-  padding: 1.5rem 2rem !important;
-  gap: 1rem;
+  padding: clamp(1rem, 3vw, 1.5rem) clamp(1.25rem, 4vw, 2rem) !important;
+  gap: clamp(0.75rem, 2vw, 1rem);
   background: rgba(0, 0, 0, 0.3);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-wrap: wrap;
 }
 
-.cancel-button {
-  flex: 1;
-  border: 2px solid rgba(255, 255, 255, 0.2) !important;
-  color: rgba(255, 255, 255, 0.8) !important;
+.action-btn {
+  flex: 1 1 auto;
+  min-width: min(100%, 140px);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   transition: all 0.3s ease;
+  font-size: clamp(0.8rem, 2vw, 0.9rem) !important;
+  padding: clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem) !important;
+  height: auto !important;
+}
+
+.btn-icon {
+  font-size: clamp(1rem, 3vw, 1.25rem) !important;
+  margin-right: clamp(0.35rem, 1vw, 0.5rem);
+}
+
+.btn-text {
+  font-size: clamp(0.8rem, 2vw, 0.9rem);
+  white-space: nowrap;
+}
+
+.cancel-button {
+  border: 2px solid rgba(255, 255, 255, 0.2) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
 }
 
 .cancel-button:hover {
@@ -448,14 +507,10 @@ async function createRoom() {
 }
 
 .create-button {
-  flex: 1;
   background: linear-gradient(135deg, #00ff88 0%, #00d9ff 100%) !important;
   color: #000 !important;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   box-shadow: 0 4px 20px rgba(0, 255, 136, 0.4);
-  transition: all 0.3s ease;
 }
 
 .create-button:hover {
@@ -467,40 +522,11 @@ async function createRoom() {
   transform: translateY(0);
 }
 
-/* Responsive */
-@media (max-width: 600px) {
-  .card-header {
-    padding: 2rem 1.5rem 1.5rem;
-  }
-
-  .card-title {
-    font-size: 1.5rem;
-  }
-
-  .card-content {
-    padding: 1.5rem !important;
-  }
-
-  .requirements-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .card-actions {
-    flex-direction: column;
-    padding: 1rem 1.5rem !important;
-  }
-
-  .cancel-button,
-  .create-button {
-    width: 100%;
-  }
-}
-
 /* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
@@ -508,7 +534,146 @@ async function createRoom() {
   }
 }
 
-.create-room-card {
-  animation: fadeIn 0.3s ease-out;
+@keyframes iconPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.5);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(0, 255, 136, 0);
+  }
+}
+
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.slide-fade-enter-from {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+
+.slide-fade-leave-to {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+
+/* Breakpoints específicos */
+
+/* Tablets pequeñas y móviles grandes (landscape) */
+@media (max-width: 768px) {
+  .requirements-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .header-content {
+    flex-direction: row;
+  }
+}
+
+/* Móviles */
+@media (max-width: 600px) {
+  .card-actions {
+    flex-direction: column;
+  }
+
+  .action-btn {
+    width: 100%;
+    min-width: 100%;
+  }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 360px) {
+  .card-title {
+    font-size: 1.1rem;
+  }
+  
+  .card-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .header-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .header-icon .v-icon {
+    font-size: 1.25rem !important;
+  }
+}
+
+/* Pantallas muy grandes */
+@media (min-width: 1920px) {
+  .create-room-card {
+    max-width: 720px;
+  }
+}
+
+/* Modo fullscreen (móviles) */
+@media (max-width: 600px) {
+  .v-dialog--fullscreen .create-room-card {
+    border-radius: 0 !important;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .v-dialog--fullscreen .card-content {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .v-dialog--fullscreen .card-actions {
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%);
+    backdrop-filter: blur(10px);
+  }
+}
+
+/* Mejoras de accesibilidad y touch */
+@media (hover: none) and (pointer: coarse) {
+  .custom-field :deep(.v-field__input) {
+    min-height: 3rem;
+  }
+
+  .action-btn {
+    min-height: 3rem;
+  }
+
+  .close-btn {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+  }
+}
+
+/* Orientación landscape en móviles */
+@media (max-height: 500px) and (orientation: landscape) {
+  .card-header {
+    padding: 1rem 1.5rem;
+  }
+
+  .card-content {
+    padding: 1rem !important;
+  }
+
+  .form-field {
+    margin-bottom: 0.75rem;
+  }
+
+  .requirements-section {
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+
+  .section-header {
+    margin-bottom: 1rem;
+  }
 }
 </style>

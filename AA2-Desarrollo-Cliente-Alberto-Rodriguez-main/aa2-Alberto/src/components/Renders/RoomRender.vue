@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRoomStore } from '@/stores/RoomStore'
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import CreateRoomPopup from '../PopUps/RoomPopup.vue'
 import { useUserStore } from '@/stores/userStore'
 import EditRoomPopup from '../PopUps/EditRoomPopup.vue'
@@ -8,6 +9,7 @@ import type { Room } from '../Models/Room'
 
 const store = useRoomStore()
 const userStore = useUserStore()
+const router = useRouter()
 const loggedUser = ref(userStore.loggedUser)
 
 const sortField = ref<'level' | 'stats' | null>(null)
@@ -81,6 +83,20 @@ const getRoomIcon = (level: number) => {
     if (level >= 30) return '🔥'
     if (level >= 15) return '⚡'
     return '🏋️'
+}
+
+// Nueva función para navegar a la sala
+const goToRoom = (room: any) => {
+    router.push({
+        name: 'sala',
+        params: { id: room.id },
+        query: {
+            name: room.name,
+            minlevel: room.minlevel,
+            minstats: room.minstats,
+            minconsistency: room.minconsistency
+        }
+    })
 }
 </script>
 
@@ -213,7 +229,7 @@ const getRoomIcon = (level: number) => {
               <span class="btn-icon">✏️</span>
               <span>{{ $t('editar') || 'Editar' }}</span>
             </button>
-            <button class="join-btn">
+            <button class="join-btn" @click="goToRoom(room)">
               <span class="btn-icon">🚀</span>
               <span>{{ $t('unirse') || 'Unirse' }}</span>
             </button>

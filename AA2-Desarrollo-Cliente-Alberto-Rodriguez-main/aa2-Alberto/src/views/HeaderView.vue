@@ -23,128 +23,138 @@ const toggleMobileMenu = () => {
 </script>
 
 <template>
-  <div class="header-container">
-    <header class="navbar">
-      <!-- Logo Section -->
-      <div class="logo-section">
-        <RouterLink :to="homeLink" class="logo-link">
-          <div class="logo-badge">
-            <img src="../assets/imgs/Logo.png" alt="TTH" class="logo-icon" />
-          </div>
-          <div class="brand-text">
-            <span class="brand-name">TheTrainingHub</span>
-            <span class="brand-tagline">Level Up Your Gains</span>
-          </div>
-        </RouterLink>
-      </div>
-
-      <!-- Desktop Navigation -->
-      <nav class="nav-desktop">
-        <RouterLink :to="homeLink" class="nav-link">
-          <i class="nav-icon">🏠</i>
-          <span>Home</span>
-        </RouterLink>
-        <RouterLink to="/room" class="nav-link" :class="{ disabled: !isLogged }">
-          <i class="nav-icon">🚪</i>
-          <span>{{ $t('rooms') }}</span>
-        </RouterLink>
-        <RouterLink to="/plan" class="nav-link" :class="{ disabled: !isLogged }">
-          <i class="nav-icon">📋</i>
-          <span>{{ $t('plans') }}</span>
-        </RouterLink>
-        <RouterLink to="/purchase" class="nav-link" :class="{ disabled: !isLogged }">
-          <i class="nav-icon">🛒</i>
-          <span>{{ $t('shop') }}</span>
-        </RouterLink>
-        <RouterLink to="/user" class="nav-link" :class="{ disabled: !isLogged }">
-          <i class="nav-icon">👥</i>
-          <span>{{ $t('users') }}</span>
-        </RouterLink>
-        <RouterLink to="/rutina" class="nav-link" :class="{ disabled: !isLogged }">
-          <v-icon class="nav-icon">mdi-calendar</v-icon>
-          <span>{{ $t('routines') }}</span>
-        </RouterLink>
-      </nav>
-
-      <!-- Actions Section -->
-      <div class="header-actions">
-        <!-- User Info (si está logueado) -->
-        <div class="user-info" v-if="isLogged && store.loggedUser">
-          <div class="user-stats">
-            <div class="stat-item">
-              <span class="stat-icon">⚡</span>
-              <span class="stat-value">{{ store.loggedUser.strength || 0 }}</span>
+  <div class="header-wrapper">
+    <div class="header-container">
+      <header class="navbar">
+        <div class="logo-section">
+          <RouterLink :to="homeLink" class="logo-link">
+            <div class="logo-badge">
+              <img src="../assets/imgs/Logo.png" alt="TTH" class="logo-icon" />
             </div>
-            <div class="stat-divider"></div>
-            <div class="stat-item">
-              <span class="stat-icon">🪙</span>
-              <span class="stat-value">{{ store.loggedUser.gold || 0 }}</span>
+            <div class="brand-text">
+              <span class="brand-name">TheTrainingHub</span>
+              <span class="brand-tagline">Level Up Your Gains</span>
             </div>
-          </div>
-          <div class="user-level">
-            <span class="level-badge">LVL {{ store.loggedUser.level || 1 }}</span>
-          </div>
+          </RouterLink>
         </div>
 
-        <!-- Language Selector -->
-        <div class="language-selector">
-          <select class="language-select" @change="changeLanguage" :value="locale">
-            <option value="en">🇬🇧</option>
-            <option value="es">🇪🇸</option>
-            <option value="fr">🇫🇷</option>
-          </select>
+        <nav class="nav-desktop">
+          <RouterLink :to="homeLink" class="nav-link">
+            <i class="nav-icon">🏠</i>
+            <span class="nav-text">Home</span>
+          </RouterLink>
+          <RouterLink to="/room" class="nav-link" :class="{ disabled: !isLogged }">
+            <i class="nav-icon">🚪</i>
+            <span class="nav-text">{{ $t('rooms') }}</span>
+          </RouterLink>
+          <RouterLink to="/plan" class="nav-link" :class="{ disabled: !isLogged }">
+            <i class="nav-icon">📋</i>
+            <span class="nav-text">{{ $t('plans') }}</span>
+          </RouterLink>
+          <RouterLink to="/purchase" class="nav-link" :class="{ disabled: !isLogged }">
+            <i class="nav-icon">🛒</i>
+            <span class="nav-text">{{ $t('shop') }}</span>
+          </RouterLink>
+          <RouterLink to="/user" class="nav-link" :class="{ disabled: !isLogged }">
+            <i class="nav-icon">👥</i>
+            <span class="nav-text">{{ $t('users') }}</span>
+          </RouterLink>
+          <RouterLink to="/rutina" class="nav-link" :class="{ disabled: !isLogged }">
+            <v-icon class="nav-icon">mdi-calendar</v-icon>
+            <span class="nav-text">{{ $t('routines') }}</span>
+          </RouterLink>
+        </nav>
+
+        <div class="header-actions">
+          <div class="user-info" v-if="isLogged && store.loggedUser">
+            <div class="user-stats">
+              <div class="stat-item" title="Strength">
+                <span class="stat-icon">⚡</span>
+                <span class="stat-value">{{ store.loggedUser.strength || 0 }}</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item" title="Gold">
+                <span class="stat-icon">🪙</span>
+                <span class="stat-value">{{ store.loggedUser.gold || 0 }}</span>
+              </div>
+            </div>
+            <div class="user-level">
+              <span class="level-badge">LVL {{ store.loggedUser.level || 1 }}</span>
+            </div>
+          </div>
+
+          <div class="language-selector">
+            <select class="language-select" @change="changeLanguage" :value="locale">
+              <option value="en">🇬🇧</option>
+              <option value="es">🇪🇸</option>
+              <option value="fr">🇫🇷</option>
+            </select>
+          </div>
+
+          <button class="logout-btn" @click="store.logoutUser" v-if="isLogged">
+            <span class="logout-icon">⚡</span>
+            <span class="logout-text">{{ $t('logout') }}</span>
+          </button>
+
+          <button class="mobile-menu-btn" @click="toggleMobileMenu">
+            <span class="hamburger-line" :class="{ active: mobileMenuOpen }"></span>
+            <span class="hamburger-line" :class="{ active: mobileMenuOpen }"></span>
+            <span class="hamburger-line" :class="{ active: mobileMenuOpen }"></span>
+          </button>
         </div>
+      </header>
 
-        <!-- Logout Button -->
-        <button class="logout-btn" @click="store.logoutUser" v-if="isLogged">
-          <span class="logout-icon">⚡</span>
-          <span class="logout-text">{{ $t('logout') }}</span>
-        </button>
+      <Transition name="slide">
+        <nav class="nav-mobile" v-if="mobileMenuOpen">
+          <div class="mobile-user-summary" v-if="isLogged && store.loggedUser">
+             <span class="mobile-level">LVL {{ store.loggedUser.level || 1 }}</span>
+             <div class="mobile-stats">
+                <span>⚡ {{ store.loggedUser.strength || 0 }}</span>
+                <span>🪙 {{ store.loggedUser.gold || 0 }}</span>
+             </div>
+          </div>
 
-        <!-- Mobile Menu Toggle -->
-        <button class="mobile-menu-btn" @click="toggleMobileMenu">
-          <span class="hamburger-line" :class="{ active: mobileMenuOpen }"></span>
-          <span class="hamburger-line" :class="{ active: mobileMenuOpen }"></span>
-          <span class="hamburger-line" :class="{ active: mobileMenuOpen }"></span>
-        </button>
+          <RouterLink :to="homeLink" class="nav-link-mobile" @click="toggleMobileMenu">
+            <i class="nav-icon">🏠</i>
+            <span>Home</span>
+          </RouterLink>
+          <RouterLink to="/room" class="nav-link-mobile" :class="{ disabled: !isLogged }" @click="toggleMobileMenu">
+            <i class="nav-icon">🚪</i>
+            <span>{{ $t('rooms') }}</span>
+          </RouterLink>
+          <RouterLink to="/plan" class="nav-link-mobile" :class="{ disabled: !isLogged }" @click="toggleMobileMenu">
+            <i class="nav-icon">📋</i>
+            <span>{{ $t('plans') }}</span>
+          </RouterLink>
+          <RouterLink to="/purchase" class="nav-link-mobile" :class="{ disabled: !isLogged }" @click="toggleMobileMenu">
+            <i class="nav-icon">🛒</i>
+            <span>{{ $t('shop') }}</span>
+          </RouterLink>
+          <RouterLink to="/user" class="nav-link-mobile" :class="{ disabled: !isLogged }" @click="toggleMobileMenu">
+            <i class="nav-icon">👥</i>
+            <span>{{ $t('users') }}</span>
+          </RouterLink>
+           <RouterLink to="/rutina" class="nav-link-mobile" :class="{ disabled: !isLogged }" @click="toggleMobileMenu">
+            <i class="nav-icon">📅</i>
+            <span>{{ $t('routines') }}</span>
+          </RouterLink>
+        </nav>
+      </Transition>
+
+      <div class="status-bar" v-if="isLogged">
+        <div class="status-pulse"></div>
+        <span class="status-text">ONLINE</span>
       </div>
-    </header>
-
-    <!-- Mobile Navigation -->
-    <Transition name="slide">
-      <nav class="nav-mobile" v-if="mobileMenuOpen">
-        <RouterLink :to="homeLink" class="nav-link-mobile" @click="toggleMobileMenu">
-          <i class="nav-icon">🏠</i>
-          <span>Home</span>
-        </RouterLink>
-        <RouterLink to="/room" class="nav-link-mobile" :class="{ disabled: !isLogged }" @click="toggleMobileMenu">
-          <i class="nav-icon">🚪</i>
-          <span>{{ $t('rooms') }}</span>
-        </RouterLink>
-        <RouterLink to="/plan" class="nav-link-mobile" :class="{ disabled: !isLogged }" @click="toggleMobileMenu">
-          <i class="nav-icon">📋</i>
-          <span>{{ $t('plans') }}</span>
-        </RouterLink>
-        <RouterLink to="/purchase" class="nav-link-mobile" :class="{ disabled: !isLogged }" @click="toggleMobileMenu">
-          <i class="nav-icon">🛒</i>
-          <span>{{ $t('shop') }}</span>
-        </RouterLink>
-        <RouterLink to="/user" class="nav-link-mobile" :class="{ disabled: !isLogged }" @click="toggleMobileMenu">
-          <i class="nav-icon">👥</i>
-          <span>{{ $t('users') }}</span>
-        </RouterLink>
-      </nav>
-    </Transition>
-
-    <!-- Status Bar (online indicator) -->
-    <div class="status-bar" v-if="isLogged">
-      <div class="status-pulse"></div>
-      <span class="status-text">ONLINE</span>
     </div>
   </div>
 </template>
 
 <style scoped>
+/* Reset básico para evitar desbordes */
+* {
+  box-sizing: border-box;
+}
+
 .header-container {
   position: sticky;
   top: 0;
@@ -163,11 +173,12 @@ const toggleMobileMenu = () => {
 .navbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 1rem 2rem;
-  max-width: 1600px;
+  justify-content: space-between; /* Distribuye espacio */
+  padding: 0.8rem 1.5rem; /* Reducido un poco para laptops */
+  max-width: 1920px; /* Permitir más ancho en pantallas grandes */
   margin: 0 auto;
-  gap: 2rem;
+  gap: 1rem; /* Gap reducido para evitar cortes */
+  height: 80px;
 }
 
 /* Logo Section */
@@ -178,7 +189,7 @@ const toggleMobileMenu = () => {
 .logo-link {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.8rem;
   text-decoration: none;
   transition: transform 0.3s ease;
 }
@@ -188,14 +199,15 @@ const toggleMobileMenu = () => {
 }
 
 .logo-badge {
-  width: 50px;
-  height: 50px;
+  width: 45px; /* Ligeramente más pequeño */
+  height: 45px;
   border-radius: 12px;
   background: linear-gradient(135deg, #ffcc00 0%, #ff9900 100%);
   padding: 3px;
   box-shadow: 0 4px 20px rgba(255, 204, 0, 0.4);
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .logo-badge::before {
@@ -224,47 +236,51 @@ const toggleMobileMenu = () => {
 .brand-text {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.1rem;
 }
 
 .brand-name {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 900;
   color: #ffcc00;
   letter-spacing: -0.5px;
   text-shadow: 0 2px 10px rgba(255, 204, 0, 0.5);
+  white-space: nowrap; /* Evita que el texto salte de línea */
 }
 
 .brand-tagline {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.6);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
+  white-space: nowrap;
 }
 
 /* Desktop Navigation */
 .nav-desktop {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.3rem; /* Menos espacio entre items */
   align-items: center;
   flex-grow: 1;
   justify-content: center;
+  flex-wrap: nowrap; /* Fuerza una línea */
 }
 
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.7rem 1.2rem;
+  gap: 0.4rem;
+  padding: 0.6rem 0.8rem; /* Padding más ajustado */
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   border-radius: 10px;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  white-space: nowrap;
 }
 
 .nav-link::before {
@@ -304,33 +320,32 @@ const toggleMobileMenu = () => {
 }
 
 .nav-icon {
-  font-size: 1.2rem;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  font-size: 1.1rem;
 }
 
 /* Header Actions */
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  flex-shrink: 0;
+  gap: 0.8rem;
+  flex-shrink: 0; /* Evita que esta sección se aplaste */
 }
 
 /* User Info */
 .user-info {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.8rem;
   background: rgba(255, 204, 0, 0.1);
   border: 1px solid rgba(255, 204, 0, 0.3);
   border-radius: 12px;
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.8rem;
 }
 
 .user-stats {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.6rem;
 }
 
 .stat-item {
@@ -339,25 +354,21 @@ const toggleMobileMenu = () => {
   gap: 0.3rem;
 }
 
-.stat-icon {
-  font-size: 1rem;
-}
-
 .stat-value {
   font-weight: 800;
   color: #ffcc00;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .stat-divider {
   width: 1px;
-  height: 20px;
+  height: 16px;
   background: rgba(255, 204, 0, 0.3);
 }
 
 .user-level {
   background: linear-gradient(135deg, #ffcc00, #ff9900);
-  padding: 0.3rem 0.8rem;
+  padding: 0.2rem 0.6rem;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(255, 204, 0, 0.3);
 }
@@ -365,8 +376,9 @@ const toggleMobileMenu = () => {
 .level-badge {
   font-weight: 900;
   color: #000;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 /* Language Selector */
@@ -378,21 +390,12 @@ const toggleMobileMenu = () => {
   background: rgba(40, 40, 40, 0.8);
   border: 1px solid rgba(255, 204, 0, 0.3);
   color: #fff;
-  padding: 0.6rem 0.8rem;
+  padding: 0.5rem;
   border-radius: 10px;
   font-size: 1.1rem;
   cursor: pointer;
   transition: all 0.3s ease;
   appearance: none;
-}
-
-.language-select:hover {
-  background: rgba(60, 60, 60, 0.9);
-  border-color: rgba(255, 204, 0, 0.5);
-}
-
-.language-select option {
-  background: #1a1a1a;
 }
 
 /* Logout Button */
@@ -404,32 +407,23 @@ const toggleMobileMenu = () => {
   border: none;
   color: #fff;
   font-weight: 700;
-  font-size: 0.9rem;
-  padding: 0.7rem 1.2rem;
+  font-size: 0.85rem;
+  padding: 0.6rem 1rem;
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
+  white-space: nowrap;
 }
 
 .logout-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(255, 68, 68, 0.5);
-  background: linear-gradient(135deg, #ff5555, #dd0000);
-}
-
-.logout-icon {
-  font-size: 1.1rem;
-}
-
-.logout-text {
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 /* Mobile Menu Button */
 .mobile-menu-btn {
-  display: none;
+  display: none; /* Oculto por defecto en pantallas grandes */
   flex-direction: column;
   gap: 0.3rem;
   background: transparent;
@@ -460,13 +454,38 @@ const toggleMobileMenu = () => {
 
 /* Mobile Navigation */
 .nav-mobile {
-  display: none;
+  display: flex; /* Flex para poder ocultarlo con v-if */
   flex-direction: column;
   background: rgba(0, 0, 0, 0.98);
   border-top: 1px solid rgba(255, 204, 0, 0.3);
   padding: 1rem 0;
   max-height: calc(100vh - 80px);
   overflow-y: auto;
+  position: absolute;
+  width: 100%;
+  left: 0;
+}
+
+.mobile-user-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: rgba(255, 204, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 204, 0, 0.2);
+  margin-bottom: 1rem;
+}
+
+.mobile-level {
+  font-weight: 900;
+  color: #ffcc00;
+}
+
+.mobile-stats {
+  display: flex;
+  gap: 1rem;
+  color: white;
+  font-weight: bold;
 }
 
 .nav-link-mobile {
@@ -482,27 +501,16 @@ const toggleMobileMenu = () => {
   border-left: 3px solid transparent;
 }
 
-.nav-link-mobile:hover {
+.nav-link-mobile:hover, .nav-link-mobile.router-link-active {
   color: #ffcc00;
   background: rgba(255, 204, 0, 0.1);
   border-left-color: #ffcc00;
 }
 
-.nav-link-mobile.router-link-active {
-  color: #ffcc00;
-  background: rgba(255, 204, 0, 0.15);
-  border-left-color: #ffcc00;
-}
-
-.nav-link-mobile.disabled {
-  pointer-events: none;
-  opacity: 0.3;
-}
-
 /* Status Bar */
 .status-bar {
-  position: absolute;
-  top: 10px;
+  position: fixed; /* Fixed para no afectar el flujo del header */
+  top: 90px;
   right: 20px;
   display: flex;
   align-items: center;
@@ -511,6 +519,7 @@ const toggleMobileMenu = () => {
   border: 1px solid rgba(74, 222, 128, 0.4);
   padding: 0.3rem 0.8rem;
   border-radius: 20px;
+  z-index: 900;
 }
 
 .status-pulse {
@@ -522,12 +531,8 @@ const toggleMobileMenu = () => {
 }
 
 @keyframes pulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 0 8px rgba(74, 222, 128, 0);
-  }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+  50% { box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
 }
 
 .status-text {
@@ -537,60 +542,64 @@ const toggleMobileMenu = () => {
   letter-spacing: 1px;
 }
 
-/* Mobile Slide Transition */
-.slide-enter-active,
-.slide-leave-active {
-  transition: all 0.3s ease;
-}
+.slide-enter-active, .slide-leave-active { transition: all 0.3s ease; }
+.slide-enter-from, .slide-leave-to { opacity: 0; transform: translateY(-20px); }
 
-.slide-enter-from {
-  opacity: 0;
-  transform: translateY(-20px);
-}
+/* --- RESPONSIVE LOGIC --- */
 
-.slide-leave-to {
-  opacity: 0;
-  transform: translateY(-20px);
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-  .user-info {
+/* Laptops pequeños y Tablets Horizontales (Menos de 1280px) */
+@media (max-width: 1280px) {
+  /* Ocultar elementos decorativos para ahorrar espacio */
+  .brand-tagline {
     display: none;
   }
   
-  .brand-text {
-    display: none;
+  .logout-text {
+    display: none; /* Dejar solo el icono de rayo */
+  }
+
+  /* Reducir paddings drásticamente */
+  .nav-link {
+    padding: 0.5rem 0.5rem; 
+    font-size: 0.85rem;
+  }
+  
+  .navbar {
+    padding: 0.8rem 1rem;
+    gap: 0.5rem;
   }
 }
 
-@media (max-width: 768px) {
-  .navbar {
-    padding: 1rem;
-  }
-
+/* Tablets Verticales y Laptops con mucho zoom (Menos de 1024px) */
+/* AQUÍ ACTIVAMOS EL MODO MÓVIL ANTES QUE EN TU VERSIÓN ORIGINAL */
+@media (max-width: 1024px) {
   .nav-desktop {
-    display: none;
+    display: none; /* Ocultar menú escritorio */
+  }
+  
+  .user-info {
+    display: none; /* Las stats pasan al menú móvil */
   }
 
   .mobile-menu-btn {
-    display: flex;
-  }
-
-  .nav-mobile {
-    display: flex;
-  }
-
-  .logout-text {
-    display: none;
+    display: flex; /* Mostrar hamburguesa */
   }
 
   .status-bar {
     display: none;
   }
+  
+  /* Asegurar que el logo no sea enorme */
+  .brand-name {
+    font-size: 1.1rem;
+  }
 }
 
 @media (max-width: 480px) {
+  .brand-text {
+    display: none; /* En móviles muy pequeños, solo logo icono */
+  }
+  
   .language-selector {
     display: none;
   }
