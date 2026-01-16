@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRoomStore } from '@/stores/RoomStore'
+import { useUserRoomStore } from '@/stores/UsersRoomStore'
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import CreateRoomPopup from '../PopUps/RoomPopup.vue'
@@ -8,6 +9,7 @@ import EditRoomPopup from '../PopUps/EditRoomPopup.vue'
 import type { Room } from '../Models/Room'
 
 const store = useRoomStore()
+const userRoomStore = useUserRoomStore()
 const userStore = useUserStore()
 const router = useRouter()
 const loggedUser = ref(userStore.loggedUser)
@@ -19,9 +21,30 @@ const selectedRoom = defineModel<{ id: number; name: string; minlevel: number; m
 const showRoomPopup = ref(false)
 const isPopupVisible = ref(false)
 
-onMounted(() => {
-    store.fetchRoom()
+// Mapa para almacenar el conteo de miembros por sala
+const roomMemberCounts = ref<Map<number, number>>(new Map())
+
+onMounted(async () => {
+    await store.fetchRoom()
+    // Obtener el conteo de miembros para cada sala
+    await loadRoomMemberCounts()
 })
+
+async function loadRoomMemberCounts() {
+    for (const room of store.room) {
+        try {
+            await userRoomStore.fetchMembersByRoomId(room.id)
+            roomMemberCounts.value.set(room.id, userRoomStore.memberCount)
+        } catch (error) {
+            console.error(`Error loading members for room ${room.id}:`, error)
+            roomMemberCounts.value.set(room.id, 0)
+        }
+    }
+}
+
+function getMemberCount(roomId: number): number {
+    return roomMemberCounts.value.get(roomId) || 0
+}
 
 function toggleSort(field: 'level' | 'stats') {
     if (sortField.value === field) {
@@ -57,8 +80,9 @@ function closePopup() {
     isPopupVisible.value = false
 }
 
-function handleCreateRoom(newRoom: { name: string; minlevel: number; minstats: number; minconsistency: number; }) {
-    store.createRoom(newRoom, loggedUser.value?.id ?? 0)
+async function handleCreateRoom(newRoom: { name: string; minlevel: number; minstats: number; minconsistency: number; }) {
+    await store.createRoom(newRoom, loggedUser.value?.id ?? 0)
+    await loadRoomMemberCounts()
     closePopup()
 }
 
@@ -85,7 +109,6 @@ const getRoomIcon = (level: number) => {
     return '🏋️'
 }
 
-// Nueva función para navegar a la sala
 const goToRoom = (room: any) => {
     router.push({
         name: 'sala',
@@ -191,7 +214,13 @@ const goToRoom = (room: any) => {
 
           <!-- Card Content -->
           <div class="card-content">
-            <h3 class="room-name">{{ room.name }}</h3>
+            <div class="room-header-info">
+              <h3 class="room-name">{{ room.name }}</h3>
+              <div class="members-badge">
+                <span class="members-icon">👥</span>
+                <span class="members-count">{{ getMemberCount(room.id) }}</span>
+              </div>
+            </div>
             
             <div class="requirements-section">
               <div class="requirement-item">
@@ -733,12 +762,51 @@ const goToRoom = (room: any) => {
   margin-bottom: 1.5rem;
 }
 
+.room-header-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 0.75rem;
+}
+
 .room-name {
   font-size: 1.5rem;
   font-weight: 800;
   color: #212529;
-  margin: 0 0 1rem 0;
+  margin: 0;
   line-height: 1.2;
+  flex: 1;
+}
+
+.members-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.members-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.members-icon {
+  font-size: 1rem;
+}
+
+.members-count {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: white;
+  font-family: 'Courier New', monospace;
+  min-width: 1.5rem;
+  text-align: center;
 }
 
 .requirements-section {

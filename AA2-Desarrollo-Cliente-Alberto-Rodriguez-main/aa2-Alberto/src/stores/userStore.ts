@@ -65,7 +65,8 @@ export const useUserStore = defineStore('user', () => {
         level: Number(decoded.level),
         strength: Number(decoded.strength),
         endurance: Number(decoded.endurance),
-        consistencystreak: Number(decoded.consistencyStreak),
+        consistencystreak: Number(decoded.consistencystreak),
+        consistencyStreak: Number(decoded.consistencystreak),
         gold: Number(decoded.gold)
       };
     } catch (error) {
@@ -106,7 +107,8 @@ export const useUserStore = defineStore('user', () => {
         level: decoded.level,
         strength: decoded.strength,
         endurance: decoded.endurance,
-        consistencystreak: decoded.consistencyStreak,
+        consistencystreak: Number(decoded.consistencystreak),
+        consistencyStreak: Number(decoded.consistencystreak),
         gold: decoded.gold
       };
 
@@ -162,7 +164,8 @@ export const useUserStore = defineStore('user', () => {
         level: decoded.level,
         strength: decoded.strength,
         endurance: decoded.endurance,
-        consistencystreak: decoded.consistencyStreak,
+        consistencystreak: Number(decoded.consistencystreak),
+        consistencyStreak: Number(decoded.consistencystreak),
         gold: decoded.gold
       };
     } catch (error) {
