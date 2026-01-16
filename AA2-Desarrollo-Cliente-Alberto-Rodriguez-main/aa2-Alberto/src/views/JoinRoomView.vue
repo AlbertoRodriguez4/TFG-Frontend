@@ -17,7 +17,7 @@ const isLoading = ref(true)
 
 // Datos de la sala
 const roomData = ref({
-id: Number(route.query.id || route.params.id),
+  id: Number(route.query.id || route.params.id),
   name: route.query.name as string || '',
   minlevel: Number(route.query.minlevel) || 0,
   minstats: Number(route.query.minstats) || 0,
@@ -56,7 +56,7 @@ onMounted(async () => {
   try {
     // Cargar los miembros de la sala desde el backend
     await userRoomStore.fetchMembersByRoomId(roomData.value.id)
-    
+
     // Verificar si el usuario actual está en la sala
     if (loggedUser.value?.id) {
       await userRoomStore.fetchRoomsByUserId(loggedUser.value.id)
@@ -102,14 +102,14 @@ const getStatusText = (status: string) => {
 
 const canJoinRoom = computed(() => {
   if (!loggedUser.value) return false
-  
+
   const userLevel = loggedUser.value.level || 0
   const userStats = (loggedUser.value.strength || 0) + (loggedUser.value.endurance || 0)
   const userConsistency = loggedUser.value.consistencyStreak || 0
-  
-  return userLevel >= roomData.value.minlevel && 
-         userStats >= roomData.value.minstats &&
-         userConsistency >= roomData.value.minconsistency
+
+  return userLevel >= roomData.value.minlevel &&
+    userStats >= roomData.value.minstats &&
+    userConsistency >= roomData.value.minconsistency
 })
 
 const openJoinPopup = () => {
@@ -130,12 +130,12 @@ const confirmJoinRoom = async () => {
 
   try {
     await userRoomStore.joinRoom(loggedUser.value.id, roomData.value.id)
-    
+
     // Recargar los miembros de la sala
     await userRoomStore.fetchMembersByRoomId(roomData.value.id)
-    
+
     showJoinPopup.value = false
-    
+
     // Opcional: mostrar notificación de éxito
     console.log('Te has unido a la sala correctamente')
   } catch (error: any) {
@@ -145,25 +145,42 @@ const confirmJoinRoom = async () => {
 }
 
 const leaveRoom = async () => {
+  console.log("=== Click detectado en leaveRoom ===")
+  
   if (!loggedUser.value?.id) {
     console.error('No hay usuario logueado')
+    alert('Debes estar logueado para salir de la sala')
     return
   }
 
   // Confirmación antes de salir
-  if (!confirm('¿Estás seguro de que quieres salir de esta sala?')) {
+  const confirmed = confirm('¿Estás seguro de que quieres salir de esta sala?')
+  console.log('Usuario confirmó:', confirmed)
+  
+  if (!confirmed) {
     return
   }
 
   try {
+    console.log("Llamando a userRoomStore.leaveRoom con:", {
+      userId: loggedUser.value.id,
+      roomId: roomData.value.id
+    })
+    
     await userRoomStore.leaveRoom(loggedUser.value.id, roomData.value.id)
+    console.log("✅ leaveRoom ejecutado correctamente")
     
     // Recargar los miembros de la sala
     await userRoomStore.fetchMembersByRoomId(roomData.value.id)
+    console.log("✅ Miembros de sala recargados")
     
-    console.log('Has salido de la sala correctamente')
+    // Recargar las salas del usuario
+    await userRoomStore.fetchRoomsByUserId(loggedUser.value.id)
+    console.log("✅ Salas del usuario recargadas")
+    
+    alert('Has salido de la sala correctamente')
   } catch (error: any) {
-    console.error('Error al salir de la sala:', error)
+    console.error('❌ Error al salir de la sala:', error)
     alert(error.message || 'No se pudo salir de la sala')
   }
 }
@@ -192,13 +209,13 @@ const goBack = () => {
       <!-- Información de la Sala -->
       <div class="room-info-card" :class="`difficulty-${getRoomDifficulty(roomData.minlevel)}`">
         <div class="info-card-glow"></div>
-        
+
         <div class="room-info-header">
           <div class="room-main-avatar">
             <div class="main-avatar-icon">{{ getRoomIcon(roomData.minlevel) }}</div>
             <div class="main-avatar-ring"></div>
           </div>
-          
+
           <div class="room-title-section">
             <h1 class="room-title">{{ roomData.name }}</h1>
             <div class="difficulty-badge-large" :class="`badge-${getRoomDifficulty(roomData.minlevel)}`">
@@ -239,23 +256,14 @@ const goBack = () => {
             <span class="warning-icon">⚠️</span>
             <span>No cumples los requisitos mínimos para unirte a esta sala</span>
           </div>
-          
-          <button 
-            v-if="!isJoined"
-            @click="openJoinPopup" 
-            class="main-join-btn"
-            :disabled="!canJoinRoom"
-            :class="{ disabled: !canJoinRoom }"
-          >
+
+          <button v-if="!isJoined" @click="openJoinPopup" class="main-join-btn" :disabled="!canJoinRoom"
+            :class="{ disabled: !canJoinRoom }">
             <span class="btn-icon">🚀</span>
             <span>Unirse a la Sala</span>
           </button>
 
-          <button 
-            v-else
-            @click="leaveRoom" 
-            class="leave-btn"
-          >
+          <button v-else @click.prevent="leaveRoom" class="leave-btn" type="button">
             <span class="btn-icon">🚪</span>
             <span>Salir de la Sala</span>
           </button>
@@ -278,25 +286,15 @@ const goBack = () => {
         </div>
 
         <div v-else class="users-grid">
-          <div 
-            v-for="user in roomUsers" 
-            :key="user.id"
-            class="user-card"
-          >
+          <div v-for="user in roomUsers" :key="user.id" class="user-card">
             <div class="user-card-header">
               <div class="user-avatar">
                 <span class="user-avatar-icon">{{ user.avatar }}</span>
-                <div 
-                  class="user-status-dot" 
-                  :style="{ backgroundColor: getStatusColor(user.status) }"
-                ></div>
+                <div class="user-status-dot" :style="{ backgroundColor: getStatusColor(user.status) }"></div>
               </div>
               <div class="user-info">
                 <h3 class="user-name">{{ user.username }}</h3>
-                <span 
-                  class="user-status-text"
-                  :style="{ color: getStatusColor(user.status) }"
-                >
+                <span class="user-status-text" :style="{ color: getStatusColor(user.status) }">
                   {{ getStatusText(user.status) }}
                 </span>
               </div>
@@ -340,14 +338,14 @@ const goBack = () => {
           <div class="popup-icon-container">
             <div class="popup-icon">⚠️</div>
           </div>
-          
+
           <h2 class="popup-title">Código de Conducta</h2>
-          
+
           <div class="popup-body">
             <p class="popup-text">
               Al unirte a esta sala de entrenamiento, aceptas cumplir con las siguientes normas:
             </p>
-            
+
             <ul class="rules-list">
               <li>🤝 Respetar a todos los miembros de la sala</li>
               <li>💬 Mantener un lenguaje apropiado y constructivo</li>
@@ -365,11 +363,7 @@ const goBack = () => {
             <button @click="closeJoinPopup" class="popup-btn cancel-btn">
               <span>Cancelar</span>
             </button>
-            <button 
-              @click="confirmJoinRoom" 
-              class="popup-btn confirm-btn"
-              :disabled="userRoomStore.loading"
-            >
+            <button @click="confirmJoinRoom" class="popup-btn confirm-btn" :disabled="userRoomStore.loading">
               <span v-if="!userRoomStore.loading">Acepto y me uno</span>
               <span v-else>Uniéndose...</span>
             </button>
@@ -437,7 +431,9 @@ const goBack = () => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .room-view-container {
@@ -470,8 +466,15 @@ const goBack = () => {
 }
 
 @keyframes glow-pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 .room-info-header {
@@ -505,7 +508,9 @@ const goBack = () => {
 }
 
 @keyframes ring-rotate {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .room-title-section {
@@ -630,6 +635,8 @@ const goBack = () => {
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative; /* Necesario para que z-index funcione */
+  z-index: 50;
 }
 
 .main-join-btn {
@@ -651,6 +658,8 @@ const goBack = () => {
 .leave-btn {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
+  position: relative; /* Necesario para que z-index funcione */
+  z-index: 50;
 }
 
 .leave-btn:hover {
@@ -864,8 +873,15 @@ const goBack = () => {
 }
 
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .popup-title {

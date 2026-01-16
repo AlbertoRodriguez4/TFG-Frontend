@@ -9,5 +9,6 @@ export interface User {
     consistencystreak: number;
     gold: number;
     role: string;
+    consistencyStreak: number;
   }
   

@@ -20,4 +20,12 @@ app.use(pinia)
 app.use(i18n)
 app.use(router)
 app.use(vuetify)
+router.afterEach(() => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  })
+})
 app.mount('#app')
+
+
