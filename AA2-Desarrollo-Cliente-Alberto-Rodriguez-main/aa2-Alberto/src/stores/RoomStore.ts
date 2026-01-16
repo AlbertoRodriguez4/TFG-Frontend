@@ -28,7 +28,9 @@ export const useRoomStore = defineStore('room', () => {
                 name: d.name,
                 minlevel: d.minlevel,
                 minstats: d.minstats,
-                minconsistency: d.minconsistency
+                minconsistency: d.minconsistency,
+                description: d.description,
+                date: d.date
             }));
         } catch (error) {
             console.error("Error fetching rooms:", error);
@@ -60,7 +62,7 @@ export const useRoomStore = defineStore('room', () => {
     }
 
     async function createRoom(
-        newRoom: { name: string; minlevel: number; minstats: number; minconsistency: number },
+        newRoom: { name: string; minlevel: number; minstats: number; minconsistency: number, description: string, date: string },
         userid: number
     ) {
         try {
@@ -114,4 +116,3 @@ export const useRoomStore = defineStore('room', () => {
 
     return { room, fetchRoom, fetchSortedRooms, createRoom, editRoom }
 });
-    

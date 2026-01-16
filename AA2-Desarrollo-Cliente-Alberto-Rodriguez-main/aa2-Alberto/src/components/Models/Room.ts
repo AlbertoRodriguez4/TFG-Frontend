@@ -5,5 +5,7 @@ export interface Room {
     name: string;
     minlevel: number;
     minstats: number;
-    minconsistency: number
+    minconsistency: number;
+    description: string;
+    date: string;
 }

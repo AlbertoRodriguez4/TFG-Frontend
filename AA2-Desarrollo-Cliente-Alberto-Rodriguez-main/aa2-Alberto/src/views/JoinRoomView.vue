@@ -21,7 +21,9 @@ const roomData = ref({
   name: route.query.name as string || '',
   minlevel: Number(route.query.minlevel) || 0,
   minstats: Number(route.query.minstats) || 0,
-  minconsistency: Number(route.query.minconsistency) || 0
+  minconsistency: Number(route.query.minconsistency) || 0,
+  description: route.query.description as string || '',
+  date: route.query.date as string || ''
 })
 
 // Computed para verificar si el usuario está en la sala
@@ -146,7 +148,7 @@ const confirmJoinRoom = async () => {
 
 const leaveRoom = async () => {
   console.log("=== Click detectado en leaveRoom ===")
-  
+
   if (!loggedUser.value?.id) {
     console.error('No hay usuario logueado')
     alert('Debes estar logueado para salir de la sala')
@@ -156,7 +158,7 @@ const leaveRoom = async () => {
   // Confirmación antes de salir
   const confirmed = confirm('¿Estás seguro de que quieres salir de esta sala?')
   console.log('Usuario confirmó:', confirmed)
-  
+
   if (!confirmed) {
     return
   }
@@ -166,18 +168,18 @@ const leaveRoom = async () => {
       userId: loggedUser.value.id,
       roomId: roomData.value.id
     })
-    
+
     await userRoomStore.leaveRoom(loggedUser.value.id, roomData.value.id)
     console.log("✅ leaveRoom ejecutado correctamente")
-    
+
     // Recargar los miembros de la sala
     await userRoomStore.fetchMembersByRoomId(roomData.value.id)
     console.log("✅ Miembros de sala recargados")
-    
+
     // Recargar las salas del usuario
     await userRoomStore.fetchRoomsByUserId(loggedUser.value.id)
     console.log("✅ Salas del usuario recargadas")
-    
+
     alert('Has salido de la sala correctamente')
   } catch (error: any) {
     console.error('❌ Error al salir de la sala:', error)
@@ -221,6 +223,24 @@ const goBack = () => {
             <div class="difficulty-badge-large" :class="`badge-${getRoomDifficulty(roomData.minlevel)}`">
               {{ getRoomDifficulty(roomData.minlevel).toUpperCase() }}
             </div>
+          </div>
+        </div>
+
+        <!-- Descripción de la Sala -->
+        <div class="room-description-box">
+          <div class="description-box-header">
+            <span class="description-box-icon">📝</span>
+            <span class="description-box-title">Descripción</span>
+          </div>
+          <p class="description-box-text">{{ roomData.description || 'Sin descripción disponible' }}</p>
+        </div>
+
+        <!-- Fecha de Creación -->
+        <div class="room-date-box">
+          <span class="date-box-icon">📅</span>
+          <div class="date-box-content">
+            <span class="date-box-label">Sala creada el</span>
+            <span class="date-box-value">{{roomData.date }}</span>
           </div>
         </div>
 
@@ -635,7 +655,8 @@ const goBack = () => {
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
-  position: relative; /* Necesario para que z-index funcione */
+  position: relative;
+  /* Necesario para que z-index funcione */
   z-index: 50;
 }
 
@@ -658,7 +679,8 @@ const goBack = () => {
 .leave-btn {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
-  position: relative; /* Necesario para que z-index funcione */
+  position: relative;
+  /* Necesario para que z-index funcione */
   z-index: 50;
 }
 
@@ -981,6 +1003,97 @@ const goBack = () => {
 .popup-enter-from .popup-content,
 .popup-leave-to .popup-content {
   transform: scale(0.9) translateY(20px);
+}
+
+/* Descripción de la Sala */
+.room-description-box {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08));
+  border: 2px solid rgba(99, 102, 241, 0.25);
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.room-description-box:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.12));
+  border-color: rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.15);
+}
+
+.description-box-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 0.75rem;
+}
+
+.description-box-icon {
+  font-size: 1.5rem;
+  filter: drop-shadow(0 2px 6px rgba(99, 102, 241, 0.3));
+}
+
+.description-box-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #6366f1;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.description-box-text {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #4b5563;
+  padding-left: 2.125rem;
+}
+
+/* Fecha de Creación */
+.room-date-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(251, 146, 60, 0.08));
+  border: 2px solid rgba(245, 158, 11, 0.25);
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.room-date-box:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(251, 146, 60, 0.12));
+  border-color: rgba(245, 158, 11, 0.4);
+  transform: translateX(4px);
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.15);
+}
+
+.date-box-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 6px rgba(245, 158, 11, 0.3));
+}
+
+.date-box-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.date-box-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.date-box-value {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #f59e0b;
+  font-family: 'Courier New', monospace;
 }
 
 /* Responsive */

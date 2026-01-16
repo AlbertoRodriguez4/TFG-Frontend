@@ -25,10 +25,18 @@ const roomStore = useRoomStore()
 const loggedUser = ref(store.loggedUser)
 
 const roomName = ref('')
+const roomDescription = ref('')
+const roomDate = ref('')
 const minLevel = ref<number | null>(1)
 const minStats = ref<number | null>(10)
 const minConsistency = ref<number | null>(0)
 const error = ref<string>('')
+
+// Obtener fecha mínima (hoy)
+const getMinDate = () => {
+  const today = new Date()
+  return today.toISOString().split('T')[0]
+}
 
 function closePopup() {
   dialogVisible.value = false
@@ -37,6 +45,8 @@ function closePopup() {
 
 function resetForm() {
   roomName.value = ''
+  roomDescription.value = ''
+  roomDate.value = ''
   minLevel.value = 1
   minStats.value = 10
   minConsistency.value = 0
@@ -46,6 +56,10 @@ function resetForm() {
 function validateInputs(): boolean {
   if (!roomName.value.trim()) {
     error.value = "El nombre de la sala es obligatorio."
+    return false
+  }
+  if (!roomDate.value) {
+    error.value = "La fecha del evento es obligatoria."
     return false
   }
   if (minLevel.value === null || isNaN(minLevel.value) || minLevel.value < 1) {
@@ -70,8 +84,13 @@ async function createRoom() {
     return
   }
 
+  // Usar la fecha directamente en formato YYYY-MM-DD
+  const dateString = roomDate.value // Formato: "2026-01-30"
+
   const newRoom = {
     name: roomName.value.trim(),
+    description: roomDescription.value.trim() || 'Sin descripción disponible',
+    date: dateString,
     minlevel: minLevel.value as number,
     minstats: minStats.value as number,
     minconsistency: minConsistency.value as number,
@@ -156,6 +175,53 @@ async function createRoom() {
             >
               <template v-slot:prepend-inner>
                 <v-icon color="#00ff88" size="20">mdi-format-text</v-icon>
+              </template>
+            </v-text-field>
+          </div>
+
+          <!-- Room Description -->
+          <div class="form-field">
+            <label class="field-label">
+              <v-icon size="18" class="label-icon">mdi-text-box</v-icon>
+              {{ $t('descripcion') || 'Descripción' }}
+            </label>
+            <v-textarea
+              v-model="roomDescription"
+              :placeholder="$t('descripcion de la sala') || 'Describe brevemente esta sala de entrenamiento...'"
+              variant="outlined"
+              density="comfortable"
+              class="custom-field custom-textarea"
+              bg-color="rgba(255, 255, 255, 0.05)"
+              hide-details
+              rows="3"
+              auto-grow
+              max-rows="5"
+            >
+              <template v-slot:prepend-inner>
+                <v-icon color="#6366f1" size="20">mdi-pencil</v-icon>
+              </template>
+            </v-textarea>
+          </div>
+
+          <!-- Event Date -->
+          <div class="form-field">
+            <label class="field-label">
+              <v-icon size="18" class="label-icon">mdi-calendar-clock</v-icon>
+              {{ $t('fecha del evento') || 'Fecha del Evento' }}
+            </label>
+            <v-text-field
+              v-model="roomDate"
+              type="date"
+              :min="getMinDate()"
+              required
+              variant="outlined"
+              density="comfortable"
+              class="custom-field custom-date-field"
+              bg-color="rgba(255, 255, 255, 0.05)"
+              hide-details
+            >
+              <template v-slot:prepend-inner>
+                <v-icon color="#f59e0b" size="20">mdi-calendar</v-icon>
               </template>
             </v-text-field>
           </div>
@@ -415,7 +481,8 @@ async function createRoom() {
   background: rgba(255, 255, 255, 0.08) !important;
 }
 
-.custom-field :deep(input) {
+.custom-field :deep(input),
+.custom-field :deep(textarea) {
   color: #fff;
   font-weight: 500;
 }
@@ -426,6 +493,52 @@ async function createRoom() {
 
 .custom-field :deep(.v-field__prepend-inner) {
   padding-right: clamp(0.5rem, 1.5vw, 0.75rem);
+}
+
+/* Textarea específico */
+.custom-textarea :deep(.v-field__input) {
+  min-height: auto;
+  padding-top: clamp(0.75rem, 2vw, 1rem);
+  padding-bottom: clamp(0.75rem, 2vw, 1rem);
+}
+
+.custom-textarea :deep(textarea) {
+  line-height: 1.5;
+}
+
+.custom-textarea :deep(.v-field--focused) {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.custom-textarea :deep(.v-field:hover) {
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+/* Date field específico */
+.custom-date-field :deep(.v-field--focused) {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.custom-date-field :deep(.v-field:hover) {
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.custom-date-field :deep(input[type="date"]) {
+  color: #fff;
+  cursor: pointer;
+}
+
+.custom-date-field :deep(input[type="date"]::-webkit-calendar-picker-indicator) {
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.custom-date-field :deep(input[type="date"]::-webkit-calendar-picker-indicator:hover) {
+  opacity: 1;
 }
 
 /* Requirements Section */

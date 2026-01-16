@@ -17,7 +17,7 @@ const loggedUser = ref(userStore.loggedUser)
 const sortField = ref<'level' | 'stats' | null>(null)
 const sortDirection = ref<'asc' | 'desc'>('asc')
 const searchTerm = ref('')
-const selectedRoom = defineModel<{ id: number; name: string; minlevel: number; minstats: number; minconsistency: number; } | null>('selectedItem')
+const selectedRoom = defineModel<{ id: number; name: string; minlevel: number; minstats: number; minconsistency: number; description: string; date: string } | null>('selectedItem')
 const showRoomPopup = ref(false)
 const isPopupVisible = ref(false)
 
@@ -25,102 +25,104 @@ const isPopupVisible = ref(false)
 const roomMemberCounts = ref<Map<number, number>>(new Map())
 
 onMounted(async () => {
-    await store.fetchRoom()
-    // Obtener el conteo de miembros para cada sala
-    await loadRoomMemberCounts()
+  await store.fetchRoom()
+  // Obtener el conteo de miembros para cada sala
+  await loadRoomMemberCounts()
 })
 
 async function loadRoomMemberCounts() {
-    for (const room of store.room) {
-        try {
-            await userRoomStore.fetchMembersByRoomId(room.id)
-            roomMemberCounts.value.set(room.id, userRoomStore.memberCount)
-        } catch (error) {
-            console.error(`Error loading members for room ${room.id}:`, error)
-            roomMemberCounts.value.set(room.id, 0)
-        }
+  for (const room of store.room) {
+    try {
+      await userRoomStore.fetchMembersByRoomId(room.id)
+      roomMemberCounts.value.set(room.id, userRoomStore.memberCount)
+    } catch (error) {
+      console.error(`Error loading members for room ${room.id}:`, error)
+      roomMemberCounts.value.set(room.id, 0)
     }
+  }
 }
 
 function getMemberCount(roomId: number): number {
-    return roomMemberCounts.value.get(roomId) || 0
+  return roomMemberCounts.value.get(roomId) || 0
 }
 
 function toggleSort(field: 'level' | 'stats') {
-    if (sortField.value === field) {
-        sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
-    } else {
-        sortField.value = field
-        sortDirection.value = 'asc'
-    }
+  if (sortField.value === field) {
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortField.value = field
+    sortDirection.value = 'asc'
+  }
 }
 
 const filteredRooms = computed(() => {
-    const term = searchTerm.value.toLowerCase()
+  const term = searchTerm.value.toLowerCase()
 
-    let result = store.room.filter(room =>
-        room.name.toLowerCase().includes(term)
+  let result = store.room.filter(room =>
+    room.name.toLowerCase().includes(term)
+  )
+
+  if (sortField.value) {
+    const field = sortField.value === 'level' ? 'minlevel' : 'minstats'
+    result.sort((a, b) =>
+      sortDirection.value === 'asc' ? a[field] - b[field] : b[field] - a[field]
     )
+  }
 
-    if (sortField.value) {
-        const field = sortField.value === 'level' ? 'minlevel' : 'minstats'
-        result.sort((a, b) =>
-            sortDirection.value === 'asc' ? a[field] - b[field] : b[field] - a[field]
-        )
-    }
-
-    return result
+  return result
 })
 
 function showPopup() {
-    isPopupVisible.value = true
+  isPopupVisible.value = true
 }
 
 function closePopup() {
-    isPopupVisible.value = false
+  isPopupVisible.value = false
 }
 
-async function handleCreateRoom(newRoom: { name: string; minlevel: number; minstats: number; minconsistency: number; }) {
-    await store.createRoom(newRoom, loggedUser.value?.id ?? 0)
-    await loadRoomMemberCounts()
-    closePopup()
+async function handleCreateRoom(newRoom: { name: string; minlevel: number; minstats: number; minconsistency: number; description: string; date: string; }) {
+  await store.createRoom(newRoom, loggedUser.value?.id ?? 0)
+  await loadRoomMemberCounts()
+  closePopup()
 }
 
-const openPopup = (room: { id: number; name: string; minlevel: number; minstats: number; minconsistency: number; }) => {
-    selectedRoom.value = room;
-    showRoomPopup.value = true
+const openPopup = (room: { id: number; name: string; minlevel: number; minstats: number; minconsistency: number; description: string; date: string }) => {
+  selectedRoom.value = room;
+  showRoomPopup.value = true
 }
 
 const closeRoomPopup = () => {
-    showRoomPopup.value = false;
+  showRoomPopup.value = false;
 }
 
 const getRoomDifficulty = (level: number) => {
-    if (level >= 50) return 'legendary'
-    if (level >= 30) return 'epic'
-    if (level >= 15) return 'rare'
-    return 'common'
+  if (level >= 50) return 'legendary'
+  if (level >= 30) return 'epic'
+  if (level >= 15) return 'rare'
+  return 'common'
 }
 
 const getRoomIcon = (level: number) => {
-    if (level >= 50) return '👑'
-    if (level >= 30) return '🔥'
-    if (level >= 15) return '⚡'
-    return '🏋️'
+  if (level >= 50) return '👑'
+  if (level >= 30) return '🔥'
+  if (level >= 15) return '⚡'
+  return '🏋️'
 }
 
 const goToRoom = (room: any) => {
-    router.push({
-        name: 'sala',
-        params: { id: room.id },
-        query: {
-            id: room.id,
-            name: room.name,
-            minlevel: room.minlevel,
-            minstats: room.minstats,
-            minconsistency: room.minconsistency
-        }
-    })
+  router.push({
+    name: 'sala',
+    params: { id: room.id },
+    query: {
+      id: room.id,
+      name: room.name,
+      minlevel: room.minlevel,
+      minstats: room.minstats,
+      minconsistency: room.minconsistency,
+      description: room.description,
+      date: room.date
+    }
+  })
 }
 </script>
 
@@ -246,6 +248,24 @@ const goToRoom = (room: any) => {
                 </div>
                 <div class="req-value consistency-value">{{ room.minconsistency }}%</div>
               </div>
+
+              <!-- Descripción -->
+              <div class="description-item">
+                <div class="desc-header">
+                  <span class="desc-icon">📝</span>
+                  <span class="desc-title">{{ $t('descripcion') || 'Descripción' }}</span>
+                </div>
+                <p class="desc-text">{{ room.description || 'Sin descripción disponible' }}</p>
+              </div>
+
+              <!-- Fecha de Creación -->
+              <div class="date-item">
+                <span class="date-icon">📅</span>
+                <div class="date-content">
+                  <span class="date-label">{{ $t('fecha_creacion') || 'Creada el' }}</span>
+                  <span class="date-value">{{ room.date}}</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -298,7 +318,7 @@ const goToRoom = (room: any) => {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%);
   border-radius: 24px;
   padding: 2rem;
-  box-shadow: 
+  box-shadow:
     0 8px 32px rgba(13, 110, 253, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
   border: 2px solid rgba(13, 110, 253, 0.2);
@@ -319,8 +339,13 @@ const goToRoom = (room: any) => {
 }
 
 @keyframes rotate-bg {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Header */
@@ -344,8 +369,15 @@ const goToRoom = (room: any) => {
 }
 
 @keyframes bounce-icon {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
 }
 
 .title-text {
@@ -514,8 +546,15 @@ const goToRoom = (room: any) => {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .empty-title {
@@ -592,8 +631,15 @@ const goToRoom = (room: any) => {
 }
 
 @keyframes legendary-pulse {
-  0%, 100% { box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3); }
-  50% { box-shadow: 0 4px 24px rgba(243, 156, 18, 0.5); }
+
+  0%,
+  100% {
+    box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 4px 24px rgba(243, 156, 18, 0.5);
+  }
 }
 
 /* Card Effects */
@@ -640,8 +686,13 @@ const goToRoom = (room: any) => {
 }
 
 @keyframes shine {
-  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
 }
 
 /* Corner Decorations */
@@ -724,8 +775,17 @@ const goToRoom = (room: any) => {
 }
 
 @keyframes pulse-ring {
-  0%, 100% { transform: scale(1); opacity: 0.3; }
-  50% { transform: scale(1.1); opacity: 0.1; }
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 0.1;
+  }
 }
 
 .difficulty-badge {
@@ -915,6 +975,96 @@ const goToRoom = (room: any) => {
 
 .btn-icon {
   font-size: 1rem;
+}
+/* Description Item - Estilo especial */
+.description-item {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+  border: 2px solid rgba(99, 102, 241, 0.2);
+  border-radius: 12px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.description-item:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+  border-color: rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.desc-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.desc-icon {
+  font-size: 1.25rem;
+}
+
+.desc-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #6366f1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.desc-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #4b5563;
+  font-style: italic;
+  padding-left: 1.75rem;
+}
+
+/* Date Item - Estilo especial */
+.date-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 146, 60, 0.1));
+  border: 2px solid rgba(245, 158, 11, 0.2);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.date-item:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(251, 146, 60, 0.15));
+  border-color: rgba(245, 158, 11, 0.4);
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+.date-icon {
+  font-size: 1.5rem;
+  filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.3));
+}
+
+.date-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.date-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.date-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f59e0b;
+  font-family: 'Courier New', monospace;
 }
 
 /* Responsive */
