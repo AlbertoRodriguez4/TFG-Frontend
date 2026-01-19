@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useMapStore } from '@/stores/mapStore';
 import * as L from 'leaflet';
@@ -13,6 +13,19 @@ const loading = ref(false);
 const gymsFound = ref<any[]>([]);
 const selectedGym = ref<any>(null);
 const showMap = ref(false);
+
+// Variables de paginación
+const currentPage = ref(1);
+const itemsPerPage = 8;
+
+// Computed para paginación
+const totalPages = computed(() => Math.ceil(gymsFound.value.length / itemsPerPage));
+
+const paginatedGyms = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return gymsFound.value.slice(start, end);
+});
 
 // Iconos personalizados para el mapa
 const userIcon = L.icon({
@@ -47,7 +60,7 @@ watch(showMap, (newVal) => {
 
 function initMap() {
   if (map.value) return;
-  
+
   const mapElement = document.getElementById('map');
   if (!mapElement) return;
 
@@ -64,8 +77,9 @@ function initMap() {
 
 async function searchByAddress() {
   if (!searchAddress.value.trim()) return;
-  
+
   loading.value = true;
+  currentPage.value = 1; // Reset a la primera página
   try {
     const coords = await mapStore.getCooredadas(searchAddress.value);
     await searchGymsNearLocation(coords.lat, coords.lon);
@@ -79,7 +93,7 @@ async function searchByAddress() {
 
 async function searchGymsNearLocation(lat: number, lon: number) {
   loading.value = true;
-  
+
   markers.value.forEach(marker => marker.remove());
   markers.value = [];
 
@@ -94,17 +108,18 @@ async function searchGymsNearLocation(lat: number, lon: number) {
   try {
     const gyms = await mapStore.getEstablecimientos(lat, lon, 'sports_centre');
     gymsFound.value = gyms;
+    currentPage.value = 1; // Reset a la primera página
 
     gyms.forEach((gym: any) => {
       if (gym.lat && gym.lon && map.value) {
         const marker = L.marker([parseFloat(gym.lat), parseFloat(gym.lon)], { icon: gymIcon })
           .addTo(map.value as L.Map)
           .bindPopup(`<strong>${gym.name || 'Gimnasio'}</strong><br>${gym.address || ''}`);
-        
+
         marker.on('click', () => {
           selectedGym.value = gym;
         });
-        
+
         markers.value.push(marker);
       }
     });
@@ -118,17 +133,22 @@ async function searchGymsNearLocation(lat: number, lon: number) {
 function toggleMapView() {
   showMap.value = !showMap.value;
 }
+
+function changePage(page: number) {
+  currentPage.value = page;
+  // Scroll suave hacia arriba de los resultados
+  const resultsElement = document.querySelector('.results-header-epic');
+  if (resultsElement) {
+    resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
 </script>
 
 <template>
   <v-app>
     <v-main class="main-container">
       <!-- Hero Section Rediseñado -->
-      <v-container 
-        v-if="!showMap"
-        fluid 
-        class="hero-section pa-0"
-      >
+      <v-container v-if="!showMap" fluid class="hero-section pa-0">
         <!-- Fondo animado con partículas -->
         <div class="hero-background">
           <div class="gradient-overlay"></div>
@@ -161,10 +181,10 @@ function toggleMapView() {
 
               <!-- Subtítulo mejorado -->
               <p class="epic-subtitle mb-8">
-                Únete a <strong>TheTrainingHub</strong>, la primera plataforma que combina 
-                <span class="highlight">fitness social</span>, 
-                <span class="highlight">gamificación</span> y 
-                <span class="highlight">recompensas épicas</span>. 
+                Únete a <strong>TheTrainingHub</strong>, la primera plataforma que combina
+                <span class="highlight">fitness social</span>,
+                <span class="highlight">gamificación</span> y
+                <span class="highlight">recompensas épicas</span>.
                 Entrena con amigos, conquista retos y sube de nivel como nunca antes.
               </p>
 
@@ -214,11 +234,7 @@ function toggleMapView() {
               <!-- Botones de acción épicos -->
               <div class="action-buttons mb-8">
                 <RouterLink to="/register" class="no-decoration">
-                  <v-btn
-                    class="epic-btn primary"
-                    size="x-large"
-                    elevation="0"
-                  >
+                  <v-btn class="epic-btn primary" size="x-large" elevation="0">
                     <div class="btn-content">
                       <v-icon size="28" class="mr-3">mdi-rocket-launch</v-icon>
                       <div>
@@ -229,12 +245,7 @@ function toggleMapView() {
                   </v-btn>
                 </RouterLink>
 
-                <v-btn
-                  class="epic-btn secondary ml-4"
-                  size="x-large"
-                  elevation="0"
-                  @click="toggleMapView"
-                >
+                <v-btn class="epic-btn secondary ml-4" size="x-large" elevation="0" @click="toggleMapView">
                   <div class="btn-content">
                     <v-icon size="28" class="mr-3">mdi-map-marker-radius</v-icon>
                     <div>
@@ -282,12 +293,7 @@ function toggleMapView() {
                     <div class="phone-frame">
                       <div class="phone-notch"></div>
                       <div class="phone-screen">
-                        <v-img
-                          src="../assets/imgs/People.png"
-                          alt="TheTrainingHub App"
-                          class="phone-content"
-                          cover
-                        />
+                        <v-img src="../assets/imgs/People.png" alt="TheTrainingHub App" class="phone-content" cover />
                         <!-- Overlay con brillo dinámico -->
                         <div class="screen-shine"></div>
                       </div>
@@ -341,7 +347,7 @@ function toggleMapView() {
                     </div>
                     <div class="room-members">
                       <div class="member-avatars">
-                        <div class="member-avatar" v-for="n in 3" :key="n" :style="{zIndex: 10 - n}">
+                        <div class="member-avatar" v-for="n in 3" :key="n" :style="{ zIndex: 10 - n }">
                           <v-icon size="20" color="white">mdi-account</v-icon>
                         </div>
                       </div>
@@ -379,10 +385,9 @@ function toggleMapView() {
                   <div class="metric-card metric-circular">
                     <div class="metric-glow metric-glow-green"></div>
                     <svg class="progress-ring" viewBox="0 0 120 120">
-                      <circle class="progress-ring-bg" cx="60" cy="60" r="52"/>
-                      <circle class="progress-ring-fill" cx="60" cy="60" r="52"
-                        stroke-dasharray="327"
-                        stroke-dashoffset="82"/>
+                      <circle class="progress-ring-bg" cx="60" cy="60" r="52" />
+                      <circle class="progress-ring-fill" cx="60" cy="60" r="52" stroke-dasharray="327"
+                        stroke-dashoffset="82" />
                     </svg>
                     <div class="circular-content">
                       <v-icon size="32" color="white">mdi-target</v-icon>
@@ -443,19 +448,10 @@ function toggleMapView() {
       </v-container>
 
       <!-- Map Section Mejorada -->
-      <v-container 
-        v-else
-        fluid 
-        class="map-section-epic pa-0"
-      >
+      <v-container v-else fluid class="map-section-epic pa-0">
         <!-- Header del mapa -->
         <div class="map-header-epic">
-          <v-btn
-            class="back-btn-epic"
-            icon
-            size="large"
-            @click="toggleMapView"
-          >
+          <v-btn class="back-btn-epic" icon size="large" @click="toggleMapView">
             <v-icon>mdi-arrow-left</v-icon>
           </v-btn>
 
@@ -485,28 +481,15 @@ function toggleMapView() {
 
                 <v-row align="center" class="mt-4">
                   <v-col cols="12" md="8">
-                    <v-text-field
-                      v-model="searchAddress"
-                      placeholder="Ej: Calle Mayor 10, Zaragoza"
-                      variant="solo"
-                      density="comfortable"
-                      hide-details
-                      class="search-input-epic"
-                      @keyup.enter="searchByAddress"
-                    >
+                    <v-text-field v-model="searchAddress" placeholder="Ej: Calle Mayor 10, Zaragoza" variant="solo"
+                      density="comfortable" hide-details class="search-input-epic" @keyup.enter="searchByAddress">
                       <template v-slot:prepend-inner>
                         <v-icon color="grey">mdi-map-search</v-icon>
                       </template>
                     </v-text-field>
                   </v-col>
                   <v-col cols="12" md="4">
-                    <v-btn
-                      block
-                      size="x-large"
-                      class="search-btn-epic"
-                      :loading="loading"
-                      @click="searchByAddress"
-                    >
+                    <v-btn block size="x-large" class="search-btn-epic" :loading="loading" @click="searchByAddress">
                       <v-icon left size="24">mdi-radar</v-icon>
                       Buscar Gimnasios
                     </v-btn>
@@ -522,12 +505,7 @@ function toggleMapView() {
               <div class="map-wrapper-epic">
                 <div id="map" class="map-element-epic"></div>
                 <div class="map-controls">
-                  <v-btn
-                    icon
-                    size="small"
-                    class="map-control-btn"
-                    title="Centrar mapa"
-                  >
+                  <v-btn icon size="small" class="map-control-btn" title="Centrar mapa">
                     <v-icon>mdi-crosshairs-gps</v-icon>
                   </v-btn>
                 </div>
@@ -543,28 +521,22 @@ function toggleMapView() {
                   <v-icon color="success" size="32" class="mr-3">mdi-check-circle</v-icon>
                   <div>
                     <h3 class="results-main-title">{{ gymsFound.length }} Gimnasios Encontrados</h3>
-                    <p class="results-main-subtitle">Haz clic en cualquiera para ver más detalles</p>
+                    <p class="results-main-subtitle">
+                      Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} -
+                      {{ Math.min(currentPage * itemsPerPage, gymsFound.length) }} de {{ gymsFound.length }}
+                    </p>
                   </div>
                 </div>
               </div>
 
               <div class="gyms-grid-epic">
-                <div 
-                  v-for="(gym, index) in gymsFound.slice(0, 6)" 
-                  :key="index"
-                  class="gym-card-epic"
-                  :class="{ 'selected': selectedGym === gym }"
-                  @click="selectedGym = gym"
-                >
+                <div v-for="(gym, index) in paginatedGyms" :key="index" class="gym-card-epic"
+                  :class="{ 'selected': selectedGym === gym }" @click="selectedGym = gym">
                   <div class="gym-card-header">
                     <div class="gym-icon-wrapper">
                       <v-icon color="white" size="32">mdi-dumbbell</v-icon>
                     </div>
-                    <v-chip
-                      small
-                      color="success"
-                      class="gym-badge"
-                    >
+                    <v-chip small color="success" class="gym-badge">
                       <v-icon x-small left>mdi-check-circle</v-icon>
                       Verificado
                     </v-chip>
@@ -585,18 +557,64 @@ function toggleMapView() {
                       <v-icon small color="blue">mdi-walk</v-icon>
                       <span>~ 1.2 km</span>
                     </div>
-                    <v-btn
-                      size="small"
-                      color="primary"
-                      variant="text"
-                      class="gym-action-btn"
-                    >
+                    <v-btn size="small" color="primary" variant="text" class="gym-action-btn">
                       Ver más
                       <v-icon right small>mdi-arrow-right</v-icon>
                     </v-btn>
                   </div>
 
                   <div class="gym-card-glow"></div>
+                </div>
+              </div>
+
+              <!-- Paginador Épico -->
+              <div v-if="totalPages > 1" class="pagination-container-epic">
+                <div class="pagination-info">
+                  <v-icon color="primary" class="mr-2">mdi-information-outline</v-icon>
+                  <span>Página {{ currentPage }} de {{ totalPages }}</span>
+                </div>
+
+                <div class="pagination-controls">
+                  <!-- Botón Primera Página -->
+                  <v-btn icon variant="text" :disabled="currentPage === 1" @click="changePage(1)"
+                    class="pagination-btn">
+                    <v-icon>mdi-page-first</v-icon>
+                  </v-btn>
+
+                  <!-- Botón Anterior -->
+                  <v-btn icon variant="text" :disabled="currentPage === 1" @click="changePage(currentPage - 1)"
+                    class="pagination-btn">
+                    <v-icon>mdi-chevron-left</v-icon>
+                  </v-btn>
+
+                  <!-- Números de Página -->
+                  <div class="page-numbers">
+                    <v-btn v-for="page in totalPages" :key="page"
+                      :class="['page-number-btn', { 'active': page === currentPage }]"
+                      :variant="page === currentPage ? 'flat' : 'text'"
+                      :color="page === currentPage ? 'primary' : 'default'" @click="changePage(page)" size="small">
+                      {{ page }}
+                    </v-btn>
+                  </div>
+
+                  <!-- Botón Siguiente -->
+                  <v-btn icon variant="text" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)"
+                    class="pagination-btn">
+                    <v-icon>mdi-chevron-right</v-icon>
+                  </v-btn>
+
+                  <!-- Botón Última Página -->
+                  <v-btn icon variant="text" :disabled="currentPage === totalPages" @click="changePage(totalPages)"
+                    class="pagination-btn">
+                    <v-icon>mdi-page-last</v-icon>
+                  </v-btn>
+                </div>
+
+                <div class="pagination-jump">
+                  <span class="jump-label">Ir a página:</span>
+                  <v-select v-model="currentPage" :items="Array.from({ length: totalPages }, (_, i) => i + 1)"
+                    variant="outlined" density="compact" hide-details class="page-select"
+                    @update:model-value="changePage"></v-select>
                 </div>
               </div>
             </v-col>
@@ -641,8 +659,8 @@ function toggleMapView() {
   position: absolute;
   inset: 0;
   background: radial-gradient(circle at 20% 30%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at 80% 70%, rgba(255, 87, 51, 0.15) 0%, transparent 50%),
-              linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
+    radial-gradient(circle at 80% 70%, rgba(255, 87, 51, 0.15) 0%, transparent 50%),
+    linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
 }
 
 .particles {
@@ -666,37 +684,91 @@ function toggleMapView() {
 }
 
 @keyframes float-particle {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate(0, 0) scale(1);
     opacity: 0;
   }
+
   10% {
     opacity: 1;
   }
+
   90% {
     opacity: 1;
   }
+
   100% {
     transform: translate(100vw, -100vh) scale(0);
     opacity: 0;
   }
 }
 
-.particle:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
-.particle:nth-child(2) { top: 60%; left: 20%; animation-delay: 2s; }
-.particle:nth-child(3) { top: 40%; left: 70%; animation-delay: 4s; }
-.particle:nth-child(4) { top: 80%; left: 40%; animation-delay: 1s; }
-.particle:nth-child(5) { top: 10%; left: 80%; animation-delay: 3s; }
-.particle:nth-child(6) { top: 70%; left: 60%; animation-delay: 5s; }
-.particle:nth-child(7) { top: 30%; left: 30%; animation-delay: 6s; }
-.particle:nth-child(8) { top: 50%; left: 90%; animation-delay: 2.5s; }
-.particle:nth-child(9) { top: 90%; left: 15%; animation-delay: 4.5s; }
-.particle:nth-child(10) { top: 15%; left: 50%; animation-delay: 1.5s; }
+.particle:nth-child(1) {
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.particle:nth-child(2) {
+  top: 60%;
+  left: 20%;
+  animation-delay: 2s;
+}
+
+.particle:nth-child(3) {
+  top: 40%;
+  left: 70%;
+  animation-delay: 4s;
+}
+
+.particle:nth-child(4) {
+  top: 80%;
+  left: 40%;
+  animation-delay: 1s;
+}
+
+.particle:nth-child(5) {
+  top: 10%;
+  left: 80%;
+  animation-delay: 3s;
+}
+
+.particle:nth-child(6) {
+  top: 70%;
+  left: 60%;
+  animation-delay: 5s;
+}
+
+.particle:nth-child(7) {
+  top: 30%;
+  left: 30%;
+  animation-delay: 6s;
+}
+
+.particle:nth-child(8) {
+  top: 50%;
+  left: 90%;
+  animation-delay: 2.5s;
+}
+
+.particle:nth-child(9) {
+  top: 90%;
+  left: 15%;
+  animation-delay: 4.5s;
+}
+
+.particle:nth-child(10) {
+  top: 15%;
+  left: 50%;
+  animation-delay: 1.5s;
+}
 
 .grid-overlay {
   position: absolute;
   inset: 0;
-  background-image: 
+  background-image:
     linear-gradient(rgba(102, 126, 234, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(102, 126, 234, 0.05) 1px, transparent 1px);
   background-size: 50px 50px;
@@ -704,8 +776,13 @@ function toggleMapView() {
 }
 
 @keyframes grid-move {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(50px, 50px); }
+  0% {
+    transform: translate(0, 0);
+  }
+
+  100% {
+    transform: translate(50px, 50px);
+  }
 }
 
 .hero-content {
@@ -746,13 +823,25 @@ function toggleMapView() {
 }
 
 @keyframes badge-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 @keyframes badge-glow-rotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .badge-text {
@@ -795,6 +884,7 @@ function toggleMapView() {
     opacity: 0;
     transform: translateX(-50px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -811,8 +901,15 @@ function toggleMapView() {
 }
 
 @keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 .epic-subtitle {
@@ -828,6 +925,7 @@ function toggleMapView() {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -945,7 +1043,7 @@ function toggleMapView() {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -1064,6 +1162,7 @@ function toggleMapView() {
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -1079,8 +1178,17 @@ function toggleMapView() {
 }
 
 @keyframes glow-pulse {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.1); }
+
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
 }
 
 .mockup-image {
@@ -1111,8 +1219,15 @@ function toggleMapView() {
 }
 
 @keyframes float-animation {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
 }
 
 .xp-card {
@@ -1145,6 +1260,7 @@ function toggleMapView() {
     transform: scale(1);
     opacity: 1;
   }
+
   100% {
     transform: scale(1.5);
     opacity: 0;
@@ -1206,7 +1322,9 @@ function toggleMapView() {
 }
 
 @keyframes progress-fill {
-  from { width: 0%; }
+  from {
+    width: 0%;
+  }
 }
 
 .room-card {
@@ -1333,7 +1451,9 @@ function toggleMapView() {
 }
 
 @keyframes circle-progress {
-  from { stroke-dasharray: 0, 100; }
+  from {
+    stroke-dasharray: 0, 100;
+  }
 }
 
 .percentage {
@@ -1372,10 +1492,21 @@ function toggleMapView() {
   animation: fade-in-up 0.8s ease-out backwards;
 }
 
-.mega-stat:nth-child(1) { animation-delay: 0.2s; }
-.mega-stat:nth-child(2) { animation-delay: 0.4s; }
-.mega-stat:nth-child(3) { animation-delay: 0.6s; }
-.mega-stat:nth-child(4) { animation-delay: 0.8s; }
+.mega-stat:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+.mega-stat:nth-child(2) {
+  animation-delay: 0.4s;
+}
+
+.mega-stat:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.mega-stat:nth-child(4) {
+  animation-delay: 0.8s;
+}
 
 .mega-stat-icon {
   width: 80px;
@@ -1445,13 +1576,20 @@ function toggleMapView() {
   right: -20%;
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(255,255,255,0.1), transparent 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent 70%);
   animation: header-float 6s ease-in-out infinite;
 }
 
 @keyframes header-float {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(-30px, -30px); }
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(-30px, -30px);
+  }
 }
 
 .back-btn-epic {
@@ -1518,7 +1656,7 @@ function toggleMapView() {
   font-weight: 500;
 }
 
-.search-input-epic >>> .v-input__control {
+.search-input-epic>>>.v-input__control {
   border-radius: 16px !important;
 }
 
@@ -1707,6 +1845,7 @@ function toggleMapView() {
 .gym-card-epic.selected .gym-card-glow {
   transform: scaleX(1);
 }
+
 /* ===== HERO RIGHT (VISUAL) REDISEÑADO ===== */
 .hero-right {
   display: flex;
@@ -1764,8 +1903,13 @@ function toggleMapView() {
 }
 
 @keyframes rotate-ring {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Centro visual principal */
@@ -1773,7 +1917,8 @@ function toggleMapView() {
   position: relative;
   z-index: 5;
   animation: fade-in-scale 1s ease-out 0.4s backwards;
-  margin-left: 80px; /* Desplazar el móvil hacia la derecha */
+  margin-left: 80px;
+  /* Desplazar el móvil hacia la derecha */
 }
 
 @keyframes fade-in-scale {
@@ -1781,6 +1926,7 @@ function toggleMapView() {
     opacity: 0;
     transform: scale(0.85) rotateY(-15deg);
   }
+
   to {
     opacity: 1;
     transform: scale(1) rotateY(0deg);
@@ -1790,21 +1936,22 @@ function toggleMapView() {
 .hub-glow-massive {
   position: absolute;
   inset: -60px;
-  background: radial-gradient(
-    circle,
-    rgba(102, 126, 234, 0.4) 0%,
-    rgba(255, 193, 7, 0.2) 40%,
-    transparent 70%
-  );
+  background: radial-gradient(circle,
+      rgba(102, 126, 234, 0.4) 0%,
+      rgba(255, 193, 7, 0.2) 40%,
+      transparent 70%);
   animation: massive-pulse 4s ease-in-out infinite;
   filter: blur(40px);
 }
 
 @keyframes massive-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.6;
     transform: scale(1);
   }
+
   50% {
     opacity: 1;
     transform: scale(1.15);
@@ -1821,9 +1968,12 @@ function toggleMapView() {
 }
 
 @keyframes phone-float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px) rotateY(5deg);
   }
+
   50% {
     transform: translateY(-20px) rotateY(-5deg);
   }
@@ -1835,7 +1985,7 @@ function toggleMapView() {
   background: linear-gradient(145deg, #1a1a2e, #0f0f1e);
   border-radius: 45px;
   padding: 12px;
-  box-shadow: 
+  box-shadow:
     0 30px 80px rgba(0, 0, 0, 0.6),
     inset 0 0 0 2px rgba(255, 255, 255, 0.1);
   position: relative;
@@ -1871,20 +2021,23 @@ function toggleMapView() {
 .screen-shine {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    135deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.1) 45%,
-    rgba(255, 255, 255, 0.2) 50%,
-    rgba(255, 255, 255, 0.1) 55%,
-    transparent 100%
-  );
+  background: linear-gradient(135deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 45%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0.1) 55%,
+      transparent 100%);
   animation: screen-shine-move 3s ease-in-out infinite;
 }
 
 @keyframes screen-shine-move {
-  0% { transform: translateX(-100%) translateY(-100%) rotate(30deg); }
-  100% { transform: translateX(100%) translateY(100%) rotate(30deg); }
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(30deg);
+  }
+
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(30deg);
+  }
 }
 
 /* Métricas flotantes rediseñadas */
@@ -1914,8 +2067,15 @@ function toggleMapView() {
 }
 
 @keyframes metric-float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-12px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
 }
 
 .metric-glow {
@@ -1954,7 +2114,8 @@ function toggleMapView() {
 /* Métrica XP */
 .metric-xp {
   top: 8%;
-  right: -8%; /* Ajustado para seguir al móvil */
+  right: -8%;
+  /* Ajustado para seguir al móvil */
   animation-delay: 0s;
   display: flex;
   align-items: center;
@@ -1986,6 +2147,7 @@ function toggleMapView() {
     transform: scale(1);
     opacity: 1;
   }
+
   100% {
     transform: scale(1.6);
     opacity: 0;
@@ -2031,7 +2193,8 @@ function toggleMapView() {
 /* Métrica de Nivel */
 .metric-level {
   top: 30%;
-  left: -3%; /* Ajustado para estar más cerca del móvil */
+  left: -3%;
+  /* Ajustado para estar más cerca del móvil */
   animation-delay: 0.5s;
   background: linear-gradient(135deg, #667eea, #764ba2);
   padding: 1.5rem;
@@ -2057,8 +2220,15 @@ function toggleMapView() {
 }
 
 @keyframes crown-bounce {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-5px) rotate(10deg); }
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-5px) rotate(10deg);
+  }
 }
 
 .level-number {
@@ -2092,20 +2262,27 @@ function toggleMapView() {
 }
 
 @keyframes progress-fill-smooth {
-  from { width: 0%; }
+  from {
+    width: 0%;
+  }
 }
 
 .level-progress-fill::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
   animation: progress-shimmer 2s ease-in-out infinite;
 }
 
 @keyframes progress-shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(200%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(200%);
+  }
 }
 
 .progress-percentage {
@@ -2118,7 +2295,8 @@ function toggleMapView() {
 /* Métrica de Sala */
 .metric-room {
   bottom: 20%;
-  left: -2%; /* Ajustado */
+  left: -2%;
+  /* Ajustado */
   animation-delay: 1s;
   background: linear-gradient(135deg, #4facfe, #00f2fe);
   min-width: 200px;
@@ -2144,9 +2322,11 @@ function toggleMapView() {
   0% {
     box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
   }
+
   50% {
     box-shadow: 0 0 0 8px rgba(255, 68, 68, 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
   }
@@ -2216,7 +2396,8 @@ function toggleMapView() {
 /* Métrica de Racha */
 .metric-streak {
   top: 58%;
-  right: -6%; /* Ajustado */
+  right: -6%;
+  /* Ajustado */
   animation-delay: 1.5s;
   background: linear-gradient(135deg, #ff5733, #ff8c00);
   text-align: center;
@@ -2238,18 +2419,23 @@ function toggleMapView() {
 }
 
 @keyframes fire-flicker {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1) rotate(-5deg);
     filter: drop-shadow(0 0 20px rgba(255, 193, 7, 0.8));
   }
+
   25% {
     transform: scale(1.05) rotate(5deg);
     filter: drop-shadow(0 0 25px rgba(255, 140, 0, 1));
   }
+
   50% {
     transform: scale(0.98) rotate(-3deg);
     filter: drop-shadow(0 0 18px rgba(255, 193, 7, 0.7));
   }
+
   75% {
     transform: scale(1.03) rotate(3deg);
     filter: drop-shadow(0 0 22px rgba(255, 87, 51, 0.9));
@@ -2272,20 +2458,52 @@ function toggleMapView() {
   animation: fire-particle-rise 2s ease-out infinite;
 }
 
-.fire-particles .particle:nth-child(1) { animation-delay: 0s; left: 45%; }
-.fire-particles .particle:nth-child(2) { animation-delay: 0.3s; left: 55%; }
-.fire-particles .particle:nth-child(3) { animation-delay: 0.6s; left: 40%; }
-.fire-particles .particle:nth-child(4) { animation-delay: 0.9s; left: 60%; }
-.fire-particles .particle:nth-child(5) { animation-delay: 1.2s; left: 50%; }
-.fire-particles .particle:nth-child(6) { animation-delay: 1.5s; left: 48%; }
-.fire-particles .particle:nth-child(7) { animation-delay: 1.8s; left: 52%; }
-.fire-particles .particle:nth-child(8) { animation-delay: 0.4s; left: 57%; }
+.fire-particles .particle:nth-child(1) {
+  animation-delay: 0s;
+  left: 45%;
+}
+
+.fire-particles .particle:nth-child(2) {
+  animation-delay: 0.3s;
+  left: 55%;
+}
+
+.fire-particles .particle:nth-child(3) {
+  animation-delay: 0.6s;
+  left: 40%;
+}
+
+.fire-particles .particle:nth-child(4) {
+  animation-delay: 0.9s;
+  left: 60%;
+}
+
+.fire-particles .particle:nth-child(5) {
+  animation-delay: 1.2s;
+  left: 50%;
+}
+
+.fire-particles .particle:nth-child(6) {
+  animation-delay: 1.5s;
+  left: 48%;
+}
+
+.fire-particles .particle:nth-child(7) {
+  animation-delay: 1.8s;
+  left: 52%;
+}
+
+.fire-particles .particle:nth-child(8) {
+  animation-delay: 0.4s;
+  left: 57%;
+}
 
 @keyframes fire-particle-rise {
   0% {
     transform: translateY(0) scale(1);
     opacity: 1;
   }
+
   100% {
     transform: translateY(-60px) scale(0);
     opacity: 0;
@@ -2305,7 +2523,8 @@ function toggleMapView() {
 /* Métrica de Monedas */
 .metric-coins {
   top: 42%;
-  right: 0%; /* Ajustado para estar más cerca del móvil */
+  right: 0%;
+  /* Ajustado para estar más cerca del móvil */
   animation-delay: 2s;
   background: linear-gradient(135deg, #ffd700, #ff8c00);
   text-align: center;
@@ -2322,8 +2541,15 @@ function toggleMapView() {
 }
 
 @keyframes coin-spin {
-  0%, 100% { transform: rotateY(0deg); }
-  50% { transform: rotateY(180deg); }
+
+  0%,
+  100% {
+    transform: rotateY(0deg);
+  }
+
+  50% {
+    transform: rotateY(180deg);
+  }
 }
 
 .coin-sparkles {
@@ -2340,18 +2566,50 @@ function toggleMapView() {
   animation: sparkle-twinkle 1.5s ease-in-out infinite;
 }
 
-.coin-sparkles .sparkle:nth-child(1) { top: 0; left: 50%; animation-delay: 0s; }
-.coin-sparkles .sparkle:nth-child(2) { top: 25%; right: 0; animation-delay: 0.2s; }
-.coin-sparkles .sparkle:nth-child(3) { bottom: 0; left: 50%; animation-delay: 0.4s; }
-.coin-sparkles .sparkle:nth-child(4) { top: 25%; left: 0; animation-delay: 0.6s; }
-.coin-sparkles .sparkle:nth-child(5) { top: 75%; right: 10%; animation-delay: 0.8s; }
-.coin-sparkles .sparkle:nth-child(6) { top: 75%; left: 10%; animation-delay: 1s; }
+.coin-sparkles .sparkle:nth-child(1) {
+  top: 0;
+  left: 50%;
+  animation-delay: 0s;
+}
+
+.coin-sparkles .sparkle:nth-child(2) {
+  top: 25%;
+  right: 0;
+  animation-delay: 0.2s;
+}
+
+.coin-sparkles .sparkle:nth-child(3) {
+  bottom: 0;
+  left: 50%;
+  animation-delay: 0.4s;
+}
+
+.coin-sparkles .sparkle:nth-child(4) {
+  top: 25%;
+  left: 0;
+  animation-delay: 0.6s;
+}
+
+.coin-sparkles .sparkle:nth-child(5) {
+  top: 75%;
+  right: 10%;
+  animation-delay: 0.8s;
+}
+
+.coin-sparkles .sparkle:nth-child(6) {
+  top: 75%;
+  left: 10%;
+  animation-delay: 1s;
+}
 
 @keyframes sparkle-twinkle {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(0);
     opacity: 0;
   }
+
   50% {
     transform: scale(1.5);
     opacity: 1;
@@ -2370,7 +2628,8 @@ function toggleMapView() {
 /* Métrica Circular */
 .metric-circular {
   top: 12%;
-  left: 8%; /* Ajustado para estar más cerca */
+  left: 8%;
+  /* Ajustado para estar más cerca */
   animation-delay: 0.8s;
   background: linear-gradient(135deg, #00f2fe, #4facfe);
   padding: 1rem;
@@ -2411,6 +2670,7 @@ function toggleMapView() {
   from {
     stroke-dashoffset: 327;
   }
+
   to {
     stroke-dashoffset: 82;
   }
@@ -2464,35 +2724,338 @@ function toggleMapView() {
   background: rgba(255, 193, 7, 0.5);
 }
 
-.ambient-particle:nth-child(1) { top: 10%; left: 15%; animation-delay: 0s; animation-duration: 12s; }
-.ambient-particle:nth-child(2) { top: 25%; right: 20%; animation-delay: 1s; animation-duration: 14s; }
-.ambient-particle:nth-child(3) { bottom: 30%; left: 10%; animation-delay: 2s; animation-duration: 16s; }
-.ambient-particle:nth-child(4) { top: 60%; right: 15%; animation-delay: 3s; animation-duration: 13s; }
-.ambient-particle:nth-child(5) { bottom: 15%; right: 25%; animation-delay: 1.5s; animation-duration: 15s; }
-.ambient-particle:nth-child(6) { top: 40%; left: 20%; animation-delay: 2.5s; animation-duration: 17s; }
-.ambient-particle:nth-child(7) { bottom: 45%; right: 30%; animation-delay: 0.5s; animation-duration: 14s; }
-.ambient-particle:nth-child(8) { top: 75%; left: 25%; animation-delay: 3.5s; animation-duration: 12s; }
-.ambient-particle:nth-child(9) { top: 20%; right: 35%; animation-delay: 1.8s; animation-duration: 16s; }
-.ambient-particle:nth-child(10) { bottom: 60%; left: 30%; animation-delay: 2.8s; animation-duration: 13s; }
-.ambient-particle:nth-child(11) { top: 50%; right: 10%; animation-delay: 0.8s; animation-duration: 15s; }
-.ambient-particle:nth-child(12) { bottom: 20%; left: 35%; animation-delay: 3.2s; animation-duration: 14s; }
-.ambient-particle:nth-child(13) { top: 35%; right: 40%; animation-delay: 1.2s; animation-duration: 17s; }
-.ambient-particle:nth-child(14) { bottom: 50%; right: 5%; animation-delay: 2.2s; animation-duration: 12s; }
-.ambient-particle:nth-child(15) { top: 80%; left: 40%; animation-delay: 0.3s; animation-duration: 16s; }
+/* Estilos del Paginador Épico */
+.pagination-container-epic {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  margin-top: 48px;
+  padding: 32px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+  border-radius: 24px;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.pagination-container-epic::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.pagination-info {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #6366f1;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 12px 24px;
+  border-radius: 50px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+  z-index: 1;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1;
+}
+
+.pagination-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.pagination-btn:not(:disabled):hover {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+}
+
+.pagination-btn:not(:disabled):hover :deep(.v-icon) {
+  color: white !important;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-numbers {
+  display: flex;
+  gap: 6px;
+  padding: 0 12px;
+}
+
+.page-number-btn {
+  min-width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.page-number-btn:not(.active) {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  color: #64748b;
+}
+
+.page-number-btn:not(.active):hover {
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+  transform: translateY(-2px);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.page-number-btn.active {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  color: white;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+  transform: scale(1.05);
+  border: none;
+}
+
+.page-number-btn.active::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  opacity: 0.3;
+  filter: blur(8px);
+  z-index: -1;
+}
+
+.pagination-jump {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1;
+}
+
+.jump-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.page-select {
+  width: 100px;
+}
+
+.page-select :deep(.v-field) {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  transition: all 0.3s ease;
+}
+
+.page-select :deep(.v-field:hover) {
+  border-color: #6366f1;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+
+.page-select :deep(.v-field--focused) {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pagination-container-epic {
+    padding: 24px 16px;
+    gap: 20px;
+  }
+
+  .pagination-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .page-numbers {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    padding: 12px 0 0 0;
+    border-top: 1px solid rgba(99, 102, 241, 0.1);
+  }
+
+  .pagination-btn,
+  .page-number-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+
+  .pagination-info {
+    font-size: 14px;
+    padding: 10px 20px;
+  }
+
+  .pagination-jump {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* Animaciones */
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gyms-grid-epic {
+  animation: pageEnter 0.5s ease-out;
+}
+
+.ambient-particle:nth-child(1) {
+  top: 10%;
+  left: 15%;
+  animation-delay: 0s;
+  animation-duration: 12s;
+}
+
+.ambient-particle:nth-child(2) {
+  top: 25%;
+  right: 20%;
+  animation-delay: 1s;
+  animation-duration: 14s;
+}
+
+.ambient-particle:nth-child(3) {
+  bottom: 30%;
+  left: 10%;
+  animation-delay: 2s;
+  animation-duration: 16s;
+}
+
+.ambient-particle:nth-child(4) {
+  top: 60%;
+  right: 15%;
+  animation-delay: 3s;
+  animation-duration: 13s;
+}
+
+.ambient-particle:nth-child(5) {
+  bottom: 15%;
+  right: 25%;
+  animation-delay: 1.5s;
+  animation-duration: 15s;
+}
+
+.ambient-particle:nth-child(6) {
+  top: 40%;
+  left: 20%;
+  animation-delay: 2.5s;
+  animation-duration: 17s;
+}
+
+.ambient-particle:nth-child(7) {
+  bottom: 45%;
+  right: 30%;
+  animation-delay: 0.5s;
+  animation-duration: 14s;
+}
+
+.ambient-particle:nth-child(8) {
+  top: 75%;
+  left: 25%;
+  animation-delay: 3.5s;
+  animation-duration: 12s;
+}
+
+.ambient-particle:nth-child(9) {
+  top: 20%;
+  right: 35%;
+  animation-delay: 1.8s;
+  animation-duration: 16s;
+}
+
+.ambient-particle:nth-child(10) {
+  bottom: 60%;
+  left: 30%;
+  animation-delay: 2.8s;
+  animation-duration: 13s;
+}
+
+.ambient-particle:nth-child(11) {
+  top: 50%;
+  right: 10%;
+  animation-delay: 0.8s;
+  animation-duration: 15s;
+}
+
+.ambient-particle:nth-child(12) {
+  bottom: 20%;
+  left: 35%;
+  animation-delay: 3.2s;
+  animation-duration: 14s;
+}
+
+.ambient-particle:nth-child(13) {
+  top: 35%;
+  right: 40%;
+  animation-delay: 1.2s;
+  animation-duration: 17s;
+}
+
+.ambient-particle:nth-child(14) {
+  bottom: 50%;
+  right: 5%;
+  animation-delay: 2.2s;
+  animation-duration: 12s;
+}
+
+.ambient-particle:nth-child(15) {
+  top: 80%;
+  left: 40%;
+  animation-delay: 0.3s;
+  animation-duration: 16s;
+}
 
 @keyframes ambient-float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate(0, 0) scale(1);
     opacity: 0.3;
   }
+
   25% {
     transform: translate(20px, -30px) scale(1.2);
     opacity: 0.6;
   }
+
   50% {
     transform: translate(-15px, -60px) scale(0.8);
     opacity: 0.4;
   }
+
   75% {
     transform: translate(25px, -40px) scale(1.1);
     opacity: 0.7;
@@ -2506,7 +3069,8 @@ function toggleMapView() {
   }
 
   .main-visual-hub {
-    margin-left: 50px; /* Reducir desplazamiento en tablets */
+    margin-left: 50px;
+    /* Reducir desplazamiento en tablets */
   }
 
   .phone-mockup-3d {
@@ -2553,7 +3117,8 @@ function toggleMapView() {
   }
 
   .main-visual-hub {
-    margin-left: 0; /* Centrar en móvil */
+    margin-left: 0;
+    /* Centrar en móvil */
   }
 
   .phone-mockup-3d {
@@ -2755,6 +3320,7 @@ function toggleMapView() {
 
 /* Mejoras adicionales de rendimiento */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -2770,11 +3336,12 @@ function toggleMapView() {
     background: rgba(10, 10, 20, 0.98);
     border-color: rgba(255, 255, 255, 0.2);
   }
-  
+
   .phone-frame {
     background: linear-gradient(145deg, #0a0a14, #050508);
   }
 }
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1264px) {
   .features-grid {
@@ -2791,7 +3358,8 @@ function toggleMapView() {
     padding: 60px 20px;
   }
 
-  .title-line-1, .title-line-3 {
+  .title-line-1,
+  .title-line-3 {
     font-size: 2.5rem;
   }
 
@@ -2848,7 +3416,8 @@ function toggleMapView() {
     padding: 10px 16px;
   }
 
-  .title-line-1, .title-line-3 {
+  .title-line-1,
+  .title-line-3 {
     font-size: 2rem;
   }
 
