@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRoomStore } from '@/stores/RoomStore'
 import { useUserRoomStore } from '@/stores/UsersRoomStore'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import CreateRoomPopup from '../PopUps/RoomPopup.vue'
 import { useUserStore } from '@/stores/userStore'
@@ -21,13 +21,21 @@ const selectedRoom = defineModel<{ id: number; name: string; minlevel: number; m
 const showRoomPopup = ref(false)
 const isPopupVisible = ref(false)
 
+// Paginación
+const currentPage = ref(1)
+const itemsPerPage = 3
+
 // Mapa para almacenar el conteo de miembros por sala
 const roomMemberCounts = ref<Map<number, number>>(new Map())
 
 onMounted(async () => {
   await store.fetchRoom()
-  // Obtener el conteo de miembros para cada sala
   await loadRoomMemberCounts()
+})
+
+// Resetear a la primera página cuando cambie el filtro de búsqueda
+watch(searchTerm, () => {
+  currentPage.value = 1
 })
 
 async function loadRoomMemberCounts() {
@@ -53,6 +61,7 @@ function toggleSort(field: 'level' | 'stats') {
     sortField.value = field
     sortDirection.value = 'asc'
   }
+  currentPage.value = 1 // Resetear a la primera página al ordenar
 }
 
 const filteredRooms = computed(() => {
@@ -70,6 +79,76 @@ const filteredRooms = computed(() => {
   }
 
   return result
+})
+
+// Calcular el total de páginas
+const totalPages = computed(() => {
+  return Math.ceil(filteredRooms.value.length / itemsPerPage)
+})
+
+// Obtener las salas para la página actual
+const paginatedRooms = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return filteredRooms.value.slice(start, end)
+})
+
+// Funciones de navegación
+function goToPage(page: number) {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+function previousPage() {
+  if (currentPage.value > 1) {
+    currentPage.value--
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+function nextPage() {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+// Generar array de números de página para mostrar
+const pageNumbers = computed(() => {
+  const pages = []
+  const maxVisible = 5 // Máximo de números de página visibles
+  
+  if (totalPages.value <= maxVisible) {
+    for (let i = 1; i <= totalPages.value; i++) {
+      pages.push(i)
+    }
+  } else {
+    if (currentPage.value <= 3) {
+      for (let i = 1; i <= 4; i++) {
+        pages.push(i)
+      }
+      pages.push('...')
+      pages.push(totalPages.value)
+    } else if (currentPage.value >= totalPages.value - 2) {
+      pages.push(1)
+      pages.push('...')
+      for (let i = totalPages.value - 3; i <= totalPages.value; i++) {
+        pages.push(i)
+      }
+    } else {
+      pages.push(1)
+      pages.push('...')
+      for (let i = currentPage.value - 1; i <= currentPage.value + 1; i++) {
+        pages.push(i)
+      }
+      pages.push('...')
+      pages.push(totalPages.value)
+    }
+  }
+  
+  return pages
 })
 
 function showPopup() {
@@ -192,10 +271,10 @@ const goToRoom = (room: any) => {
         <p class="empty-subtitle">{{ $t('intenta_busqueda') || 'Intenta ajustar tu búsqueda o crea una nueva sala' }}</p>
       </div>
 
-      <!-- Rooms Grid -->
+      <!-- Rooms Grid (con paginación) -->
       <div v-else class="rooms-grid">
         <div
-          v-for="room in filteredRooms"
+          v-for="room in paginatedRooms"
           :key="room.id"
           class="room-card"
           :class="`difficulty-${getRoomDifficulty(room.minlevel)}`"
@@ -291,6 +370,51 @@ const goToRoom = (room: any) => {
           <div class="corner-decoration bl"></div>
           <div class="corner-decoration br"></div>
         </div>
+      </div>
+
+      <!-- Paginador -->
+      <div v-if="filteredRooms.length > 0 && totalPages > 1" class="pagination">
+        <button 
+          class="pagination-btn prev-btn"
+          :disabled="currentPage === 1"
+          @click="previousPage"
+        >
+          <span class="pagination-icon">←</span>
+          <span class="pagination-text">{{ $t('anterior') || 'Anterior' }}</span>
+        </button>
+
+        <div class="pagination-numbers">
+          <button
+            v-for="(page, index) in pageNumbers"
+            :key="index"
+            class="pagination-number"
+            :class="{ 
+              active: page === currentPage,
+              ellipsis: page === '...'
+            }"
+            :disabled="page === '...'"
+            @click="typeof page === 'number' ? goToPage(page) : null"
+          >
+            {{ page }}
+          </button>
+        </div>
+
+        <button 
+          class="pagination-btn next-btn"
+          :disabled="currentPage === totalPages"
+          @click="nextPage"
+        >
+          <span class="pagination-text">{{ $t('siguiente') || 'Siguiente' }}</span>
+          <span class="pagination-icon">→</span>
+        </button>
+      </div>
+
+      <!-- Información de paginación -->
+      <div v-if="filteredRooms.length > 0" class="pagination-info">
+        {{ $t('mostrando') || 'Mostrando' }} 
+        {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, filteredRooms.length) }}
+        {{ $t('de') || 'de' }} {{ filteredRooms.length }}
+        {{ $t('salas') || 'salas' }}
       </div>
     </div>
 
@@ -572,99 +696,100 @@ const goToRoom = (room: any) => {
 /* Rooms Grid */
 .rooms-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
   position: relative;
   z-index: 1;
 }
 
-/* Room Card */
+/* Room Card - Diseño moderno y premium */
 .room-card {
   position: relative;
   background: white;
-  border-radius: 20px;
-  padding: 1.5rem;
-  border: 2px solid #e9ecef;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 24px;
+  padding: 0;
+  border: 3px solid transparent;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  cursor: pointer;
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.room-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, #0D6EFD, #0a58ca);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .room-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.15),
+    0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.room-card:hover::before {
+  opacity: 1;
 }
 
 /* Difficulty Variants */
-.difficulty-common {
-  border-color: #adb5bd;
+.difficulty-common::before {
+  background: linear-gradient(90deg, #adb5bd, #868e96);
 }
 
-.difficulty-common:hover {
-  border-color: #868e96;
+.difficulty-rare::before {
+  background: linear-gradient(90deg, #0D6EFD, #0a58ca);
 }
 
-.difficulty-rare {
-  border-color: #0D6EFD;
+.difficulty-epic::before {
+  background: linear-gradient(90deg, #9b59b6, #8e44ad);
 }
 
-.difficulty-rare:hover {
-  border-color: #0a58ca;
+.difficulty-legendary::before {
+  background: linear-gradient(90deg, #f39c12, #e67e22);
+  opacity: 1;
+  animation: legendary-glow 2s ease-in-out infinite;
 }
 
-.difficulty-epic {
-  border-color: #9b59b6;
-}
-
-.difficulty-epic:hover {
-  border-color: #8e44ad;
-}
-
-.difficulty-legendary {
-  border-color: #f39c12;
-  animation: legendary-pulse 2s ease-in-out infinite;
-}
-
-.difficulty-legendary:hover {
-  border-color: #e67e22;
-}
-
-@keyframes legendary-pulse {
-
-  0%,
-  100% {
-    box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+@keyframes legendary-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(243, 156, 18, 0.5);
   }
-
   50% {
-    box-shadow: 0 4px 24px rgba(243, 156, 18, 0.5);
+    box-shadow: 0 0 40px rgba(243, 156, 18, 0.8);
   }
 }
 
 /* Card Effects */
 .card-glow {
   position: absolute;
-  inset: -2px;
-  border-radius: 20px;
+  inset: -3px;
+  border-radius: 24px;
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 0.4s;
   z-index: -1;
-  filter: blur(12px);
+  filter: blur(20px);
 }
 
 .difficulty-rare:hover .card-glow {
-  opacity: 1;
+  opacity: 0.6;
   background: linear-gradient(135deg, #0D6EFD, #0a58ca);
 }
 
 .difficulty-epic:hover .card-glow {
-  opacity: 1;
+  opacity: 0.6;
   background: linear-gradient(135deg, #9b59b6, #8e44ad);
 }
 
 .difficulty-legendary:hover .card-glow {
-  opacity: 1;
+  opacity: 0.8;
   background: linear-gradient(135deg, #f39c12, #e67e22);
 }
 
@@ -674,76 +799,83 @@ const goToRoom = (room: any) => {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.2) 50%, transparent 70%);
   transform: rotate(45deg);
   opacity: 0;
   transition: opacity 0.3s;
+  pointer-events: none;
 }
 
 .room-card:hover .card-shine {
   opacity: 1;
-  animation: shine 0.8s ease-in-out;
+  animation: shine 1s ease-in-out;
 }
 
 @keyframes shine {
   0% {
     transform: translateX(-100%) translateY(-100%) rotate(45deg);
   }
-
   100% {
     transform: translateX(100%) translateY(100%) rotate(45deg);
   }
 }
 
-/* Corner Decorations */
+/* Corner Decorations - Más sutiles */
 .corner-decoration {
   position: absolute;
-  width: 12px;
-  height: 12px;
-  border: 2px solid currentColor;
-  opacity: 0.4;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e9ecef;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+}
+
+.room-card:hover .corner-decoration {
+  opacity: 0.6;
 }
 
 .corner-decoration.tl {
-  top: 8px;
-  left: 8px;
+  top: 12px;
+  left: 12px;
   border-right: none;
   border-bottom: none;
 }
 
 .corner-decoration.tr {
-  top: 8px;
-  right: 8px;
+  top: 12px;
+  right: 12px;
   border-left: none;
   border-bottom: none;
 }
 
 .corner-decoration.bl {
-  bottom: 8px;
-  left: 8px;
+  bottom: 12px;
+  left: 12px;
   border-right: none;
   border-top: none;
 }
 
 .corner-decoration.br {
-  bottom: 8px;
-  right: 8px;
+  bottom: 12px;
+  right: 12px;
   border-left: none;
   border-top: none;
 }
 
-/* Card Header */
+/* Card Header - Rediseñado */
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  padding: 1.5rem 1.5rem 1rem;
+  background: linear-gradient(180deg, rgba(13, 110, 253, 0.03) 0%, transparent 100%);
 }
 
 .room-avatar {
   position: relative;
-  width: 70px;
-  height: 70px;
+  width: 80px;
+  height: 80px;
 }
 
 .avatar-icon {
@@ -752,49 +884,58 @@ const goToRoom = (room: any) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.5rem;
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-  border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s;
+  font-size: 3rem;
+  background: linear-gradient(135deg, #f8f9fa, #ffffff);
+  border-radius: 20px;
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.1),
+    inset 0 -2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   z-index: 1;
   position: relative;
+  border: 3px solid white;
 }
 
 .room-card:hover .avatar-icon {
-  transform: scale(1.1) rotate(5deg);
+  transform: scale(1.15) rotate(10deg);
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.15),
+    inset 0 -2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .avatar-ring {
   position: absolute;
-  inset: -4px;
-  border-radius: 50%;
+  inset: -6px;
+  border-radius: 22px;
   border: 3px solid currentColor;
-  opacity: 0.3;
-  animation: pulse-ring 2s ease-in-out infinite;
+  opacity: 0.2;
+  animation: pulse-ring 2.5s ease-in-out infinite;
 }
 
 @keyframes pulse-ring {
-
-  0%,
-  100% {
+  0%, 100% {
     transform: scale(1);
-    opacity: 0.3;
+    opacity: 0.2;
   }
-
   50% {
-    transform: scale(1.1);
-    opacity: 0.1;
+    transform: scale(1.15);
+    opacity: 0.05;
   }
 }
 
 .difficulty-badge {
-  padding: 0.35rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 1px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 0.5rem 1rem;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.room-card:hover .difficulty-badge {
+  transform: translateY(-2px) scale(1.05);
 }
 
 .badge-common {
@@ -815,124 +956,238 @@ const goToRoom = (room: any) => {
 .badge-legendary {
   background: linear-gradient(135deg, #f39c12, #e67e22);
   color: white;
+  animation: legendary-badge 2s ease-in-out infinite;
 }
 
-/* Card Content */
+@keyframes legendary-badge {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(243, 156, 18, 0.4);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(243, 156, 18, 0.7);
+  }
+}
+
+/* Card Content - Más espacioso */
 .card-content {
-  margin-bottom: 1.5rem;
+  padding: 0 1.5rem 1.5rem;
 }
 
 .room-header-info {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
-  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  gap: 1rem;
 }
 
 .room-name {
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: 1.625rem;
+  font-weight: 900;
   color: #212529;
   margin: 0;
   line-height: 1.2;
   flex: 1;
+  letter-spacing: -0.5px;
 }
 
 .members-badge {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.75rem;
+  gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
   background: linear-gradient(135deg, #10b981, #059669);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-  transition: all 0.2s ease;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transition: all 0.3s ease;
   flex-shrink: 0;
 }
 
 .members-badge:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  transform: scale(1.08);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
 }
 
 .members-icon {
-  font-size: 1rem;
+  font-size: 1.125rem;
 }
 
 .members-count {
-  font-size: 0.875rem;
-  font-weight: 800;
+  font-size: 0.9375rem;
+  font-weight: 900;
   color: white;
   font-family: 'Courier New', monospace;
-  min-width: 1.5rem;
+  min-width: 1.75rem;
   text-align: center;
 }
 
 .requirements-section {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.875rem;
 }
 
 .requirement-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem;
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-  border-radius: 12px;
-  transition: all 0.2s;
+  padding: 1rem 1.125rem;
+  background: linear-gradient(135deg, #f8f9fa, #ffffff);
+  border-radius: 16px;
+  border: 2px solid #f1f3f5;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
 .requirement-item:hover {
-  background: linear-gradient(135deg, #e9ecef, #dee2e6);
-  transform: translateX(4px);
+  background: linear-gradient(135deg, #e9ecef, #f8f9fa);
+  border-color: #dee2e6;
+  transform: translateX(6px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .req-label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
+  gap: 0.625rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
   color: #495057;
 }
 
 .req-icon {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .req-value {
-  font-size: 1.125rem;
-  font-weight: 800;
-  padding: 0.25rem 0.75rem;
-  border-radius: 8px;
+  font-size: 1.25rem;
+  font-weight: 900;
+  padding: 0.375rem 1rem;
+  border-radius: 12px;
   font-family: 'Courier New', monospace;
+  letter-spacing: 0.5px;
 }
 
 .level-value {
   background: linear-gradient(135deg, #0D6EFD, #0a58ca);
   color: white;
-  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
 }
 
 .stats-value {
   background: linear-gradient(135deg, #10b981, #059669);
   color: white;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .consistency-value {
   background: linear-gradient(135deg, #f39c12, #e67e22);
   color: white;
-  box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+  box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
 }
 
-/* Card Footer */
+/* Description Item - Estilo mejorado */
+.description-item {
+  background: linear-gradient(135deg, rgba(13, 110, 253, 0.05), rgba(13, 110, 253, 0.08));
+  border: 2px solid rgba(13, 110, 253, 0.15);
+  border-radius: 16px;
+  padding: 1.125rem;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.08);
+}
+
+.description-item:hover {
+  background: linear-gradient(135deg, rgba(13, 110, 253, 0.08), rgba(13, 110, 253, 0.12));
+  border-color: rgba(13, 110, 253, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(13, 110, 253, 0.15);
+}
+
+.desc-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 0.625rem;
+}
+
+.desc-icon {
+  font-size: 1.375rem;
+  filter: drop-shadow(0 2px 4px rgba(13, 110, 253, 0.3));
+}
+
+.desc-title {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: #0D6EFD;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.desc-text {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: #495057;
+  font-style: italic;
+  padding-left: 2rem;
+  font-weight: 500;
+}
+
+/* Date Item - Estilo mejorado */
+.date-item {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem 1.125rem;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.12));
+  border: 2px solid rgba(245, 158, 11, 0.2);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1);
+}
+
+.date-item:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(245, 158, 11, 0.18));
+  border-color: rgba(245, 158, 11, 0.35);
+  transform: translateX(6px);
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.2);
+}
+
+.date-icon {
+  font-size: 1.625rem;
+  filter: drop-shadow(0 2px 6px rgba(245, 158, 11, 0.4));
+}
+
+.date-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.date-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.75px;
+}
+
+.date-value {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #f59e0b;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.5px;
+}
+
+/* Card Footer - Rediseñado */
 .card-footer {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.875rem;
+  padding: 0 1.5rem 1.5rem;
 }
 
 .edit-btn,
@@ -941,130 +1196,173 @@ const goToRoom = (room: any) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
+  gap: 0.625rem;
+  padding: 0.875rem 1.125rem;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   cursor: pointer;
-  font-weight: 700;
-  font-size: 0.875rem;
+  font-weight: 800;
+  font-size: 0.9375rem;
   transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.edit-btn::before,
+.join-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.edit-btn:hover::before,
+.join-btn:hover::before {
+  left: 100%;
 }
 
 .edit-btn {
   background: linear-gradient(135deg, #6c757d, #495057);
   color: white;
-  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
 }
 
 .edit-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
+  background: linear-gradient(135deg, #5a6268, #3d4349);
 }
 
 .join-btn {
   background: linear-gradient(135deg, #0D6EFD, #0a58ca);
   color: white;
-  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
 }
 
 .join-btn:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 4px 16px rgba(13, 110, 253, 0.5);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 24px rgba(13, 110, 253, 0.5);
+  background: linear-gradient(135deg, #0a58ca, #0845a7);
 }
 
 .btn-icon {
-  font-size: 1rem;
-}
-/* Description Item - Estilo especial */
-.description-item {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-  border: 2px solid rgba(99, 102, 241, 0.2);
-  border-radius: 12px;
-  padding: 1rem;
-  transition: all 0.3s ease;
-  margin-top: 0.5rem;
+  font-size: 1.125rem;
 }
 
-.description-item:hover {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
-  border-color: rgba(99, 102, 241, 0.4);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
-}
-
-.desc-header {
+/* Pagination Styles - Actualizado para mantener colores */
+.pagination {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: 3rem;
+  padding: 1.75rem;
+  background: white;
+  border-radius: 20px;
+  border: 2px solid #e9ecef;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
-.desc-icon {
-  font-size: 1.25rem;
-}
-
-.desc-title {
-  font-size: 0.875rem;
+.pagination-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, #0D6EFD, #0a58ca);
+  border: none;
+  border-radius: 14px;
+  color: white;
   font-weight: 700;
-  color: #6366f1;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0a58ca, #0845a7);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #adb5bd, #868e96);
+  box-shadow: none;
+}
+
+.pagination-icon {
+  font-size: 1.125rem;
+}
+
+.pagination-text {
+  font-size: 0.9375rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.desc-text {
-  margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: #4b5563;
-  font-style: italic;
-  padding-left: 1.75rem;
+.pagination-numbers {
+  display: flex;
+  gap: 0.625rem;
+  align-items: center;
 }
 
-/* Date Item - Estilo especial */
-.date-item {
+.pagination-number {
+  min-width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1rem;
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 146, 60, 0.1));
-  border: 2px solid rgba(245, 158, 11, 0.2);
+  justify-content: center;
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
   border-radius: 12px;
-  transition: all 0.3s ease;
-  margin-top: 0.5rem;
-}
-
-.date-item:hover {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(251, 146, 60, 0.15));
-  border-color: rgba(245, 158, 11, 0.4);
-  transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
-}
-
-.date-icon {
-  font-size: 1.5rem;
-  filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.3));
-}
-
-.date-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.date-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #92400e;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.date-value {
-  font-size: 0.95rem;
+  color: #495057;
   font-weight: 700;
-  color: #f59e0b;
+  cursor: pointer;
+  transition: all 0.3s ease;
   font-family: 'Courier New', monospace;
+}
+
+.pagination-number:hover:not(:disabled):not(.ellipsis) {
+  background: linear-gradient(135deg, rgba(13, 110, 253, 0.1), rgba(10, 88, 202, 0.1));
+  border-color: #0D6EFD;
+  color: #0D6EFD;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+}
+
+.pagination-number.active {
+  background: linear-gradient(135deg, #0D6EFD, #0a58ca);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 16px rgba(13, 110, 253, 0.4);
+  transform: scale(1.1);
+}
+
+.pagination-number.ellipsis {
+  cursor: default;
+  background: transparent;
+  border: none;
+  color: #adb5bd;
+  font-weight: 900;
+}
+
+.pagination-info {
+  text-align: center;
+  margin-top: 1.25rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 16px;
+  color: #495057;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  border: 2px solid #e9ecef;
 }
 
 /* Responsive */
@@ -1088,27 +1386,55 @@ const goToRoom = (room: any) => {
 
   .rooms-grid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 1.5rem;
   }
 
   .card-footer {
     flex-direction: column;
   }
+
+  .pagination {
+    gap: 0.625rem;
+    padding: 1.25rem;
+  }
+
+  .pagination-btn {
+    padding: 0.75rem 1.125rem;
+    font-size: 0.875rem;
+  }
+
+  .pagination-text {
+    display: none;
+  }
+
+  .pagination-icon {
+    font-size: 1.375rem;
+  }
+
+  .pagination-number {
+    min-width: 38px;
+    height: 38px;
+    font-size: 0.875rem;
+  }
 }
 
 @media (max-width: 480px) {
   .title-text {
-    font-size: 1.25rem;
+    font-size: 1.375rem;
   }
 
   .room-name {
-    font-size: 1.25rem;
+    font-size: 1.375rem;
   }
 
   .filter-btn,
   .create-btn {
-    padding: 0.5rem 0.75rem;
+    padding: 0.625rem 0.875rem;
     font-size: 0.875rem;
+  }
+
+  .rooms-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

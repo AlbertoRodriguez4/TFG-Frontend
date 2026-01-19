@@ -44,6 +44,23 @@ export const useUserStore = defineStore('user', () => {
       console.error("Error fetching users:", error);
     }
   }
+  async function registerUser(newUser: User): Promise<boolean> { 
+    try {
+      const response = await fetch(`${BASE_URL}/api/auth/register`, {
+        method: "POST",
+        mode: "cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newUser)
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      
+      return true;
+    } catch (error) {
+      console.error("Error registering user:", error);
+      return false;
+    }
+  }
 
   function initializeSession() {
     const token = localStorage.getItem('token');
@@ -362,6 +379,7 @@ export const useUserStore = defineStore('user', () => {
     editUser,
     logoutUser,
     createUser,
-    DeleteUser
+    DeleteUser,
+    registerUser
   };
 });

@@ -19,13 +19,13 @@ async function handleLogin() {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
   if (!emailTrimmed || !passwordTrimmed) {
-    errorMessage.value = 'Por favor, completa todos los campos.'
+    errorMessage.value = 'Completa todos los campos.'
     isLoading.value = false
     return
   }
 
   if (!emailRegex.test(emailTrimmed)) {
-    errorMessage.value = 'Introduce un correo electrónico válido.'
+    errorMessage.value = 'Email inválido.'
     isLoading.value = false
     return
   }
@@ -42,7 +42,7 @@ async function handleLogin() {
     }
   } catch (error) {
     console.error('Login failed:', error)
-    errorMessage.value = 'Error inesperado al iniciar sesión. Intenta más tarde.'
+    errorMessage.value = 'Error inesperado. Intenta más tarde.'
     isLoading.value = false
   }
 }
@@ -50,155 +50,74 @@ async function handleLogin() {
 
 <template>
   <div class="login-wrapper">
-    <!-- Partículas animadas de fondo -->
-    <div class="particles">
-      <div class="particle" v-for="n in 20" :key="n" :style="{ 
-        left: `${Math.random() * 100}%`, 
-        animationDelay: `${Math.random() * 3}s`,
-        animationDuration: `${3 + Math.random() * 4}s`
-      }"></div>
-    </div>
+    <!-- Gradient orbs - efecto futurista sutil -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    
+    <!-- Grid lines futuristas -->
+    <div class="grid-lines"></div>
 
     <div class="login-container">
-      <!-- Header con Logo -->
+      <!-- Header -->
       <div class="header-banner">
         <div class="logo-container">
-          <img src="@/assets/imgs/Logo.png" alt="The Training Hub" class="main-logo" />
+          <div class="logo-icon">
+            <img src="@/assets/imgs/Logo.png" alt="Training Hub" class="main-logo" />
+          </div>
         </div>
-        <div class="hero-text">
-          <h1 class="hero-title">{{ $t('slogan') }}</h1>
-          <p class="hero-subtitle">Tu progreso te está esperando</p>
-        </div>
+        <h1 class="hero-title">{{ $t('slogan') }}</h1>
+        <p class="hero-subtitle">TU PROGRESO TE ESTÁ ESPERANDO</p>
       </div>
 
       <!-- Contenedor Principal -->
       <div class="content-grid">
-        <!-- Panel de Características -->
-        <div class="info-panel">
-          <div class="welcome-card">
-            <div class="welcome-icon">👋</div>
-            <h3 class="welcome-title">¡Bienvenido de vuelta!</h3>
-            <p class="welcome-desc">Continúa tu viaje hacia tus metas fitness</p>
-          </div>
-
-          <div class="features-list">
-            <div class="feature-item">
-              <div class="feature-bullet">🎮</div>
-              <div class="feature-content">
-                <h4 class="feature-title">Sistema Gamificado</h4>
-                <p class="feature-text">Gana XP y sube de nivel con cada entrenamiento</p>
-              </div>
-            </div>
-
-            <div class="feature-item">
-              <div class="feature-bullet">👥</div>
-              <div class="feature-content">
-                <h4 class="feature-title">Entrena en Grupo</h4>
-                <p class="feature-text">Únete a salas y motívense juntos</p>
-              </div>
-            </div>
-
-            <div class="feature-item">
-              <div class="feature-bullet">🏆</div>
-              <div class="feature-content">
-                <h4 class="feature-title">Retos Épicos</h4>
-                <p class="feature-text">Desafíos diarios y recompensas exclusivas</p>
-              </div>
-            </div>
-
-            <div class="feature-item">
-              <div class="feature-bullet">📊</div>
-              <div class="feature-content">
-                <h4 class="feature-title">Progreso Visible</h4>
-                <p class="feature-text">Estadísticas detalladas y logros desbloqueables</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="stats-preview">
-            <div class="preview-title">🔥 Sistema de Progresión</div>
-            <div class="preview-badges">
-              <div class="preview-badge">
-                <span class="badge-emoji">⚡</span>
-                <span class="badge-label">Niveles</span>
-              </div>
-              <div class="preview-badge">
-                <span class="badge-emoji">🪙</span>
-                <span class="badge-label">Monedas</span>
-              </div>
-              <div class="preview-badge">
-                <span class="badge-emoji">💪</span>
-                <span class="badge-label">Atributos</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- Panel de Login -->
         <div class="form-panel">
           <div class="form-card">
-            <!-- Decoración superior -->
-            <div class="card-decoration">
-              <div class="decoration-line"></div>
-              <div class="decoration-icon">🎯</div>
-              <div class="decoration-line"></div>
-            </div>
-
             <div class="form-header">
-              <div class="level-badge">
-                <span class="badge-icon">🔐</span>
-                <span class="badge-text">ACCESO SEGURO</span>
+              <div class="status-badge">
+                <span class="badge-dot"></span>
+                <span class="badge-text">ACCESO AL SISTEMA</span>
               </div>
               <h2 class="form-title">{{ $t('title_login') }}</h2>
-              <p class="form-subtitle">Accede a tu cuenta de entrenador</p>
+              <p class="form-subtitle">Retoma tu entrenamiento donde lo dejaste</p>
             </div>
 
             <v-form @submit.prevent="handleLogin" class="login-form">
-              <!-- Email -->
-              <div class="input-container">
-                <div class="input-badge">
-                  <span class="badge-emoji">📧</span>
+              <!-- Inputs -->
+              <div class="inputs-container">
+                <!-- Email -->
+                <div class="input-wrapper">
+                  <label class="input-label">EMAIL</label>
+                  <v-text-field
+                    v-model="email"
+                    type="email"
+                    :placeholder="$t('placeholder_email')"
+                    variant="solo-filled"
+                    density="comfortable"
+                    color="purple-lighten-2"
+                    class="custom-input"
+                    hide-details="auto"
+                  ></v-text-field>
                 </div>
-                <v-text-field
-                  v-model="email"
-                  type="email"
-                  :placeholder="$t('placeholder_email')"
-                  variant="solo"
-                  density="comfortable"
-                  color="orange-darken-2"
-                  class="custom-input"
-                  hide-details="auto"
-                  bg-color="rgba(255, 255, 255, 0.9)"
-                >
-                  <template v-slot:label>
-                    <span class="field-label">Correo Electrónico</span>
-                  </template>
-                </v-text-field>
+
+                <!-- Contraseña -->
+                <div class="input-wrapper">
+                  <label class="input-label">CONTRASEÑA</label>
+                  <v-text-field
+                    v-model="password"
+                    type="password"
+                    :placeholder="$t('placeholder_password')"
+                    variant="solo-filled"
+                    density="comfortable"
+                    color="purple-lighten-2"
+                    class="custom-input"
+                    hide-details="auto"
+                  ></v-text-field>
+                </div>
               </div>
 
-              <!-- Contraseña -->
-              <div class="input-container">
-                <div class="input-badge">
-                  <span class="badge-emoji">🔒</span>
-                </div>
-                <v-text-field
-                  v-model="password"
-                  type="password"
-                  :placeholder="$t('placeholder_password')"
-                  variant="solo"
-                  density="comfortable"
-                  color="orange-darken-2"
-                  class="custom-input"
-                  hide-details="auto"
-                  bg-color="rgba(255, 255, 255, 0.9)"
-                >
-                  <template v-slot:label>
-                    <span class="field-label">Contraseña</span>
-                  </template>
-                </v-text-field>
-              </div>
-
-              <!-- Quick Stats Info -->
+              <!-- Quick Info -->
               <div class="quick-info">
                 <div class="info-item">
                   <span class="info-icon">⚡</span>
@@ -210,26 +129,13 @@ async function handleLogin() {
                 </div>
               </div>
 
-              <!-- Mensaje de Error -->
-              <v-alert
-                v-if="errorMessage"
-                type="error"
-                variant="tonal"
-                class="error-alert"
-                prominent
-                border="start"
-                border-color="error"
-              >
-                <template v-slot:prepend>
-                  <span class="error-icon">⚠️</span>
-                </template>
-                <div class="error-content">
-                  <div class="error-title">¡Error de Acceso!</div>
-                  <div class="error-message">{{ errorMessage }}</div>
-                </div>
-              </v-alert>
+              <!-- Error Alert -->
+              <div v-if="errorMessage" class="error-alert">
+                <span class="error-icon">⚠️</span>
+                <span class="error-text">{{ errorMessage }}</span>
+              </div>
 
-              <!-- Botón de Login Épico -->
+              <!-- Submit Button -->
               <v-btn
                 type="submit"
                 size="x-large"
@@ -237,62 +143,87 @@ async function handleLogin() {
                 :loading="isLoading"
                 :disabled="isLoading"
                 block
-                elevation="8"
               >
-                <template v-slot:default>
-                  <div class="btn-content">
-                    <span class="btn-icon-left">🚀</span>
-                    <div class="btn-text-container">
-                      <span class="btn-text-main">{{ $t('login_button') }}</span>
-                      <span class="btn-text-sub">Entrar al Hub</span>
-                    </div>
-                    <span class="btn-icon-right">💪</span>
-                  </div>
-                </template>
-                <template v-slot:loader>
-                  <div class="btn-loading">
-                    <v-progress-circular
-                      indeterminate
-                      size="28"
-                      width="3"
-                      color="white"
-                    ></v-progress-circular>
-                    <span class="loading-text">Verificando...</span>
-                  </div>
-                </template>
+                <span v-if="!isLoading" class="btn-text">
+                  <span>{{ $t('login_button') }}</span>
+                  <span class="btn-arrow">→</span>
+                </span>
+                <span v-else class="btn-loading">
+                  <v-progress-circular
+                    indeterminate
+                    size="20"
+                    width="2"
+                    color="white"
+                  ></v-progress-circular>
+                  <span>Verificando...</span>
+                </span>
               </v-btn>
 
-              <!-- Separador con estilo -->
+              <!-- Separator -->
               <div class="separator">
                 <div class="separator-line"></div>
-                <span class="separator-text">¿Primera vez?</span>
+                <span class="separator-text">¿PRIMERA VEZ?</span>
                 <div class="separator-line"></div>
               </div>
-              
-              <!-- Link a Registro -->
-              <div class="register-prompt">
-                <p class="prompt-text">{{ $t('no_account') }}</p>
+
+              <!-- Register Link -->
+              <div class="register-section">
+                <p class="register-text">{{ $t('no_account') }}</p>
                 <v-btn
                   variant="outlined"
-                  color="deep-purple"
                   size="large"
                   class="register-btn"
                   to="/register"
                   block
                 >
-                  <span class="register-btn-icon">✨</span>
                   {{ $t('register_button') }}
-                  <template v-slot:append>
-                    <span class="btn-arrow-register">→</span>
-                  </template>
                 </v-btn>
               </div>
             </v-form>
+          </div>
+        </div>
 
-            <!-- Hint decorativo -->
-            <div class="bottom-hint">
-              <span class="hint-icon">💡</span>
-              <span class="hint-text">Únete y desbloquea recompensas exclusivas</span>
+        <!-- Info Panel -->
+        <div class="info-panel">
+          <div class="welcome-card">
+            <div class="welcome-icon">👋</div>
+            <h3 class="welcome-title">¡Bienvenido de vuelta!</h3>
+            <p class="welcome-desc">Continúa tu viaje hacia tus metas</p>
+          </div>
+
+          <div class="info-card">
+            <div class="info-icon">🎮</div>
+            <h3 class="info-title">Sistema Gamificado</h3>
+            <p class="info-desc">Gana XP y sube de nivel con cada entrenamiento</p>
+          </div>
+
+          <div class="info-card">
+            <div class="info-icon">👥</div>
+            <h3 class="info-title">Entrena en Grupo</h3>
+            <p class="info-desc">Únete a salas y motívense juntos</p>
+          </div>
+
+          <div class="info-card">
+            <div class="info-icon">🏆</div>
+            <h3 class="info-title">Retos Épicos</h3>
+            <p class="info-desc">Desafíos diarios y recompensas exclusivas</p>
+          </div>
+
+          <div class="progress-card">
+            <div class="progress-label">SISTEMA DE PROGRESIÓN</div>
+            <div class="progress-items">
+              <div class="progress-item">
+                <span class="progress-icon">⚡</span>
+                <span class="progress-name">Niveles</span>
+              </div>
+              <div class="progress-item">
+                <span class="progress-icon">🪙</span>
+                <span class="progress-name">Monedas</span>
+              </div>
+              <div class="progress-item">
+                <span class="progress-icon">💪</span>
+                <span class="progress-name">Atributos</span>
+              </div>
             </div>
           </div>
         </div>
@@ -310,49 +241,59 @@ async function handleLogin() {
 
 .login-wrapper {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0f0a1a 100%);
   position: relative;
   overflow-x: hidden;
-  font-family: 'Patrick Hand', cursive;
 }
 
-/* Partículas de fondo */
-.particles {
+/* Orbes de luz */
+.orb {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  border-radius: 50%;
+  filter: blur(80px);
   pointer-events: none;
   z-index: 1;
+  animation: pulse 4s ease-in-out infinite;
 }
 
-.particle {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: #ffc107;
-  border-radius: 50%;
-  opacity: 0;
-  animation: float-particle linear infinite;
-  box-shadow: 0 0 10px #ffc107;
+.orb-1 {
+  top: 10%;
+  left: 20%;
+  width: 400px;
+  height: 400px;
+  background: rgba(139, 92, 246, 0.15);
 }
 
-@keyframes float-particle {
-  0% {
-    transform: translateY(100vh) translateX(0);
-    opacity: 0;
+.orb-2 {
+  bottom: 10%;
+  right: 20%;
+  width: 400px;
+  height: 400px;
+  background: rgba(34, 211, 238, 0.15);
+  animation-delay: 2s;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
   }
-  10% {
-    opacity: 1;
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
   }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-100px) translateX(100px);
-    opacity: 0;
-  }
+}
+
+/* Grid lines */
+.grid-lines {
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .login-container {
@@ -360,20 +301,20 @@ async function handleLogin() {
   z-index: 2;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 3rem 2rem;
 }
 
-/* Header Banner */
+/* Header */
 .header-banner {
   text-align: center;
   margin-bottom: 3rem;
-  animation: fadeInDown 0.8s ease-out;
+  animation: fadeIn 0.8s ease-out;
 }
 
-@keyframes fadeInDown {
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-30px);
+    transform: translateY(-20px);
   }
   to {
     opacity: 1;
@@ -385,548 +326,264 @@ async function handleLogin() {
   margin-bottom: 1.5rem;
 }
 
+.logo-icon {
+  display: inline-block;
+  padding: 1rem;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 24px;
+  backdrop-filter: blur(10px);
+}
+
 .main-logo {
-  height: 100px;
-  filter: drop-shadow(0 8px 24px rgba(255, 193, 7, 0.4));
-  animation: pulse-glow 3s ease-in-out infinite;
-}
-
-@keyframes pulse-glow {
-  0%, 100% {
-    filter: drop-shadow(0 8px 24px rgba(255, 193, 7, 0.4));
-  }
-  50% {
-    filter: drop-shadow(0 12px 32px rgba(255, 193, 7, 0.6));
-  }
-}
-
-.hero-text {
-  color: white;
+  height: 80px;
+  filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
 }
 
 .hero-title {
   font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(90deg, #ffc107, #ff9800, #ffc107);
-  background-size: 200% auto;
+  font-weight: 700;
+  background: linear-gradient(135deg, #a78bfa, #22d3ee);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gradient-shift 3s ease infinite;
-}
-
-@keyframes gradient-shift {
-  0%, 100% {
-    background-position: 0% center;
-  }
-  50% {
-    background-position: 100% center;
-  }
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
 }
 
 .hero-subtitle {
-  font-size: 1.3rem;
-  color: #aaa;
-  letter-spacing: 1px;
+  font-size: 0.75rem;
+  color: #64748b;
+  letter-spacing: 3px;
+  font-weight: 600;
 }
 
-/* Grid de Contenido */
+/* Content Grid */
 .content-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.2fr 1fr;
   gap: 2rem;
-  animation: fadeIn 1s ease-out 0.3s both;
+  align-items: start;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Panel de Información */
-.info-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  animation: slideInLeft 0.6s ease-out;
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.welcome-card {
-  background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.15));
-  border: 2px solid #ffc107;
-  border-radius: 20px;
-  padding: 2rem;
-  text-align: center;
-  backdrop-filter: blur(10px);
-}
-
-.welcome-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  animation: wave 2s ease-in-out infinite;
-}
-
-@keyframes wave {
-  0%, 100% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(20deg);
-  }
-  75% {
-    transform: rotate(-20deg);
-  }
-}
-
-.welcome-title {
-  color: #ffc107;
-  font-size: 1.8rem;
-  margin-bottom: 0.5rem;
-  font-weight: bold;
-}
-
-.welcome-desc {
-  color: #ccc;
-  font-size: 1.1rem;
-}
-
-.features-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.feature-item {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 193, 7, 0.2);
-  border-radius: 16px;
-  padding: 1.2rem;
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-  transition: all 0.3s ease;
-}
-
-.feature-item:hover {
-  transform: translateX(10px);
-  border-color: rgba(255, 193, 7, 0.5);
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 24px rgba(255, 193, 7, 0.2);
-}
-
-.feature-bullet {
-  font-size: 2rem;
-  flex-shrink: 0;
-}
-
-.feature-content {
-  flex: 1;
-}
-
-.feature-title {
-  color: #ffc107;
-  font-size: 1.2rem;
-  margin-bottom: 0.3rem;
-  font-weight: bold;
-}
-
-.feature-text {
-  color: #ccc;
-  font-size: 0.95rem;
-  line-height: 1.4;
-}
-
-.stats-preview {
-  background: rgba(102, 126, 234, 0.1);
-  border: 2px solid rgba(102, 126, 234, 0.3);
-  border-radius: 16px;
-  padding: 1.5rem;
-  backdrop-filter: blur(10px);
-}
-
-.preview-title {
-  color: #667eea;
-  font-size: 1.3rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.preview-badges {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-}
-
-.preview-badge {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  transition: transform 0.3s ease;
-}
-
-.preview-badge:hover {
-  transform: scale(1.1);
-}
-
-.badge-emoji {
-  font-size: 2rem;
-}
-
-.badge-label {
-  color: white;
-  font-size: 0.9rem;
-  font-weight: bold;
-}
-
-/* Panel de Formulario */
+/* Form Panel */
 .form-panel {
-  animation: slideInRight 0.6s ease-out;
+  animation: slideUp 0.8s ease-out;
 }
 
-@keyframes slideInRight {
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateX(30px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
 .form-card {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(240, 240, 255, 0.95));
+  background: rgba(15, 15, 30, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(139, 92, 246, 0.2);
   border-radius: 24px;
-  padding: 2.5rem;
-  box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  position: relative;
-  overflow: hidden;
-}
-
-.form-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background: linear-gradient(90deg, #ffc107, #ff9800, #ffc107);
-  background-size: 200% auto;
-  animation: gradient-shift 3s linear infinite;
-}
-
-/* Decoración superior */
-.card-decoration {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.decoration-line {
-  flex: 1;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #ffc107, transparent);
-}
-
-.decoration-icon {
-  font-size: 2rem;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 8px rgba(255, 193, 7, 0.5));
-  }
-  50% {
-    transform: scale(1.2);
-    filter: drop-shadow(0 0 16px rgba(255, 193, 7, 0.8));
-  }
+  padding: 3rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 .form-header {
-  text-align: center;
   margin-bottom: 2rem;
+  text-align: center;
 }
 
-.level-badge {
+.status-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  padding: 0.6rem 1.5rem;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  padding: 0.5rem 1rem;
   border-radius: 50px;
-  font-weight: bold;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-  animation: slideInDown 0.6s ease-out;
+  margin-bottom: 1.5rem;
 }
 
-.badge-icon {
-  font-size: 1.2rem;
+.badge-dot {
+  width: 8px;
+  height: 8px;
+  background: #22d3ee;
+  border-radius: 50%;
+  animation: blink 2s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 
 .badge-text {
-  letter-spacing: 1px;
+  font-size: 0.7rem;
+  color: #a78bfa;
+  font-weight: 600;
+  letter-spacing: 2px;
 }
 
 .form-title {
-  font-size: 2.5rem;
-  color: #1a1a2e;
+  font-size: 2rem;
+  color: #f8fafc;
+  font-weight: 700;
   margin-bottom: 0.5rem;
-  font-weight: bold;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .form-subtitle {
-  color: #666;
-  font-size: 1.1rem;
+  color: #64748b;
+  font-size: 0.95rem;
 }
 
-.login-form {
+/* Inputs */
+.inputs-container {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
-.input-container {
+.input-wrapper {
   position: relative;
 }
 
-.input-badge {
-  position: absolute;
-  top: -12px;
-  left: 12px;
-  background: linear-gradient(135deg, #ffc107, #ff9800);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
-  z-index: 2;
-  border: 3px solid white;
-}
-
-.field-label {
-  font-size: 0.95rem;
+.input-label {
+  display: block;
+  font-size: 0.7rem;
+  color: #64748b;
   font-weight: 600;
-  font-family: 'Patrick Hand', cursive;
+  letter-spacing: 1.5px;
+  margin-bottom: 0.5rem;
+  padding-left: 0.25rem;
 }
 
-/* Estilos personalizados para Vuetify text fields */
-:deep(.v-field) {
-  border-radius: 16px !important;
-  font-family: 'Patrick Hand', cursive;
-  font-size: 1.05rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+:deep(.custom-input .v-field) {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid rgba(139, 92, 246, 0.2) !important;
+  border-radius: 12px !important;
+  color: #f8fafc !important;
   transition: all 0.3s ease !important;
 }
 
-:deep(.v-field:hover) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
+:deep(.custom-input .v-field:hover) {
+  border-color: rgba(139, 92, 246, 0.4) !important;
+  background: rgba(0, 0, 0, 0.4) !important;
 }
 
-:deep(.v-field--focused) {
-  box-shadow: 0 8px 24px rgba(255, 193, 7, 0.3) !important;
-  transform: translateY(-2px);
+:deep(.custom-input .v-field--focused) {
+  border-color: #a78bfa !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1) !important;
+  background: rgba(0, 0, 0, 0.4) !important;
 }
 
-:deep(.v-field__input) {
-  padding-left: 12px;
+:deep(.custom-input input) {
+  color: #f8fafc !important;
+}
+
+:deep(.custom-input input::placeholder) {
+  color: #475569 !important;
 }
 
 /* Quick Info */
 .quick-info {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-  border: 2px solid rgba(102, 126, 234, 0.3);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), rgba(34, 211, 238, 0.05));
+  border: 1px solid rgba(139, 92, 246, 0.2);
   border-radius: 16px;
-  padding: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 0.75rem;
 }
 
 .info-item {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.75rem;
 }
 
 .info-icon {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
 }
 
 .info-text {
-  color: #667eea;
-  font-size: 0.95rem;
-  font-weight: 600;
+  color: #94a3b8;
+  font-size: 0.9rem;
 }
 
-/* Estilos para el Alert de error */
+/* Error Alert */
 .error-alert {
-  animation: shake 0.5s ease;
-  border-radius: 16px !important;
-  font-family: 'Patrick Hand', cursive;
-  font-size: 1rem;
-  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2) !important;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  animation: shake 0.3s ease;
 }
 
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-8px); }
-  50% { transform: translateX(8px); }
-  75% { transform: translateX(-8px); }
-}
-
-.error-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.error-title {
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-
-.error-message {
-  font-size: 0.95rem;
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
 }
 
 .error-icon {
-  font-size: 1.8rem;
-  margin-right: 8px;
+  font-size: 1.5rem;
 }
 
-/* Botón de submit épico */
+.error-text {
+  color: #fca5a5;
+  font-size: 0.9rem;
+}
+
+/* Submit Button */
 .submit-btn {
-  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%) !important;
-  color: #1a1a2e !important;
-  font-weight: bold !important;
-  font-size: 1.2rem !important;
-  border-radius: 16px !important;
-  padding: 1.5rem 2rem !important;
-  box-shadow: 
-    0 8px 24px rgba(255, 193, 7, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-  font-family: 'Patrick Hand', cursive !important;
-  margin-top: 0.5rem;
+  background: linear-gradient(135deg, #8b5cf6, #22d3ee) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  border-radius: 12px !important;
   text-transform: none !important;
-  letter-spacing: 0 !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 1.5rem;
   transition: all 0.3s ease !important;
-  position: relative;
-  overflow: hidden;
-}
-
-.submit-btn::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transition: left 0.5s ease;
-}
-
-.submit-btn:hover::before {
-  left: 100%;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4) !important;
 }
 
 .submit-btn:hover {
-  transform: translateY(-4px);
-  box-shadow: 
-    0 12px 32px rgba(255, 193, 7, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-}
-
-.submit-btn:active {
   transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(139, 92, 246, 0.6) !important;
 }
 
-.btn-content {
+.btn-text {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  width: 100%;
+  gap: 0.75rem;
 }
 
-.btn-icon-left,
-.btn-icon-right {
-  font-size: 1.5rem;
-  animation: bounce 2s ease-in-out infinite;
+.btn-arrow {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
 }
 
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
-
-.btn-text-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.btn-text-main {
-  font-size: 1.3rem;
-  font-weight: bold;
-  line-height: 1;
-}
-
-.btn-text-sub {
-  font-size: 0.85rem;
-  opacity: 0.8;
-  line-height: 1;
+.submit-btn:hover .btn-arrow {
+  transform: translateX(5px);
 }
 
 .btn-loading {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
-.loading-text {
-  font-size: 1.1rem;
-}
-
-/* Separador */
+/* Separator */
 .separator {
   display: flex;
   align-items: center;
@@ -936,263 +593,192 @@ async function handleLogin() {
 
 .separator-line {
   flex: 1;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #ddd, transparent);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
 }
 
 .separator-text {
-  color: #999;
-  font-size: 1.1rem;
-  font-weight: bold;
-  background: white;
-  padding: 0 1rem;
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
 }
 
-/* Sección de registro */
+/* Register Section */
+.register-section {
+  text-align: center;
+}
+
+.register-text {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.register-btn {
+  border-color: rgba(139, 92, 246, 0.3) !important;
+  color: #a78bfa !important;
+  font-weight: 600 !important;
+  border-radius: 12px !important;
+  text-transform: none !important;
+  transition: all 0.3s ease !important;
+}
+
 .register-btn:hover {
+  border-color: #a78bfa !important;
+  background: rgba(139, 92, 246, 0.1) !important;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3) !important;
 }
 
-.register-btn-icon {
-  font-size: 1.3rem;
-  margin-right: 8px;
+/* Info Panel */
+.info-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: fadeIn 0.8s ease-out 0.2s both;
 }
 
-.btn-arrow-register {
-  font-size: 1.3rem;
+.welcome-card {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(34, 211, 238, 0.15));
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 20px;
+  padding: 2rem;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.welcome-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation: wave 2s ease-in-out infinite;
+}
+
+@keyframes wave {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(20deg); }
+  75% { transform: rotate(-20deg); }
+}
+
+.welcome-title {
+  color: #a78bfa;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.welcome-desc {
+  color: #94a3b8;
+  font-size: 1rem;
+}
+
+.info-card {
+  background: rgba(15, 15, 30, 0.4);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(139, 92, 246, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.info-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(139, 92, 246, 0.3);
+  background: rgba(15, 15, 30, 0.6);
+}
+
+.info-icon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.info-title {
+  color: #a78bfa;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.info-desc {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.progress-card {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 16px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.progress-label {
+  font-size: 0.7rem;
+  color: #a78bfa;
+  font-weight: 600;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.progress-items {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.progress-item {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
   transition: transform 0.3s ease;
 }
 
-.register-btn:hover .btn-arrow-register {
-  transform: translateX(5px);
+.progress-item:hover {
+  transform: scale(1.05);
 }
 
-/* Hint inferior */
-.bottom-hint {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
-  border-radius: 12px;
-  border: 2px solid rgba(255, 193, 7, 0.3);
-}
-
-.hint-icon {
+.progress-icon {
   font-size: 1.5rem;
 }
 
-.hint-text {
-  color: #ff9800;
-  font-size: 0.95rem;
-  font-weight: bold;
+.progress-name {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
-/* Responsive Design */
-@media (max-width: 1200px) {
+/* Responsive */
+@media (max-width: 1024px) {
   .content-grid {
     grid-template-columns: 1fr;
-    gap: 2rem;
   }
 
   .info-panel {
-    order: 2;
-  }
-
-  .form-panel {
-    order: 1;
+    order: -1;
   }
 }
 
 @media (max-width: 768px) {
   .login-container {
-    padding: 1.5rem;
-  }
-
-  .header-banner {
-    margin-bottom: 2rem;
-  }
-
-  .main-logo {
-    height: 70px;
-  }
-
-  .hero-title {
-    font-size: 1.8rem;
-  }
-
-  .hero-subtitle {
-    font-size: 1rem;
+    padding: 2rem 1rem;
   }
 
   .form-card {
     padding: 2rem 1.5rem;
   }
 
-  .form-title {
-    font-size: 1.8rem;
+  .hero-title {
+    font-size: 2rem;
   }
 
   .welcome-card {
     padding: 1.5rem;
-  }
-
-  .welcome-icon {
-    font-size: 3rem;
-  }
-
-  .welcome-title {
-    font-size: 1.5rem;
-  }
-
-  .welcome-desc {
-    font-size: 1rem;
-  }
-
-  .feature-item {
-    padding: 1rem;
-  }
-
-  .feature-bullet {
-    font-size: 1.5rem;
-  }
-
-  .feature-title {
-    font-size: 1.1rem;
-  }
-
-  .feature-text {
-    font-size: 0.9rem;
-  }
-
-  .preview-badges {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.8rem;
-  }
-
-  .preview-badge {
-    padding: 0.8rem;
-  }
-
-  .badge-emoji {
-    font-size: 1.5rem;
-  }
-
-  .badge-label {
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .login-container {
-    padding: 1rem;
-  }
-
-  .main-logo {
-    height: 60px;
-  }
-
-  .hero-title {
-    font-size: 1.5rem;
-  }
-
-  .hero-subtitle {
-    font-size: 0.9rem;
-  }
-
-  .form-card {
-    padding: 1.5rem 1rem;
-  }
-
-  .card-decoration {
-    margin-bottom: 1rem;
-  }
-
-  .decoration-icon {
-    font-size: 1.5rem;
-  }
-
-  .level-badge {
-    font-size: 0.8rem;
-    padding: 0.5rem 1rem;
-  }
-
-  .form-title {
-    font-size: 1.6rem;
-  }
-
-  .form-subtitle {
-    font-size: 1rem;
-  }
-
-  .input-badge {
-    width: 32px;
-    height: 32px;
-    top: -10px;
-  }
-
-  .badge-emoji {
-    font-size: 1rem;
-  }
-
-  .quick-info {
-    padding: 0.8rem;
-  }
-
-  .info-item {
-    gap: 0.5rem;
-  }
-
-  .info-icon {
-    font-size: 1.1rem;
-  }
-
-  .info-text {
-    font-size: 0.85rem;
-  }
-
-  .submit-btn {
-    padding: 1rem 1.5rem !important;
-  }
-
-  .btn-text-main {
-    font-size: 1.1rem;
-  }
-
-  .btn-text-sub {
-    font-size: 0.75rem;
-  }
-
-  .btn-icon-left,
-  .btn-icon-right {
-    font-size: 1.2rem;
-  }
-
-  .register-btn {
-    padding: 1rem 1.5rem !important;
-    font-size: 1.1rem !important;
-  }
-
-  .register-btn-icon {
-    font-size: 1.1rem;
-  }
-
-  .bottom-hint {
-    flex-direction: column;
-    gap: 0.3rem;
-    padding: 0.8rem;
-  }
-
-  .hint-text {
-    font-size: 0.85rem;
-    text-align: center;
-  }
-
-  .welcome-card {
-    padding: 1.2rem;
   }
 
   .welcome-icon {
@@ -1203,50 +789,34 @@ async function handleLogin() {
     font-size: 1.3rem;
   }
 
-  .welcome-desc {
-    font-size: 0.9rem;
-  }
-
-  .feature-item {
-    padding: 0.8rem;
-    gap: 0.8rem;
-  }
-
-  .feature-bullet {
-    font-size: 1.3rem;
-  }
-
-  .feature-title {
-    font-size: 1rem;
-  }
-
-  .feature-text {
-    font-size: 0.85rem;
-  }
-
-  .stats-preview {
-    padding: 1rem;
-  }
-
-  .preview-title {
-    font-size: 1.1rem;
-  }
-
-  .preview-badges {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
-  }
-
-  .preview-badge {
-    padding: 0.6rem;
-  }
-
-  .badge-emoji {
-    font-size: 1.3rem;
-  }
-
-  .badge-label {
-    font-size: 0.75rem;
+  .progress-items {
+    gap: 0.75rem;
   }
 }
-</style>
+
+@media (max-width: 480px) {
+  .form-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .main-logo {
+    height: 60px;
+  }
+
+  .welcome-card {
+    padding: 1.2rem;
+  }
+
+  .welcome-icon {
+    font-size: 2rem;
+  }
+
+  .progress-items {
+    grid-template-columns: 1fr;
+  }
+}
+</style>  

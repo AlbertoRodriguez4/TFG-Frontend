@@ -25,25 +25,25 @@ const register = async () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
   if (!emailTrimmed || !passwordTrimmed || !confirmPasswordTrimmed || !nameTrimmed) {
-    errorMessage.value = 'Por favor, completa todos los campos.'
+    errorMessage.value = 'Completa todos los campos.'
     isLoading.value = false
     return
   }
 
   if (!emailRegex.test(emailTrimmed)) {
-    errorMessage.value = 'Introduce un correo electrónico válido.'
+    errorMessage.value = 'Email inválido.'
     isLoading.value = false
     return
   }
 
   if (nameTrimmed.length < 3) {
-    errorMessage.value = 'El nombre debe tener al menos 3 caracteres.'
+    errorMessage.value = 'Nombre muy corto (mín. 3 caracteres).'
     isLoading.value = false
     return
   }
 
   if (passwordTrimmed.length < 6) {
-    errorMessage.value = 'La contraseña debe tener al menos 6 caracteres.'
+    errorMessage.value = 'Contraseña muy corta (mín. 6 caracteres).'
     isLoading.value = false
     return
   }
@@ -63,12 +63,13 @@ const register = async () => {
     strength: 0,
     endurance: 0,
     consistencystreak: 0,
+    consistencyStreak: 0,
     gold: 0,
     role: 'userNormal'
   }
 
   try {
-    const result = await store.createUser(user)
+    const result = await store.registerUser(user)
     if (!result) {
       errorMessage.value = 'No se pudo crear el usuario. Puede que el correo ya esté registrado.'
       isLoading.value = false
@@ -93,241 +94,136 @@ const register = async () => {
 
 <template>
   <div class="register-wrapper">
-    <!-- Partículas animadas de fondo -->
-    <div class="particles">
-      <div class="particle" v-for="n in 20" :key="n" :style="{ 
-        left: `${Math.random() * 100}%`, 
-        animationDelay: `${Math.random() * 3}s`,
-        animationDuration: `${3 + Math.random() * 4}s`
-      }"></div>
-    </div>
+    <!-- Gradient orbs - efecto futurista sutil -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    
+    <!-- Grid lines futuristas -->
+    <div class="grid-lines"></div>
 
     <div class="register-container">
-      <!-- Header con Logo -->
+      <!-- Header -->
       <div class="header-banner">
         <div class="logo-container">
-          <img src="@/assets/imgs/Logo.png" alt="The Training Hub" class="main-logo" />
+          <div class="logo-icon">
+            <img src="@/assets/imgs/Logo.png" alt="Training Hub" class="main-logo" />
+          </div>
         </div>
-        <div class="hero-text">
-          <h1 class="hero-title">{{ $t('slogan') }}</h1>
-          <p class="hero-subtitle">Entrena. Compite. Conquista.</p>
-        </div>
+        <h1 class="hero-title">{{ $t('slogan') }}</h1>
+        <p class="hero-subtitle">SISTEMA DE ENTRENAMIENTO AVANZADO</p>
       </div>
 
       <!-- Contenedor Principal -->
       <div class="content-grid">
-        <!-- Panel de Información -->
-        <div class="info-panel">
-          <div class="feature-card">
-            <div class="feature-icon">🎮</div>
-            <h3 class="feature-title">Sistema de Niveles</h3>
-            <p class="feature-desc">Sube de nivel completando entrenamientos y desbloquea nuevas salas exclusivas</p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">👥</div>
-            <h3 class="feature-title">Entrena en Grupo</h3>
-            <p class="feature-desc">Únete a salas con otros usuarios y motívense mutuamente</p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">🏆</div>
-            <h3 class="feature-title">Retos y Recompensas</h3>
-            <p class="feature-desc">Acepta desafíos, gana XP, monedas de oro y mejora tus atributos</p>
-          </div>
-
-          <div class="starting-rewards">
-            <h4 class="rewards-title">🎁 Recompensas Iniciales</h4>
-            <div class="rewards-grid">
-              <div class="reward-item">
-                <span class="reward-icon">⚡</span>
-                <span class="reward-text">Nivel 1</span>
-              </div>
-              <div class="reward-item">
-                <span class="reward-icon">🪙</span>
-                <span class="reward-text">100 Oro</span>
-              </div>
-              <div class="reward-item">
-                <span class="reward-icon">💎</span>
-                <span class="reward-text">Pack Inicial</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- Panel de Registro -->
         <div class="form-panel">
           <div class="form-card">
-            <!-- Decoración superior -->
-            <div class="card-decoration">
-              <div class="decoration-line"></div>
-              <div class="decoration-icon">⚡</div>
-              <div class="decoration-line"></div>
-            </div>
-
             <div class="form-header">
-              <div class="level-badge">
-                <span class="badge-icon">🎮</span>
-                <span class="badge-text">NUEVO JUGADOR</span>
+              <div class="status-badge">
+                <span class="badge-dot"></span>
+                <span class="badge-text">NUEVO USUARIO</span>
               </div>
               <h2 class="form-title">{{ $t('register_title') }}</h2>
-              <p class="form-subtitle">Crea tu cuenta y empieza a entrenar</p>
-              
-              <!-- Barra de progreso ficticia -->
-              <div class="progress-container">
-                <div class="progress-label">Preparando tu aventura...</div>
-                <div class="progress-bar">
-                  <div class="progress-fill"></div>
-                </div>
-              </div>
+              <p class="form-subtitle">Inicializa tu perfil de entrenamiento</p>
             </div>
 
             <v-form @submit.prevent="register" class="register-form">
-              <!-- Grid de inputs en 2 columnas -->
+              <!-- Inputs -->
               <div class="inputs-grid">
-                <!-- Nombre de Usuario -->
-                <div class="input-container">
-                  <div class="input-badge">
-                    <span class="badge-emoji">👤</span>
-                  </div>
+                <!-- Nombre -->
+                <div class="input-wrapper">
+                  <label class="input-label">USUARIO</label>
                   <v-text-field
                     v-model="name"
                     :placeholder="$t('username_placeholder')"
-                    variant="solo"
+                    variant="solo-filled"
                     density="comfortable"
-                    color="orange-darken-2"
+                    color="purple-lighten-2"
                     class="custom-input"
                     hide-details="auto"
-                    bg-color="rgba(255, 255, 255, 0.9)"
-                  >
-                    <template v-slot:label>
-                      <span class="field-label">Usuario</span>
-                    </template>
-                  </v-text-field>
+                  ></v-text-field>
                 </div>
 
                 <!-- Email -->
-                <div class="input-container">
-                  <div class="input-badge">
-                    <span class="badge-emoji">📧</span>
-                  </div>
+                <div class="input-wrapper">
+                  <label class="input-label">EMAIL</label>
                   <v-text-field
                     v-model="email"
                     type="email"
                     :placeholder="$t('email_placeholder')"
-                    variant="solo"
+                    variant="solo-filled"
                     density="comfortable"
-                    color="orange-darken-2"
+                    color="purple-lighten-2"
                     class="custom-input"
                     hide-details="auto"
-                    bg-color="rgba(255, 255, 255, 0.9)"
-                  >
-                    <template v-slot:label>
-                      <span class="field-label">Email</span>
-                    </template>
-                  </v-text-field>
+                  ></v-text-field>
                 </div>
 
                 <!-- Contraseña -->
-                <div class="input-container">
-                  <div class="input-badge">
-                    <span class="badge-emoji">🔒</span>
-                  </div>
+                <div class="input-wrapper">
+                  <label class="input-label">CONTRASEÑA</label>
                   <v-text-field
                     v-model="password"
                     type="password"
                     :placeholder="$t('password_placeholder')"
-                    variant="solo"
+                    variant="solo-filled"
                     density="comfortable"
-                    color="orange-darken-2"
+                    color="purple-lighten-2"
                     class="custom-input"
                     hide-details="auto"
-                    bg-color="rgba(255, 255, 255, 0.9)"
-                  >
-                    <template v-slot:label>
-                      <span class="field-label">Contraseña</span>
-                    </template>
-                  </v-text-field>
+                  ></v-text-field>
                 </div>
 
-                <!-- Confirmar Contraseña -->
-                <div class="input-container">
-                  <div class="input-badge">
-                    <span class="badge-emoji">✓</span>
-                  </div>
+                <!-- Confirmar -->
+                <div class="input-wrapper">
+                  <label class="input-label">CONFIRMAR</label>
                   <v-text-field
                     v-model="confirmPassword"
                     type="password"
                     :placeholder="$t('confirm_password_placeholder')"
-                    variant="solo"
+                    variant="solo-filled"
                     density="comfortable"
-                    color="orange-darken-2"
+                    color="purple-lighten-2"
                     class="custom-input"
                     hide-details="auto"
-                    bg-color="rgba(255, 255, 255, 0.9)"
-                  >
-                    <template v-slot:label>
-                      <span class="field-label">Confirmar</span>
-                    </template>
-                  </v-text-field>
+                  ></v-text-field>
                 </div>
               </div>
 
               <!-- Stats Preview -->
               <div class="stats-section">
-                <div class="stats-title">📊 Estadísticas Iniciales</div>
+                <div class="stats-label">ESTADÍSTICAS INICIALES</div>
                 <div class="stats-grid">
                   <div class="stat-item">
                     <div class="stat-icon">💪</div>
-                    <div class="stat-info">
-                      <div class="stat-value">0</div>
-                      <div class="stat-name">Fuerza</div>
-                    </div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-name">STR</div>
                   </div>
                   <div class="stat-item">
                     <div class="stat-icon">⚡</div>
-                    <div class="stat-info">
-                      <div class="stat-value">0</div>
-                      <div class="stat-name">Resistencia</div>
-                    </div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-name">END</div>
                   </div>
                   <div class="stat-item">
                     <div class="stat-icon">🔥</div>
-                    <div class="stat-info">
-                      <div class="stat-value">0</div>
-                      <div class="stat-name">Racha</div>
-                    </div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-name">STK</div>
                   </div>
                   <div class="stat-item">
                     <div class="stat-icon">🪙</div>
-                    <div class="stat-info">
-                      <div class="stat-value">100</div>
-                      <div class="stat-name">Oro</div>
-                    </div>
+                    <div class="stat-value">100</div>
+                    <div class="stat-name">GOLD</div>
                   </div>
                 </div>
               </div>
 
-              <!-- Mensaje de Error -->
-              <v-alert
-                v-if="errorMessage"
-                type="error"
-                variant="tonal"
-                class="error-alert"
-                prominent
-                border="start"
-                border-color="error"
-              >
-                <template v-slot:prepend>
-                  <span class="error-icon">⚠️</span>
-                </template>
-                <div class="error-content">
-                  <div class="error-title">¡Error!</div>
-                  <div class="error-message">{{ errorMessage }}</div>
-                </div>
-              </v-alert>
+              <!-- Error Alert -->
+              <div v-if="errorMessage" class="error-alert">
+                <span class="error-icon">⚠️</span>
+                <span class="error-text">{{ errorMessage }}</span>
+              </div>
 
-              <!-- Botón de Registro Épico -->
+              <!-- Submit Button -->
               <v-btn
                 type="submit"
                 size="x-large"
@@ -335,57 +231,64 @@ const register = async () => {
                 :loading="isLoading"
                 :disabled="isLoading"
                 block
-                elevation="8"
               >
-                <template v-slot:default>
-                  <div class="btn-content">
-                    <span class="btn-icon-left">⚔️</span>
-                    <div class="btn-text-container">
-                      <span class="btn-text-main">{{ $t('register_button') }}</span>
-                      <span class="btn-text-sub">Comenzar Aventura</span>
-                    </div>
-                    <span class="btn-icon-right">🎯</span>
-                  </div>
-                </template>
-                <template v-slot:loader>
-                  <div class="btn-loading">
-                    <v-progress-circular
-                      indeterminate
-                      size="28"
-                      width="3"
-                      color="white"
-                    ></v-progress-circular>
-                    <span class="loading-text">Creando tu perfil...</span>
-                  </div>
-                </template>
+                <span v-if="!isLoading" class="btn-text">
+                  <span>{{ $t('register_button') }}</span>
+                  <span class="btn-arrow">→</span>
+                </span>
+                <span v-else class="btn-loading">
+                  <v-progress-circular
+                    indeterminate
+                    size="20"
+                    width="2"
+                    color="white"
+                  ></v-progress-circular>
+                  <span>Iniciando sistema...</span>
+                </span>
               </v-btn>
 
-              <!-- Separador con estilo -->
+              <!-- Separator -->
               <div class="separator">
                 <div class="separator-line"></div>
-                <span class="separator-text">o</span>
+                <span class="separator-text">O</span>
                 <div class="separator-line"></div>
               </div>
-              
-              <!-- Link a Login -->
-              <div class="login-prompt">
-                <p class="prompt-text">{{ $t('already_have_account') }}</p>
+
+              <!-- Login Link -->
+              <div class="login-section">
+                <p class="login-text">{{ $t('already_have_account') }}</p>
                 <v-btn
                   variant="outlined"
-                  color="deep-purple"
                   size="large"
                   class="login-btn"
                   to="/login"
                   block
                 >
-                  <span class="login-btn-icon">🎮</span>
                   {{ $t('login_button') }}
-                  <template v-slot:append>
-                    <span class="btn-arrow-login">→</span>
-                  </template>
                 </v-btn>
               </div>
             </v-form>
+          </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="info-panel">
+          <div class="info-card">
+            <div class="info-icon">🎮</div>
+            <h3 class="info-title">Sistema de Niveles</h3>
+            <p class="info-desc">Completa entrenamientos y desbloquea salas exclusivas</p>
+          </div>
+
+          <div class="info-card">
+            <div class="info-icon">👥</div>
+            <h3 class="info-title">Entrena en Grupo</h3>
+            <p class="info-desc">Únete a salas con otros usuarios y motívense</p>
+          </div>
+
+          <div class="info-card">
+            <div class="info-icon">🏆</div>
+            <h3 class="info-title">Retos y Recompensas</h3>
+            <p class="info-desc">Gana XP, oro y mejora tus atributos</p>
           </div>
         </div>
       </div>
@@ -402,49 +305,59 @@ const register = async () => {
 
 .register-wrapper {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0f0a1a 100%);
   position: relative;
   overflow-x: hidden;
-  font-family: 'Patrick Hand', cursive;
 }
 
-/* Partículas de fondo */
-.particles {
+/* Orbes de luz */
+.orb {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  border-radius: 50%;
+  filter: blur(80px);
   pointer-events: none;
   z-index: 1;
+  animation: pulse 4s ease-in-out infinite;
 }
 
-.particle {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: #ffc107;
-  border-radius: 50%;
-  opacity: 0;
-  animation: float-particle linear infinite;
-  box-shadow: 0 0 10px #ffc107;
+.orb-1 {
+  top: 10%;
+  left: 20%;
+  width: 400px;
+  height: 400px;
+  background: rgba(139, 92, 246, 0.15);
 }
 
-@keyframes float-particle {
-  0% {
-    transform: translateY(100vh) translateX(0);
-    opacity: 0;
+.orb-2 {
+  bottom: 10%;
+  right: 20%;
+  width: 400px;
+  height: 400px;
+  background: rgba(34, 211, 238, 0.15);
+  animation-delay: 2s;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
   }
-  10% {
-    opacity: 1;
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
   }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-100px) translateX(100px);
-    opacity: 0;
-  }
+}
+
+/* Grid lines */
+.grid-lines {
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .register-container {
@@ -452,20 +365,20 @@ const register = async () => {
   z-index: 2;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 3rem 2rem;
 }
 
-/* Header Banner */
+/* Header */
 .header-banner {
   text-align: center;
   margin-bottom: 3rem;
-  animation: fadeInDown 0.8s ease-out;
+  animation: fadeIn 0.8s ease-out;
 }
 
-@keyframes fadeInDown {
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-30px);
+    transform: translateY(-20px);
   }
   to {
     opacity: 1;
@@ -477,395 +390,182 @@ const register = async () => {
   margin-bottom: 1.5rem;
 }
 
+.logo-icon {
+  display: inline-block;
+  padding: 1rem;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 24px;
+  backdrop-filter: blur(10px);
+}
+
 .main-logo {
-  height: 100px;
-  filter: drop-shadow(0 8px 24px rgba(255, 193, 7, 0.4));
-  animation: pulse-glow 3s ease-in-out infinite;
-}
-
-@keyframes pulse-glow {
-  0%, 100% {
-    filter: drop-shadow(0 8px 24px rgba(255, 193, 7, 0.4));
-  }
-  50% {
-    filter: drop-shadow(0 12px 32px rgba(255, 193, 7, 0.6));
-  }
-}
-
-.hero-text {
-  color: white;
+  height: 80px;
+  filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
 }
 
 .hero-title {
   font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(90deg, #ffc107, #ff9800, #ffc107);
-  background-size: 200% auto;
+  font-weight: 700;
+  background: linear-gradient(135deg, #a78bfa, #22d3ee);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gradient-shift 3s ease infinite;
-}
-
-@keyframes gradient-shift {
-  0%, 100% {
-    background-position: 0% center;
-  }
-  50% {
-    background-position: 100% center;
-  }
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
 }
 
 .hero-subtitle {
-  font-size: 1.3rem;
-  color: #aaa;
-  letter-spacing: 2px;
+  font-size: 0.75rem;
+  color: #64748b;
+  letter-spacing: 3px;
+  font-weight: 600;
 }
 
-/* Grid de Contenido */
+/* Content Grid */
 .content-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.2fr 1fr;
   gap: 2rem;
-  animation: fadeIn 1s ease-out 0.3s both;
+  align-items: start;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Panel de Información */
-.info-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.feature-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 193, 7, 0.2);
-  border-radius: 16px;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-  animation: slideInLeft 0.6s ease-out;
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.feature-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(255, 193, 7, 0.5);
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 30px rgba(255, 193, 7, 0.2);
-}
-
-.feature-icon {
-  font-size: 2.5rem;
-  margin-bottom: 0.8rem;
-}
-
-.feature-title {
-  color: #ffc107;
-  font-size: 1.4rem;
-  margin-bottom: 0.5rem;
-  font-weight: bold;
-}
-
-.feature-desc {
-  color: #ccc;
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-.starting-rewards {
-  background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
-  border: 2px solid #ffc107;
-  border-radius: 16px;
-  padding: 1.5rem;
-  animation: slideInLeft 0.8s ease-out 0.2s both;
-}
-
-.rewards-title {
-  color: #ffc107;
-  font-size: 1.3rem;
-  margin-bottom: 1rem;
-  text-align: center;
-  font-weight: bold;
-}
-
-.rewards-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-}
-
-.reward-item {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  transition: transform 0.3s ease;
-}
-
-.reward-item:hover {
-  transform: scale(1.1);
-}
-
-.reward-icon {
-  font-size: 2rem;
-}
-
-.reward-text {
-  color: white;
-  font-size: 0.9rem;
-  font-weight: bold;
-}
-
-/* Panel de Formulario */
+/* Form Panel */
 .form-panel {
-  animation: slideInRight 0.6s ease-out;
+  animation: slideUp 0.8s ease-out;
 }
 
-@keyframes slideInRight {
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateX(30px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
 .form-card {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(240, 240, 255, 0.95));
+  background: rgba(15, 15, 30, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(139, 92, 246, 0.2);
   border-radius: 24px;
-  padding: 2.5rem;
-  box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  position: relative;
-  overflow: hidden;
-}
-
-.form-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background: linear-gradient(90deg, #ffc107, #ff9800, #ffc107);
-  background-size: 200% auto;
-  animation: gradient-shift 3s linear infinite;
-}
-
-/* Decoración superior */
-.card-decoration {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.decoration-line {
-  flex: 1;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #ffc107, transparent);
-}
-
-.decoration-icon {
-  font-size: 2rem;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 8px rgba(255, 193, 7, 0.5));
-  }
-  50% {
-    transform: scale(1.2);
-    filter: drop-shadow(0 0 16px rgba(255, 193, 7, 0.8));
-  }
+  padding: 3rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 .form-header {
-  text-align: center;
   margin-bottom: 2rem;
+  text-align: center;
 }
 
-.level-badge {
+.status-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  padding: 0.6rem 1.5rem;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  padding: 0.5rem 1rem;
   border-radius: 50px;
-  font-weight: bold;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-  animation: slideInDown 0.6s ease-out;
-}
-
-.badge-icon {
-  font-size: 1.2rem;
-}
-
-.badge-text {
-  letter-spacing: 1px;
-}
-
-.form-title {
-  font-size: 2.5rem;
-  color: #1a1a2e;
-  margin-bottom: 0.5rem;
-  font-weight: bold;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.form-subtitle {
-  color: #666;
-  font-size: 1.1rem;
   margin-bottom: 1.5rem;
 }
 
-.progress-container {
-  margin-top: 1rem;
-}
-
-.progress-label {
-  font-size: 0.9rem;
-  color: #888;
-  margin-bottom: 0.5rem;
-  text-align: left;
-}
-
-.progress-bar {
+.badge-dot {
+  width: 8px;
   height: 8px;
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  overflow: hidden;
+  background: #22d3ee;
+  border-radius: 50%;
+  animation: blink 2s ease-in-out infinite;
 }
 
-.progress-fill {
-  height: 100%;
-  width: 30%;
-  background: linear-gradient(90deg, #ffc107, #ff9800);
-  border-radius: 10px;
-  animation: progress-animate 2s ease-in-out infinite;
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 
-@keyframes progress-animate {
-  0%, 100% {
-    width: 30%;
-  }
-  50% {
-    width: 60%;
-  }
+.badge-text {
+  font-size: 0.7rem;
+  color: #a78bfa;
+  font-weight: 600;
+  letter-spacing: 2px;
 }
 
-.register-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+.form-title {
+  font-size: 2rem;
+  color: #f8fafc;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
 }
 
-/* Grid de inputs */
+.form-subtitle {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+/* Inputs */
 .inputs-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.2rem;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
-.input-container {
+.input-wrapper {
   position: relative;
 }
 
-.input-badge {
-  position: absolute;
-  top: -12px;
-  left: 12px;
-  background: linear-gradient(135deg, #ffc107, #ff9800);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
-  z-index: 2;
-  border: 3px solid white;
-}
-
-.badge-emoji {
-  font-size: 1.2rem;
-}
-
-.field-label {
-  font-size: 0.95rem;
+.input-label {
+  display: block;
+  font-size: 0.7rem;
+  color: #64748b;
   font-weight: 600;
-  font-family: 'Patrick Hand', cursive;
+  letter-spacing: 1.5px;
+  margin-bottom: 0.5rem;
+  padding-left: 0.25rem;
 }
 
-/* Estilos personalizados para Vuetify text fields */
-:deep(.v-field) {
-  border-radius: 16px !important;
-  font-family: 'Patrick Hand', cursive;
-  font-size: 1.05rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+:deep(.custom-input .v-field) {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid rgba(139, 92, 246, 0.2) !important;
+  border-radius: 12px !important;
+  color: #f8fafc !important;
   transition: all 0.3s ease !important;
 }
 
-:deep(.v-field:hover) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
+:deep(.custom-input .v-field:hover) {
+  border-color: rgba(139, 92, 246, 0.4) !important;
+  background: rgba(0, 0, 0, 0.4) !important;
 }
 
-:deep(.v-field--focused) {
-  box-shadow: 0 8px 24px rgba(255, 193, 7, 0.3) !important;
-  transform: translateY(-2px);
+:deep(.custom-input .v-field--focused) {
+  border-color: #a78bfa !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1) !important;
+  background: rgba(0, 0, 0, 0.4) !important;
 }
 
-:deep(.v-field__input) {
-  padding-left: 12px;
+:deep(.custom-input input) {
+  color: #f8fafc !important;
 }
 
-/* Sección de estadísticas */
+:deep(.custom-input input::placeholder) {
+  color: #475569 !important;
+}
+
+/* Stats Section */
 .stats-section {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-  border: 2px solid rgba(102, 126, 234, 0.3);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), rgba(34, 211, 238, 0.05));
+  border: 1px solid rgba(139, 92, 246, 0.2);
   border-radius: 16px;
   padding: 1.5rem;
-  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 
-.stats-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #667eea;
+.stats-label {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-weight: 600;
+  letter-spacing: 2px;
   margin-bottom: 1rem;
   text-align: center;
 }
@@ -877,163 +577,107 @@ const register = async () => {
 }
 
 .stat-item {
-  background: white;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(139, 92, 246, 0.1);
   border-radius: 12px;
-  padding: 1rem 0.5rem;
+  padding: 1rem;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .stat-item:hover {
-  transform: translateY(-5px) scale(1.05);
+  transform: translateY(-3px);
+  border-color: rgba(139, 92, 246, 0.3);
 }
 
 .stat-icon {
-  font-size: 2rem;
+  font-size: 1.5rem;
   margin-bottom: 0.5rem;
 }
 
 .stat-value {
   font-size: 1.5rem;
-  font-weight: bold;
-  color: #1a1a2e;
-  margin-bottom: 0.2rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 0.25rem;
 }
 
 .stat-name {
-  font-size: 0.85rem;
-  color: #666;
+  font-size: 0.7rem;
+  color: #64748b;
   font-weight: 600;
+  letter-spacing: 1px;
 }
 
-/* Estilos para el Alert de error */
+/* Error Alert */
 .error-alert {
-  animation: shake 0.5s ease;
-  border-radius: 16px !important;
-  font-family: 'Patrick Hand', cursive;
-  font-size: 1rem;
-  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2) !important;
-}
-
-.error-content {
   display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  animation: shake 0.3s ease;
 }
 
-.error-title {
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-
-.error-message {
-  font-size: 0.95rem;
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
 }
 
 .error-icon {
-  font-size: 1.8rem;
-  margin-right: 8px;
+  font-size: 1.5rem;
 }
 
-/* Botón de submit épico */
+.error-text {
+  color: #fca5a5;
+  font-size: 0.9rem;
+}
+
+/* Submit Button */
 .submit-btn {
-  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%) !important;
-  color: #1a1a2e !important;
-  font-weight: bold !important;
-  font-size: 1.2rem !important;
-  border-radius: 16px !important;
-  padding: 1.5rem 2rem !important;
-  box-shadow: 
-    0 8px 24px rgba(255, 193, 7, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-  font-family: 'Patrick Hand', cursive !important;
-  margin-top: 0.5rem;
+  background: linear-gradient(135deg, #8b5cf6, #22d3ee) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  border-radius: 12px !important;
   text-transform: none !important;
-  letter-spacing: 0 !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 1.5rem;
   transition: all 0.3s ease !important;
-  position: relative;
-  overflow: hidden;
-}
-
-.submit-btn::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transition: left 0.5s ease;
-}
-
-.submit-btn:hover::before {
-  left: 100%;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4) !important;
 }
 
 .submit-btn:hover {
-  transform: translateY(-4px);
-  box-shadow: 
-    0 12px 32px rgba(255, 193, 7, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-}
-
-.submit-btn:active {
   transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(139, 92, 246, 0.6) !important;
 }
 
-.btn-content {
+.btn-text {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  width: 100%;
+  gap: 0.75rem;
 }
 
-.btn-icon-left,
-.btn-icon-right {
-  font-size: 1.5rem;
-  animation: bounce 2s ease-in-out infinite;
+.btn-arrow {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
 }
 
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
-
-.btn-text-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.btn-text-main {
-  font-size: 1.3rem;
-  font-weight: bold;
-  line-height: 1;
-}
-
-.btn-text-sub {
-  font-size: 0.85rem;
-  opacity: 0.8;
-  line-height: 1;
+.submit-btn:hover .btn-arrow {
+  transform: translateX(5px);
 }
 
 .btn-loading {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
-.loading-text {
-  font-size: 1.1rem;
-}
-
-/* Separador */
+/* Separator */
 .separator {
   display: flex;
   align-items: center;
@@ -1043,226 +687,127 @@ const register = async () => {
 
 .separator-line {
   flex: 1;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #ddd, transparent);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
 }
 
 .separator-text {
-  color: #999;
-  font-size: 1.1rem;
-  font-weight: bold;
-  background: white;
-  padding: 0 1rem;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
-/* Sección de login */
-.login-prompt {
+/* Login Section */
+.login-section {
   text-align: center;
-  margin-top: 0.5rem;
 }
 
-.prompt-text {
-  color: #666;
-  font-size: 1.05rem;
+.login-text {
+  color: #64748b;
+  font-size: 0.9rem;
   margin-bottom: 1rem;
 }
 
 .login-btn {
+  border-color: rgba(139, 92, 246, 0.3) !important;
+  color: #a78bfa !important;
+  font-weight: 600 !important;
+  border-radius: 12px !important;
   text-transform: none !important;
-  font-family: 'Patrick Hand', cursive !important;
-  font-size: 1.2rem !important;
-  font-weight: bold !important;
-  letter-spacing: 0 !important;
-  border-radius: 16px !important;
-  border-width: 2px !important;
-  padding: 1.2rem 2rem !important;
   transition: all 0.3s ease !important;
 }
 
 .login-btn:hover {
+  border-color: #a78bfa !important;
+  background: rgba(139, 92, 246, 0.1) !important;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3) !important;
 }
 
-.login-btn-icon {
-  font-size: 1.3rem;
-  margin-right: 8px;
-}
-
-.btn-arrow-login {
-  font-size: 1.3rem;
-  transition: transform 0.3s ease;
-}
-
-.login-btn:hover .btn-arrow-login {
-  transform: translateX(5px);
-  color: linear-gradient(135deg, #ffc107 0%, #ff9800 100%) !important;
-  color: #1a1a2e !important;
-  font-weight: bold !important;
-  font-size: 1.3rem !important;
-  border-radius: 12px !important;
-  box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4) !important;
-  font-family: 'Patrick Hand', cursive !important;
-  margin-top: 0.5rem;
-  text-transform: none !important;
-  letter-spacing: 0 !important;
-  transition: all 0.3s ease !important;
-}
-
-.submit-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(255, 193, 7, 0.6) !important;
-}
-
-.submit-btn:active {
-  transform: translateY(-1px);
-}
-
-.btn-content {
+/* Info Panel */
+.info-panel {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.8rem;
-  width: 100%;
+  flex-direction: column;
+  gap: 1rem;
+  animation: fadeIn 0.8s ease-out 0.2s both;
 }
 
-.btn-arrow {
-  font-size: 1.5rem;
-  transition: transform 0.3s ease;
+.info-card {
+  background: rgba(15, 15, 30, 0.4);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(139, 92, 246, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
 }
 
-.submit-btn:hover .btn-arrow {
-  transform: translateX(5px);
+.info-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(139, 92, 246, 0.3);
+  background: rgba(15, 15, 30, 0.6);
 }
 
-/* Sección de login */
-.login-prompt {
-  text-align: center;
-  margin-top: 0.5rem;
+.info-icon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
 }
 
-.prompt-text {
-  color: #666;
-  font-size: 1.05rem;
-  margin-bottom: 0.8rem;
+.info-title {
+  color: #a78bfa;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
 }
 
-.login-btn {
-  text-transform: none !important;
-  font-family: 'Patrick Hand', cursive !important;
-  font-size: 1.2rem !important;
-  font-weight: bold !important;
-  letter-spacing: 0 !important;
+.info-desc {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
-.btn-arrow-login {
-  font-size: 1.3rem;
-  margin-left: 4px;
-  transition: transform 0.3s ease;
-}
-
-.login-btn:hover .btn-arrow-login {
-  transform: translateX(5px);
-}
-
-/* Responsive Design */
-@media (max-width: 1200px) {
+/* Responsive */
+@media (max-width: 1024px) {
   .content-grid {
     grid-template-columns: 1fr;
-    gap: 2rem;
   }
 
   .info-panel {
-    order: 2;
+    order: -1;
   }
 
-  .form-panel {
-    order: 1;
+  .inputs-grid {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
   .register-container {
-    padding: 1.5rem;
-  }
-
-  .header-banner {
-    margin-bottom: 2rem;
-  }
-
-  .main-logo {
-    height: 70px;
-  }
-
-  .hero-title {
-    font-size: 1.8rem;
-  }
-
-  .hero-subtitle {
-    font-size: 1rem;
+    padding: 2rem 1rem;
   }
 
   .form-card {
     padding: 2rem 1.5rem;
   }
 
-  .form-title {
-    font-size: 1.8rem;
-  }
-
-  .rewards-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .feature-card {
-    padding: 1.2rem;
-  }
-
-  .feature-icon {
+  .hero-title {
     font-size: 2rem;
   }
 
-  .feature-title {
-    font-size: 1.2rem;
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 480px) {
-  .register-container {
-    padding: 1rem;
-  }
-
-  .main-logo {
-    height: 60px;
+  .form-card {
+    padding: 1.5rem 1rem;
   }
 
   .hero-title {
     font-size: 1.5rem;
   }
 
-  .hero-subtitle {
-    font-size: 0.9rem;
-  }
-
-  .form-card {
-    padding: 1.5rem 1rem;
-  }
-
-  .form-title {
-    font-size: 1.6rem;
-  }
-
-  .form-subtitle {
-    font-size: 1rem;
-  }
-
-  .submit-btn {
-    font-size: 1.2rem;
-    padding: 1rem;
-  }
-
-  .input-label {
-    font-size: 0.95rem;
+  .main-logo {
+    height: 60px;
   }
 }
 </style>
