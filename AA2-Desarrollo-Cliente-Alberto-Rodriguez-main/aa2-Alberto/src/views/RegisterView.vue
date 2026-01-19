@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
 import { ref } from 'vue'
 import router from '@/router'
@@ -13,6 +14,62 @@ const password = ref('')
 const confirmPassword = ref('')
 const name = ref('')
 
+// Snackbar states
+const snackbar = ref(false)
+const snackbarMessage = ref('')
+const snackbarColor = ref('error')
+
+// Validación de fortaleza de contraseña
+const getPasswordStrength = (pwd: string) => {
+  let strength = 0
+  const feedback: string[] = []
+
+  if (pwd.length >= 8) strength++
+  else feedback.push('Mínimo 8 caracteres')
+
+  if (/[a-z]/.test(pwd)) strength++
+  else feedback.push('Incluye minúsculas')
+
+  if (/[A-Z]/.test(pwd)) strength++
+  else feedback.push('Incluye mayúsculas')
+
+  if (/[0-9]/.test(pwd)) strength++
+  else feedback.push('Incluye números')
+
+  if (/[^A-Za-z0-9]/.test(pwd)) strength++
+  else feedback.push('Incluye símbolos (!@#$%)')
+
+  return { strength, feedback }
+}
+
+const passwordStrength = ref({ strength: 0, feedback: [] as string[] })
+
+const updatePasswordStrength = () => {
+  passwordStrength.value = getPasswordStrength(password.value)
+}
+
+const getStrengthColor = (strength: number) => {
+  if (strength <= 1) return '#ef4444'
+  if (strength <= 2) return '#f59e0b'
+  if (strength <= 3) return '#eab308'
+  if (strength <= 4) return '#84cc16'
+  return '#22c55e'
+}
+
+const getStrengthLabel = (strength: number) => {
+  if (strength <= 1) return 'Muy débil'
+  if (strength <= 2) return 'Débil'
+  if (strength <= 3) return 'Media'
+  if (strength <= 4) return 'Fuerte'
+  return 'Muy fuerte'
+}
+
+const showSnackbar = (message: string, color: string = 'error') => {
+  snackbarMessage.value = message
+  snackbarColor.value = color
+  snackbar.value = true
+}
+
 const register = async () => {
   errorMessage.value = ''
   isLoading.value = true
@@ -22,34 +79,74 @@ const register = async () => {
   const confirmPasswordTrimmed = confirmPassword.value.trim()
   const nameTrimmed = name.value.trim()
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
+  // Validación de campos vacíos
   if (!emailTrimmed || !passwordTrimmed || !confirmPasswordTrimmed || !nameTrimmed) {
     errorMessage.value = 'Completa todos los campos.'
+    showSnackbar('Por favor, completa todos los campos.', 'error')
     isLoading.value = false
     return
   }
 
-  if (!emailRegex.test(emailTrimmed)) {
-    errorMessage.value = 'Email inválido.'
-    isLoading.value = false
-    return
-  }
-
+  // Validación de nombre
   if (nameTrimmed.length < 3) {
     errorMessage.value = 'Nombre muy corto (mín. 3 caracteres).'
+    showSnackbar('El nombre debe tener al menos 3 caracteres.', 'warning')
     isLoading.value = false
     return
   }
 
-  if (passwordTrimmed.length < 6) {
-    errorMessage.value = 'Contraseña muy corta (mín. 6 caracteres).'
+  if (nameTrimmed.length > 50) {
+    errorMessage.value = 'Nombre muy largo (máx. 50 caracteres).'
+    showSnackbar('El nombre no puede exceder 50 caracteres.', 'warning')
     isLoading.value = false
     return
   }
 
+  // Validación de email mejorada
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+  if (!emailRegex.test(emailTrimmed)) {
+    errorMessage.value = 'Email inválido.'
+    showSnackbar('Por favor, ingresa un correo electrónico válido.', 'warning')
+    isLoading.value = false
+    return
+  }
+
+  // Validar que el email no contenga espacios
+  if (/\s/.test(emailTrimmed)) {
+    errorMessage.value = 'El email no puede contener espacios.'
+    showSnackbar('El email no puede contener espacios.', 'warning')
+    isLoading.value = false
+    return
+  }
+
+  // Validación de contraseña segura
+  if (passwordTrimmed.length < 8) {
+    errorMessage.value = 'Contraseña muy corta (mín. 8 caracteres).'
+    showSnackbar('La contraseña debe tener al menos 8 caracteres.', 'warning')
+    isLoading.value = false
+    return
+  }
+
+  const pwdStrength = getPasswordStrength(passwordTrimmed)
+  if (pwdStrength.strength < 3) {
+    errorMessage.value = `Contraseña débil. Falta: ${pwdStrength.feedback.join(', ')}`
+    showSnackbar(`Contraseña débil. Debe incluir: ${pwdStrength.feedback.join(', ')}`, 'warning')
+    isLoading.value = false
+    return
+  }
+
+  // Validar que la contraseña no contenga espacios
+  if (/\s/.test(passwordTrimmed)) {
+    errorMessage.value = 'La contraseña no puede contener espacios.'
+    showSnackbar('La contraseña no puede contener espacios.', 'warning')
+    isLoading.value = false
+    return
+  }
+
+  // Validación de coincidencia de contraseñas
   if (passwordTrimmed !== confirmPasswordTrimmed) {
     errorMessage.value = 'Las contraseñas no coinciden.'
+    showSnackbar('Las contraseñas no coinciden.', 'error')
     isLoading.value = false
     return
   }
@@ -72,21 +169,29 @@ const register = async () => {
     const result = await store.registerUser(user)
     if (!result) {
       errorMessage.value = 'No se pudo crear el usuario. Puede que el correo ya esté registrado.'
+      showSnackbar('Error: El correo ya está registrado o no se pudo crear el usuario.', 'error')
       isLoading.value = false
       return
     }
 
     const loginResult = await store.loginUser(emailTrimmed, passwordTrimmed)
     if (loginResult && store.loggedUser?.email === emailTrimmed) {
-      alert('¡Bienvenido al Training Hub! Tu aventura comienza ahora.')
-      router.push({ name: 'homeLogged' })
+      showSnackbar('¡Bienvenido al Training Hub! Tu aventura comienza ahora.', 'success')
+      setTimeout(() => {
+        router.push({ name: 'homeLogged' })
+      }, 1500)
     } else {
       errorMessage.value = 'El registro fue exitoso, pero hubo un error al iniciar sesión.'
+      showSnackbar('Registro exitoso. Por favor, inicia sesión manualmente.', 'warning')
       isLoading.value = false
+      setTimeout(() => {
+        router.push({ name: 'login' })
+      }, 2000)
     }
   } catch (error) {
     console.error(error)
     errorMessage.value = 'Error inesperado. Intenta más tarde.'
+    showSnackbar('Error inesperado del servidor. Intenta más tarde.', 'error')
     isLoading.value = false
   }
 }
@@ -141,6 +246,8 @@ const register = async () => {
                     color="purple-lighten-2"
                     class="custom-input"
                     hide-details="auto"
+                    maxlength="50"
+                    counter
                   ></v-text-field>
                 </div>
 
@@ -171,7 +278,27 @@ const register = async () => {
                     color="purple-lighten-2"
                     class="custom-input"
                     hide-details="auto"
+                    @input="updatePasswordStrength"
                   ></v-text-field>
+                  
+                  <!-- Password Strength Indicator -->
+                  <div v-if="password" class="password-strength">
+                    <div class="strength-bar">
+                      <div 
+                        class="strength-fill"
+                        :style="{ 
+                          width: `${(passwordStrength.strength / 5) * 100}%`,
+                          background: getStrengthColor(passwordStrength.strength)
+                        }"
+                      ></div>
+                    </div>
+                    <div class="strength-label" :style="{ color: getStrengthColor(passwordStrength.strength) }">
+                      {{ getStrengthLabel(passwordStrength.strength) }}
+                    </div>
+                    <div v-if="passwordStrength.feedback.length > 0" class="strength-feedback">
+                      <span class="feedback-text">Falta: {{ passwordStrength.feedback.join(', ') }}</span>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Confirmar -->
@@ -293,6 +420,31 @@ const register = async () => {
         </div>
       </div>
     </div>
+
+    <!-- Snackbar -->
+    <v-snackbar
+      v-model="snackbar"
+      :color="snackbarColor"
+      :timeout="4000"
+      location="top"
+      rounded="pill"
+    >
+      <div class="snackbar-content">
+        <span class="snackbar-icon">
+          {{ snackbarColor === 'success' ? '✓' : snackbarColor === 'warning' ? '⚠' : '✕' }}
+        </span>
+        <span>{{ snackbarMessage }}</span>
+      </div>
+      <template v-slot:actions>
+        <v-btn
+          variant="text"
+          @click="snackbar = false"
+          size="small"
+        >
+          Cerrar
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
@@ -550,6 +702,47 @@ const register = async () => {
 
 :deep(.custom-input input::placeholder) {
   color: #475569 !important;
+}
+
+:deep(.custom-input .v-counter) {
+  color: #64748b !important;
+  font-size: 0.7rem;
+  margin-top: 0.25rem;
+}
+
+/* Password Strength Indicator */
+.password-strength {
+  margin-top: 0.75rem;
+}
+
+.strength-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.strength-fill {
+  height: 100%;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.strength-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.strength-feedback {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin-top: 0.25rem;
+}
+
+.feedback-text {
+  display: inline-block;
 }
 
 /* Stats Section */

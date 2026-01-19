@@ -10,22 +10,61 @@ const isLoading = ref(false)
 const store = useUserStore()
 const router = useRouter()
 
+// Snackbar states
+const snackbar = ref(false)
+const snackbarMessage = ref('')
+const snackbarColor = ref('error')
+
+const showSnackbar = (message: string, color: string = 'error') => {
+  snackbarMessage.value = message
+  snackbarColor.value = color
+  snackbar.value = true
+}
+
 async function handleLogin() {
   errorMessage.value = ''
   isLoading.value = true
 
   const emailTrimmed = email.value.trim()
   const passwordTrimmed = password.value.trim()
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+  // Validación de campos vacíos
   if (!emailTrimmed || !passwordTrimmed) {
     errorMessage.value = 'Completa todos los campos.'
+    showSnackbar('Por favor, completa todos los campos.', 'warning')
     isLoading.value = false
     return
   }
 
+  // Validación de email mejorada
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
   if (!emailRegex.test(emailTrimmed)) {
     errorMessage.value = 'Email inválido.'
+    showSnackbar('Por favor, ingresa un correo electrónico válido.', 'warning')
+    isLoading.value = false
+    return
+  }
+
+  // Validar que el email no contenga espacios
+  if (/\s/.test(emailTrimmed)) {
+    errorMessage.value = 'El email no puede contener espacios.'
+    showSnackbar('El email no puede contener espacios.', 'warning')
+    isLoading.value = false
+    return
+  }
+
+  // Validación de contraseña
+  if (passwordTrimmed.length < 6) {
+    errorMessage.value = 'Contraseña muy corta.'
+    showSnackbar('La contraseña debe tener al menos 6 caracteres.', 'warning')
+    isLoading.value = false
+    return
+  }
+
+  // Validar que la contraseña no contenga espacios
+  if (/\s/.test(passwordTrimmed)) {
+    errorMessage.value = 'La contraseña no puede contener espacios.'
+    showSnackbar('La contraseña no puede contener espacios.', 'warning')
     isLoading.value = false
     return
   }
@@ -34,15 +73,19 @@ async function handleLogin() {
     const loginResult = await store.loginUser(emailTrimmed, passwordTrimmed)
 
     if (loginResult && store.loggedUser?.email === emailTrimmed) {
-      router.push('/homeLogged')
-      alert('¡Bienvenido de vuelta, entrenador!')
+      showSnackbar('¡Bienvenido de vuelta, entrenador!', 'success')
+      setTimeout(() => {
+        router.push('/homeLogged')
+      }, 1500)
     } else {
       errorMessage.value = 'Usuario o contraseña incorrectos.'
+      showSnackbar('Usuario o contraseña incorrectos. Verifica tus credenciales.', 'error')
       isLoading.value = false
     }
   } catch (error) {
     console.error('Login failed:', error)
     errorMessage.value = 'Error inesperado. Intenta más tarde.'
+    showSnackbar('Error del servidor. Por favor, intenta más tarde.', 'error')
     isLoading.value = false
   }
 }
@@ -98,6 +141,7 @@ async function handleLogin() {
                     color="purple-lighten-2"
                     class="custom-input"
                     hide-details="auto"
+                    autocomplete="email"
                   ></v-text-field>
                 </div>
 
@@ -113,6 +157,7 @@ async function handleLogin() {
                     color="purple-lighten-2"
                     class="custom-input"
                     hide-details="auto"
+                    autocomplete="current-password"
                   ></v-text-field>
                 </div>
               </div>
@@ -229,6 +274,31 @@ async function handleLogin() {
         </div>
       </div>
     </div>
+
+    <!-- Snackbar -->
+    <v-snackbar
+      v-model="snackbar"
+      :color="snackbarColor"
+      :timeout="4000"
+      location="top"
+      rounded="pill"
+    >
+      <div class="snackbar-content">
+        <span class="snackbar-icon">
+          {{ snackbarColor === 'success' ? '✓' : snackbarColor === 'warning' ? '⚠' : '✕' }}
+        </span>
+        <span>{{ snackbarMessage }}</span>
+      </div>
+      <template v-slot:actions>
+        <v-btn
+          variant="text"
+          @click="snackbar = false"
+          size="small"
+        >
+          Cerrar
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
@@ -753,6 +823,25 @@ async function handleLogin() {
   font-weight: 600;
 }
 
+/* Snackbar Content */
+.snackbar-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 500;
+}
+
+.snackbar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  font-weight: 700;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .content-grid {
@@ -819,4 +908,4 @@ async function handleLogin() {
     grid-template-columns: 1fr;
   }
 }
-</style>  
+</style>
