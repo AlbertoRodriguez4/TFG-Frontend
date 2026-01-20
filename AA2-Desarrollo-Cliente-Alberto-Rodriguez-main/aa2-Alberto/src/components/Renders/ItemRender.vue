@@ -86,7 +86,7 @@ const getItemColor = (type: string) => {
     <section class="shop-section mb-10">
       <div class="section-header">
         <div class="header-icon-wrapper daily">
-          <v-icon size="32" color="#FFD700">mdi-clock-fast</v-icon>
+          <v-icon size="32" color="black">mdi-clock-fast</v-icon>
         </div>
         <div>
           <h2 class="section-title">{{ $t('Rotacion Diaria') }}</h2>
@@ -153,7 +153,7 @@ const getItemColor = (type: string) => {
     <section class="shop-section mb-10">
       <div class="section-header">
         <div class="header-icon-wrapper strength">
-          <v-icon size="32" color="#FF4757">mdi-arm-flex</v-icon>
+          <v-icon size="32" color="black">mdi-arm-flex</v-icon>
         </div>
         <div>
           <h2 class="section-title strength-title">{{ $t('Objetos de fuerza') }}</h2>
@@ -213,7 +213,7 @@ const getItemColor = (type: string) => {
     <section class="shop-section">
       <div class="section-header">
         <div class="header-icon-wrapper endurance">
-          <v-icon size="32" color="#00D2FF">mdi-lightning-bolt</v-icon>
+          <v-icon size="32" color="black">mdi-lightning-bolt</v-icon>
         </div>
         <div>
           <h2 class="section-title endurance-title">{{ $t('Objetos de resistencia') }}</h2>

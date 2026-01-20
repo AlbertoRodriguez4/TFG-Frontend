@@ -239,7 +239,7 @@ const goBack = () => {
         <div class="room-date-box">
           <span class="date-box-icon">📅</span>
           <div class="date-box-content">
-            <span class="date-box-label">Sala creada el</span>
+            <span class="date-box-label">El evento es el día </span>
             <span class="date-box-value">{{roomData.date }}</span>
           </div>
         </div>

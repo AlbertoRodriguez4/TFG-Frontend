@@ -612,6 +612,10 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
   padding: 3rem 2rem;
   text-align: center;
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
 .help-card:hover {
@@ -646,6 +650,9 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
   border-radius: 50px !important;
   box-shadow: 0 8px 30px rgba(255, 215, 0, 0.4);
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .help-btn:hover {

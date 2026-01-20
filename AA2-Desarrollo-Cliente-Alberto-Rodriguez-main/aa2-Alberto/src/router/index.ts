@@ -61,7 +61,7 @@ const routes: RouteRecordRaw[] = [
     name: 'login',
     component: LoginView,
     meta: { requiresGuest: true },
-  }, 
+  },
   {
     path: '/rutina',
     name: 'rutina',
@@ -76,8 +76,28 @@ const routes: RouteRecordRaw[] = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.VITE_ROUTER_HISTORY),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Scroll en window
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+        
+        // Scroll en el body por si acaso
+        document.documentElement.scrollTop = 0
+        document.body.scrollTop = 0
+        
+        // También en el v-main de Vuetify
+        const mainElement = document.querySelector('.v-main')
+        if (mainElement) {
+          mainElement.scrollTop = 0
+        }
+        
+        resolve({ top: 0, left: 0 })
+      }, 100) // Delay de 100ms para asegurar que el DOM esté renderizado
+    })
+  }
 })
 
 // **Global Guard**
