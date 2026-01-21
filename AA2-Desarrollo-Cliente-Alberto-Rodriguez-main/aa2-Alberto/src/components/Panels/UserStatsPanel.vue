@@ -38,6 +38,42 @@ const labelMap: Record<StatKey, string> = {
   endurance: 'Resistencia',
   gold: 'Oro',
 }
+
+/**
+ * Valores máximos para cada estadística
+ * Ajusta estos valores según tu sistema de progresión
+ */
+const maxValues: Record<StatKey, number> = {
+  strength: 100000,   // Máximo de fuerza (100k)
+  endurance: 100000,  // Máximo de resistencia (100k)
+  gold: 1000000,      // Máximo de oro (1M)
+}
+
+/**
+ * Calcula el porcentaje de progreso para una estadística
+ * Retorna un valor entre 0 y 100
+ */
+const calculateProgress = (stat: StatKey, value: number): number => {
+  const maxValue = maxValues[stat]
+  const percentage = (value / maxValue) * 100
+  return Math.min(percentage, 100) // Nunca exceder 100%
+}
+
+/**
+ * Formatea números grandes para mostrarlos de manera legible
+ * Ejemplos:
+ * - 1234 → "1.2K"
+ * - 123456 → "123.5K"
+ * - 1234567 → "1.2M"
+ */
+const formatNumber = (value: number): string => {
+  if (value >= 1000000) {
+    return `${(value / 1000000).toFixed(1)}M`
+  } else if (value >= 1000) {
+    return `${(value / 1000).toFixed(1)}K`
+  }
+  return value.toString()
+}
 </script>
 
 <template>
@@ -83,16 +119,24 @@ const labelMap: Record<StatKey, string> = {
                 <div
                   class="progress-fill"
                   :style="{
-                    width: `${Math.min(loggedUser[stat], 100)}%`,
+                    width: `${calculateProgress(stat, loggedUser[stat])}%`,
                     backgroundColor: colorMap[stat]
                   }"
                 >
                   <div class="progress-shine"></div>
                 </div>
               </div>
-              <span class="stat-value" :style="{ color: colorMap[stat] }">
-                {{ loggedUser[stat] }}
-              </span>
+              <div class="stat-values">
+                <span class="stat-value" :style="{ color: colorMap[stat] }">
+                  {{ formatNumber(loggedUser[stat]) }}
+                </span>
+                <span class="stat-max">/ {{ formatNumber(maxValues[stat]) }}</span>
+              </div>
+            </div>
+            
+            <!-- Indicador de porcentaje (opcional) -->
+            <div class="stat-percentage">
+              {{ calculateProgress(stat, loggedUser[stat]).toFixed(1) }}%
             </div>
           </div>
         </div>
@@ -305,6 +349,7 @@ const labelMap: Record<StatKey, string> = {
   display: flex;
   align-items: center;
   gap: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .progress-bar {
@@ -339,11 +384,32 @@ const labelMap: Record<StatKey, string> = {
   to { left: 100%; }
 }
 
+.stat-values {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  min-width: 120px;
+  justify-content: flex-end;
+}
+
 .stat-value {
   font-size: 1.4rem;
   font-weight: bold;
-  min-width: 50px;
   text-align: right;
+}
+
+.stat-max {
+  font-size: 1rem;
+  color: #757575;
+  font-weight: 600;
+}
+
+.stat-percentage {
+  text-align: right;
+  font-size: 0.9rem;
+  color: #757575;
+  font-weight: 600;
+  margin-top: 0.3rem;
 }
 
 /* Responsive */
@@ -375,6 +441,18 @@ const labelMap: Record<StatKey, string> = {
   .stats-title {
     font-size: 1.5rem;
   }
+
+  .stat-values {
+    min-width: 100px;
+  }
+
+  .stat-value {
+    font-size: 1.2rem;
+  }
+
+  .stat-max {
+    font-size: 0.9rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -405,8 +483,20 @@ const labelMap: Record<StatKey, string> = {
     font-size: 1.1rem;
   }
 
+  .stat-values {
+    min-width: 90px;
+  }
+
   .stat-value {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+  }
+
+  .stat-max {
+    font-size: 0.85rem;
+  }
+
+  .stat-percentage {
+    font-size: 0.8rem;
   }
 }
 </style>

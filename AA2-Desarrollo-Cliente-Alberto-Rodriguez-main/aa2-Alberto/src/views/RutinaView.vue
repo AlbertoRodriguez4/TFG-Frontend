@@ -2,25 +2,52 @@
   <v-app>
     <v-main class="workout-hub">
       <!-- Hero Header Section -->
-      <HeroSection :user-level="userLevel" :user-x-p="userXP" :xp-to-next-level="xpToNextLevel" :coins="coins"
-        :completed-routines="completedRoutines" :streak="streak" :xp-progress="xpProgress"
-        @create-routine="openCreateModal" />
+      <HeroSection 
+        :user-level="userLevel" 
+        :user-x-p="userXP" 
+        :xp-to-next-level="xpToNextLevel" 
+        :coins="coins"
+        :completed-routines="completedRoutines" 
+        :streak="streak" 
+        :xp-progress="xpProgress"
+        @create-routine="openCreateModal" 
+      />
 
       <!-- Calendar Section -->
-      <CalendarSection :current-date="currentDate" :month-name="monthName" :days-of-week="daysOfWeek"
-        :days-in-month="daysInMonth" :starting-day-of-week="startingDayOfWeek"
+      <CalendarSection 
+        :current-date="currentDate" 
+        :month-name="monthName" 
+        :days-of-week="daysOfWeek"
+        :days-in-month="daysInMonth" 
+        :starting-day-of-week="startingDayOfWeek"
         :routines="routineStore.routines.map(r => ({ ...r, createdat: r.createdat ?? r.createdat }))"
-        :completed-routines="completedRoutines" :user-x-p="userXP" :xp-progress="xpProgress" :streak="streak"
-        @previous-month="previousMonth" @next-month="nextMonth" @day-click="handleDayClick"
-        @complete-routine="completeRoutine" />
+        :completed-routines="completedRoutines" 
+        :user-x-p="userXP" 
+        :xp-progress="xpProgress" 
+        :streak="streak"
+        @previous-month="previousMonth" 
+        @next-month="nextMonth" 
+        @day-click="handleDayClick"
+        @complete-routine="completeRoutine" 
+      />
 
       <!-- Create Routine Dialog -->
-      <CreateRoutineDialog v-model="showCreateModal" :selected-day="selectedDay" :month-name="monthName"
-        :user-id="userStore.loggedUser?.id || 0" @create="handleCreateRoutine" @close="closeModal" />
+      <CreateRoutineDialog 
+        v-model="showCreateModal" 
+        :selected-day="selectedDay" 
+        :month-name="monthName"
+        :user-id="userStore.loggedUser?.id || 0" 
+        @create="handleCreateRoutine" 
+        @close="closeModal" 
+      />
 
       <!-- Routine Detail Dialog -->
-      <RoutineDetailDialog v-model="showDetailModal" :routine="selectedRoutine" @close="closeDetailModal"
-        @complete="handleCompleteFromDetail" />
+      <RoutineDetailDialog 
+        v-model="showDetailModal" 
+        :routine="selectedRoutine" 
+        @close="closeDetailModal"
+        @complete="handleCompleteFromDetail" 
+      />
 
       <!-- Level Up Dialog -->
       <LevelUpDialog v-model="showLevelUp" :user-level="userLevel" />
@@ -58,13 +85,6 @@ import SuccessSnackbar from '../components/Calendar/SuccessSnackbar.vue';
 const routineStore = useRoutineStore();
 const userStore = useUserStore();
 
-// Estado del usuario
-const userXP = ref(0);
-const userLevel = ref(1);
-const coins = ref(0);
-const streak = ref(0);
-const xpToNextLevel = ref(1000);
-
 // Estado del calendario
 const currentDate = ref(new Date());
 const selectedDay = ref<number | null>(null);
@@ -92,12 +112,69 @@ const monthNames: string[] = [
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ];
 
-// Computed Properties
+// Computed Properties - Obteniendo datos del loggedUser
 
+/**
+ * Nivel del usuario desde el store
+ */
+const userLevel = computed(() => {
+  return userStore.loggedUser?.level || 1;
+});
+
+/**
+ * XP del usuario - calculado desde strength
+ * Puedes ajustar esta lógica según tu modelo de datos
+ */
+const userXP = computed(() => {
+  return userStore.loggedUser?.strength || 0;
+});
+
+/**
+ * Monedas del usuario desde el store
+ */
+const coins = computed(() => {
+  return userStore.loggedUser?.gold || 0;
+});
+
+/**
+ * Racha de consistencia del usuario
+ */
+const streak = computed(() => {
+  return userStore.loggedUser?.consistencyStreak || userStore.loggedUser?.consistencystreak || 0;
+});
+
+/**
+ * XP necesario para el siguiente nivel
+ * Fórmula: nivel * 300 + 1000
+ */
+const xpToNextLevel = computed(() => {
+  return calculateNextLevelXP(userLevel.value);
+});
+
+/**
+ * Porcentaje de progreso hacia el siguiente nivel
+ */
+const xpProgress = computed(() => {
+  return (userXP.value / xpToNextLevel.value) * 100;
+});
+
+/**
+ * Número total de rutinas completadas
+ */
+const completedRoutines = computed(() => {
+  return routineStore.routines.filter(r => r.iscompleted).length;
+});
+
+/**
+ * Nombre del mes actual
+ */
 const monthName = computed(() => {
   return monthNames[currentDate.value.getMonth()];
 });
 
+/**
+ * Número de días en el mes actual
+ */
 const daysInMonth = computed(() => {
   return new Date(
     currentDate.value.getFullYear(),
@@ -106,6 +183,9 @@ const daysInMonth = computed(() => {
   ).getDate();
 });
 
+/**
+ * Día de la semana del primer día del mes (0 = Domingo, 6 = Sábado)
+ */
 const startingDayOfWeek = computed(() => {
   return new Date(
     currentDate.value.getFullYear(),
@@ -114,16 +194,11 @@ const startingDayOfWeek = computed(() => {
   ).getDay();
 });
 
-const xpProgress = computed(() => {
-  return (userXP.value / xpToNextLevel.value) * 100;
-});
-
-const completedRoutines = computed(() => {
-  return routineStore.routines.filter(r => r.iscompleted).length;
-});
-
 // Methods
 
+/**
+ * Navega al mes anterior
+ */
 const previousMonth = (): void => {
   currentDate.value = new Date(
     currentDate.value.getFullYear(),
@@ -132,6 +207,9 @@ const previousMonth = (): void => {
   );
 };
 
+/**
+ * Navega al mes siguiente
+ */
 const nextMonth = (): void => {
   currentDate.value = new Date(
     currentDate.value.getFullYear(),
@@ -140,6 +218,9 @@ const nextMonth = (): void => {
   );
 };
 
+/**
+ * Obtiene la rutina para un día específico
+ */
 const getRoutineForDay = (day: number): Routines | null => {
   const targetDate = new Date(
     currentDate.value.getFullYear(),
@@ -155,6 +236,9 @@ const getRoutineForDay = (day: number): Routines | null => {
   }) || null;
 };
 
+/**
+ * Maneja el click en un día del calendario
+ */
 const handleDayClick = (day: number): void => {
   console.log('🖱️ Click en día:', day);
   const routine = getRoutineForDay(day);
@@ -173,29 +257,31 @@ const handleDayClick = (day: number): void => {
   }
 };
 
+/**
+ * Abre el modal de crear rutina con el día actual
+ */
 const openCreateModal = (): void => {
   selectedDay.value = new Date().getDate();
   showCreateModal.value = true;
 };
 
+/**
+ * Crea una nueva rutina
+ */
 const handleCreateRoutine = async (routine: Routines): Promise<void> => {
   try {
     console.log('📝 Creando rutina:', routine);
 
-    // Llamar al store para crear la rutina en la API
     await routineStore.createRoutine(routine);
 
     console.log('✅ Rutina creada exitosamente');
 
-    // Cerrar el modal
     closeModal();
 
-    // Mostrar notificación de éxito
     snackbar.message = '🎉 ¡Rutina creada exitosamente!';
     snackbar.color = 'success';
     snackbar.show = true;
 
-    // Recargar las rutinas del usuario para actualizar el calendario
     if (userStore.loggedUser?.id) {
       await routineStore.getRoutineByUserId(userStore.loggedUser.id);
       console.log('🔄 Rutinas recargadas');
@@ -210,8 +296,7 @@ const handleCreateRoutine = async (routine: Routines): Promise<void> => {
 };
 
 /**
- * FUNCIÓN PRINCIPAL: Completa una rutina llamando a la API
- * Se ejecuta cuando el usuario confirma en el modal de detalle
+ * FUNCIÓN PRINCIPAL: Completa una rutina y actualiza las stats del usuario
  */
 const handleCompleteFromDetail = async (routineId: number): Promise<void> => {
   try {
@@ -230,45 +315,58 @@ const handleCompleteFromDetail = async (routineId: number): Promise<void> => {
       return;
     }
 
+    if (!userStore.loggedUser) {
+      console.error('❌ No hay usuario logueado');
+      return;
+    }
+
     console.log(`📋 Completando rutina ${routineId}...`);
 
-    // 🎯 AQUÍ SE LLAMA A LA FUNCIÓN DEL STORE
+    // 🎯 Llamar a la API para marcar como completada
     await routineStore.completeTask(routineId);
 
     console.log('✅ Rutina marcada como completada en la API');
 
-    // Calcula nuevo XP
-    const newXP = userXP.value + routine.reward;
+    // 🎯 ACTUALIZAR STATS DEL USUARIO EN EL BACKEND
+    const updatedUser = {
+      ...userStore.loggedUser,
+      strength: (userStore.loggedUser.strength || 0) + routine.reward, // +XP
+      gold: (userStore.loggedUser.gold || 0) + 50, // +50 monedas
+      consistencyStreak: (userStore.loggedUser.consistencyStreak || userStore.loggedUser.consistencystreak || 0) + 1, // +1 racha
+    };
 
-    // Otorga recompensas
-    coins.value += 50; // +50 monedas por rutina
-    streak.value += 1; // +1 día de racha
+    // Verificar si sube de nivel
+    const newXP = updatedUser.strength;
+    const currentXpToNextLevel = calculateNextLevelXP(userStore.loggedUser.level || 1);
 
-    // Verifica si sube de nivel
-    if (newXP >= xpToNextLevel.value) {
-      userLevel.value += 1;
-      userXP.value = newXP - xpToNextLevel.value; // XP sobrante para el nuevo nivel
-      xpToNextLevel.value = calculateNextLevelXP(userLevel.value); // Recalcula XP necesario
+    if (newXP >= currentXpToNextLevel) {
+      updatedUser.level = (userStore.loggedUser.level || 1) + 1;
+      updatedUser.strength = newXP - currentXpToNextLevel; // XP sobrante
       showLevelUp.value = true;
-      console.log(`🎊 ¡Subiste al nivel ${userLevel.value}!`);
-    } else {
-      userXP.value = newXP;
+      console.log(`🎊 ¡Subiste al nivel ${updatedUser.level}!`);
     }
 
-    // Cierra el modal de detalle
+    // 🎯 Actualizar usuario en la API
+    await userStore.editUser(userStore.loggedUser.id, updatedUser);
+
+    console.log('✅ Usuario actualizado en la API');
+
+    // Refrescar el usuario logueado para obtener los datos actualizados
+    await userStore.refreshLoggedUser();
+
+    // Cerrar modal
     closeDetailModal();
 
-    // Muestra notificación de éxito
+    // Mostrar notificaciones
     showCompleted.value = true;
 
-    // Mensaje en snackbar
     snackbar.message = `✅ ¡Rutina completada! +${routine.reward} XP, +50 monedas`;
     snackbar.color = 'success';
     snackbar.show = true;
 
     console.log('✅ Rutina completada exitosamente');
 
-    // Opcional: Recargar rutinas para asegurar sincronización
+    // Recargar rutinas
     if (userStore.loggedUser?.id) {
       await routineStore.getRoutineByUserId(userStore.loggedUser.id);
     }
@@ -281,28 +379,49 @@ const handleCompleteFromDetail = async (routineId: number): Promise<void> => {
   }
 };
 
+/**
+ * Completa una rutina (wrapper)
+ */
 const completeRoutine = async (day: number, routineId: number): Promise<void> => {
   await handleCompleteFromDetail(routineId);
 };
 
+/**
+ * Calcula el XP necesario para alcanzar el siguiente nivel
+ */
 const calculateNextLevelXP = (level: number): number => {
   return level * 300 + 1000;
 };
 
+/**
+ * Cierra el modal de crear
+ */
 const closeModal = (): void => {
   showCreateModal.value = false;
   selectedDay.value = null;
 };
 
+/**
+ * Cierra el modal de detalle
+ */
 const closeDetailModal = (): void => {
   showDetailModal.value = false;
   selectedRoutine.value = null;
 };
 
+/**
+ * Carga los datos iniciales
+ */
 const loadUserData = async (): Promise<void> => {
   try {
     if (userStore.loggedUser?.id) {
-      console.log('🔄 Cargando rutinas del usuario:', userStore.loggedUser.id);
+      console.log('🔄 Cargando datos del usuario:', userStore.loggedUser.id);
+      console.log('👤 Usuario logueado:', {
+        level: userStore.loggedUser.level,
+        strength: userStore.loggedUser.strength,
+        gold: userStore.loggedUser.gold,
+        streak: userStore.loggedUser.consistencyStreak || userStore.loggedUser.consistencystreak
+      });
 
       // Cargar rutinas del usuario
       await routineStore.getRoutineByUserId(userStore.loggedUser.id);
