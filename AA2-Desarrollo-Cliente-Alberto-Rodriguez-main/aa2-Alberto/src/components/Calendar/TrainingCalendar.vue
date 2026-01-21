@@ -4,7 +4,7 @@
       <!-- Hero Header Section -->
       <HeroSection
         :user-level="userLevel"
-        :user-xp="userXP"
+        :userXp="userXP"
         :xp-to-next-level="xpToNextLevel"
         :coins="coins"
         :completed-routines="completedRoutines"
@@ -22,7 +22,7 @@
         :starting-day-of-week="startingDayOfWeek"
         :routines="routines"
         :completed-routines="completedRoutines"
-        :user-xp="userXP"
+        :userXP="userXP"
         :xp-progress="xpProgress"
         :streak="streak"
         @previous-month="previousMonth"

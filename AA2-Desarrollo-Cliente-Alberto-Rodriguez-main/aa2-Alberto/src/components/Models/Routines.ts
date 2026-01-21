@@ -5,6 +5,6 @@ export interface Routines {
     difficulty: number;
     reward: number;
     iscompleted: boolean;
-    createdAt: Date;
+    createdat: Date;
     userId: number;
 }

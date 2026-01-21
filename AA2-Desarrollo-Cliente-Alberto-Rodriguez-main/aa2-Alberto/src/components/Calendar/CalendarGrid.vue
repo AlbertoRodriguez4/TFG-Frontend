@@ -31,60 +31,79 @@
       >
         <DayCard
           :day="day"
-          :routine="getRoutine(day)"
+          :routine="getRoutineForDay(day)"
           :is-today="isToday(day)"
           :current-date="currentDate"
           @click="$emit('day-click', day)"
-          @complete="$emit('complete-routine', day)"
+          @complete="handleCompleteRoutine(day)"
         />
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed } from 'vue';
 import DayCard from './DayCard.vue';
+import type { Routines } from '../Models/Routines';
 
-export default {
-  name: 'CalendarGrid',
-  components: {
-    DayCard
-  },
-  props: {
-    daysOfWeek: {
-      type: Array,
-      required: true
-    },
-    startingDayOfWeek: {
-      type: Number,
-      required: true
-    },
-    daysInMonth: {
-      type: Number,
-      required: true
-    },
-    currentDate: {
-      type: Date,
-      required: true
-    },
-    routines: {
-      type: Object,
-      required: true
-    }
-  },
-  methods: {
-    getRoutineKey(day) {
-      return `${this.currentDate.getFullYear()}-${this.currentDate.getMonth() + 1}-${day}`;
-    },
-    getRoutine(day) {
-      return this.routines[this.getRoutineKey(day)];
-    },
-    isToday(day) {
-      const today = new Date();
-      return day === today.getDate() && 
-             this.currentDate.getMonth() === today.getMonth() && 
-             this.currentDate.getFullYear() === today.getFullYear();
-    }
+
+interface Props {
+  daysOfWeek: string[];
+  startingDayOfWeek: number;
+  daysInMonth: number;
+  currentDate: Date;
+  routines: Routines[];
+}
+
+const props = defineProps<Props>();
+
+const emit = defineEmits<{
+  'day-click': [day: number];
+  'complete-routine': [day: number, routineId: number];
+}>();
+
+/**
+ * Obtiene la rutina asignada a un día específico
+ * Compara las fechas de creación de las rutinas con el día del calendario
+ */
+const getRoutineForDay = (day: number): Routines | null => {
+  const targetDate = new Date(
+    props.currentDate.getFullYear(),
+    props.currentDate.getMonth(),
+    day
+  );
+
+  // Normalizar a medianoche para comparar solo fechas
+  targetDate.setHours(0, 0, 0, 0);
+
+  return props.routines.find(routine => {
+    const routineDate = new Date(routine.createdat);
+    routineDate.setHours(0, 0, 0, 0);
+    
+    return routineDate.getTime() === targetDate.getTime();
+  }) || null;
+};
+
+/**
+ * Verifica si un día es el día actual
+ */
+const isToday = (day: number): boolean => {
+  const today = new Date();
+  return (
+    day === today.getDate() &&
+    props.currentDate.getMonth() === today.getMonth() &&
+    props.currentDate.getFullYear() === today.getFullYear()
+  );
+};
+
+/**
+ * Maneja la completación de una rutina
+ */
+const handleCompleteRoutine = (day: number) => {
+  const routine = getRoutineForDay(day);
+  if (routine) {
+    emit('complete-routine', day, routine.id);
   }
 };
 </script>

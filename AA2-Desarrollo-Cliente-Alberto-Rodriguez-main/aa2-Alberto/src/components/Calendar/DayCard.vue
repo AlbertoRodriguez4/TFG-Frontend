@@ -26,31 +26,27 @@
           <div v-if="routine" class="has-workout">
             <div class="workout-icon-container">
               <v-icon 
-                :color="routine.completed ? 'green' : 'orange'"
+                :color="routine.iscompleted ? 'green' : 'orange'"
                 size="28"
               >
-                {{ routine.completed ? 'mdi-check-circle' : 'mdi-dumbbell' }}
+                {{ routine.iscompleted ? 'mdi-check-circle' : 'mdi-dumbbell' }}
               </v-icon>
             </div>
             <p class="workout-name">{{ routine.name }}</p>
             
-            <v-btn
-              v-if="!routine.completed"
-              small
-              block
-              color="purple"
-              dark
-              depressed
-              class="complete-workout-btn"
-              @click.stop="$emit('complete')"
-            >
-              <v-icon small left>mdi-check-bold</v-icon>
-              Completar
-            </v-btn>
+            <!-- Indicador cuando está pendiente -->
+            <div v-if="!routine.iscompleted" class="pending-indicator">
+              <v-chip small color="orange" dark>
+                <v-icon small left>mdi-clock-outline</v-icon>
+                Pendiente
+              </v-chip>
+              <p class="click-hint">Click para completar</p>
+            </div>
 
+            <!-- Badge cuando está completada -->
             <div v-else class="completed-badge">
               <v-icon small color="green" class="mr-1">mdi-trophy</v-icon>
-              <span>+{{ routine.xp }} XP</span>
+              <span>+{{ routine.reward }} XP</span>
             </div>
           </div>
 
@@ -59,7 +55,7 @@
             <div class="add-workout-icon">
               <v-icon size="40" color="grey lighten-1">mdi-plus</v-icon>
             </div>
-            <p class="add-workout-text">Añadir</p>
+            <p class="add-workout-text">Añadir rutina</p>
           </div>
         </div>
       </div>
@@ -67,49 +63,68 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'DayCard',
-  props: {
-    day: {
-      type: Number,
-      required: true
-    },
-    routine: {
-      type: Object,
-      default: null
-    },
-    isToday: {
-      type: Boolean,
-      default: false
-    },
-    currentDate: {
-      type: Date,
-      required: true
-    },
-    isPastDate: {
-      type: Boolean,
-      default: false
-    }
-  },
-  computed: {
-    getDayCardClass() {
-      return {
-        'day-card': true,
-        'day-card-today': this.isToday,
-        'day-card-completed': this.routine?.completed,
-        'day-card-pending': this.routine && !this.routine.completed,
-        'day-card-empty': !this.routine
-      };
-    }
-  },
-  methods: {
-    handleClick() {
-      if (!this.routine) {
-        this.$emit('click');
-      }
-    }
+<script setup lang="ts">
+import { computed } from 'vue';
+import type { Routines } from '../Models/Routines';
+
+interface Props {
+  day: number;
+  routine?: Routines | null;
+  isToday?: boolean;
+  currentDate: Date;
+  isPastDate?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  routine: null,
+  isToday: false,
+  isPastDate: false
+});
+
+const emit = defineEmits<{
+  click: [];
+  complete: [];
+}>();
+
+const getDayCardClass = computed(() => {
+  return {
+    'day-card': true,
+    'day-card-today': props.isToday,
+    'day-card-completed': props.routine?.iscompleted,
+    'day-card-pending': props.routine && !props.routine.iscompleted,
+    'day-card-empty': !props.routine,
+    // Añadir clase para indicar que es clickeable solo si está pendiente o vacía
+    'clickable': !props.routine?.iscompleted
+  };
+});
+
+/**
+ * Maneja el click en la tarjeta del día
+ * - Si NO hay rutina → Emite 'click' para abrir modal de crear
+ * - Si hay rutina PENDIENTE (iscompleted=false) → Emite 'click' para abrir modal de detalle
+ * - Si hay rutina COMPLETADA (iscompleted=true) → NO hace nada (tarjeta de solo lectura)
+ */
+const handleClick = () => {
+  console.log('🖱️ Click en DayCard, día:', props.day);
+  console.log('📋 Rutina:', props.routine);
+  console.log('✅ Completada:', props.routine?.iscompleted);
+
+  // Si no hay rutina, abrir modal de crear
+  if (!props.routine) {
+    console.log('➕ Abriendo modal de crear rutina');
+    emit('click');
+    return;
   }
+
+  // Si hay rutina PENDIENTE, abrir modal de detalle para completarla
+  if (!props.routine.iscompleted) {
+    console.log('📋 Abriendo modal de detalle para rutina PENDIENTE');
+    emit('click');
+    return;
+  }
+
+  // Si la rutina ya está COMPLETADA, no hacer nada
+  console.log('🔒 Rutina ya completada, no se abre modal');
 };
 </script>
 
@@ -122,15 +137,32 @@ export default {
 .day-card {
   height: 100%;
   border-radius: 16px;
-  cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 3px solid #e0e0e0;
   background: white;
 }
 
-.day-card:hover {
+/* Solo aplicar cursor pointer y hover si es clickeable */
+.day-card.clickable {
+  cursor: pointer;
+}
+
+.day-card.clickable:hover {
   transform: translateY(-8px) scale(1.02);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Las completadas tienen cursor normal y no tienen hover */
+.day-card-completed {
+  cursor: default;
+  border-color: #4caf50;
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.08), rgba(139, 195, 74, 0.08));
+  opacity: 0.85;
+}
+
+.day-card-completed:hover {
+  transform: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
 }
 
 .day-card-empty {
@@ -147,11 +179,6 @@ export default {
   border-color: #667eea;
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.25) !important;
-}
-
-.day-card-completed {
-  border-color: #4caf50;
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.08), rgba(139, 195, 74, 0.08));
 }
 
 .day-card-pending {
@@ -219,6 +246,12 @@ export default {
   align-items: center;
   justify-content: center;
   margin-bottom: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.day-card-pending:hover .workout-icon-container {
+  transform: scale(1.1);
+  background: rgba(255, 152, 0, 0.15);
 }
 
 .workout-name {
@@ -234,10 +267,25 @@ export default {
   line-height: 1.3;
 }
 
-.complete-workout-btn {
-  font-weight: 700;
-  text-transform: none;
+.pending-indicator {
   margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.click-hint {
+  font-size: 0.75rem;
+  color: #757575;
+  font-weight: 600;
+  margin: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.day-card-pending:hover .click-hint {
+  opacity: 1;
 }
 
 .completed-badge {
@@ -251,6 +299,7 @@ export default {
   align-items: center;
   justify-content: center;
   margin-top: auto;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
 }
 
 .no-workout {
@@ -327,11 +376,6 @@ export default {
     font-size: 20px !important;
   }
   
-  .complete-workout-btn {
-    font-size: 0.7rem;
-    height: 28px !important;
-  }
-  
   .completed-badge {
     padding: 0.35rem 0.75rem;
     font-size: 0.7rem;
@@ -343,6 +387,10 @@ export default {
   
   .add-workout-text {
     font-size: 0.7rem;
+  }
+
+  .click-hint {
+    font-size: 0.65rem;
   }
 }
 </style>

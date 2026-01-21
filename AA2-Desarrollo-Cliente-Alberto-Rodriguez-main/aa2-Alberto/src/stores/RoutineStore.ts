@@ -66,6 +66,29 @@ export const useRoutineStore = defineStore('routine', () => {
         }
     }
 
+async function completeTask(taskId: number): Promise<void> {
+    try {
+        const response = await fetch(`http://localhost:6873/api/Task/complete/${taskId}`, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        // Update the local state to reflect the completed task
+        const taskIndex = routines.value.findIndex(task => task.id === taskId);
+        if (taskIndex !== -1) {
+            routines.value[taskIndex].iscompleted = true;
+        }
+    } catch (error) {
+        console.error('Error completing task:', error);
+    }
+}
 
     // --- Actions ---
     function setSelectedRoutineId(routineId: number | null) {
@@ -77,6 +100,7 @@ export const useRoutineStore = defineStore('routine', () => {
         setSelectedRoutineId,
         getRoutines,
         createRoutine,
-        getRoutineByUserId
+        getRoutineByUserId,
+        completeTask
     };
 });

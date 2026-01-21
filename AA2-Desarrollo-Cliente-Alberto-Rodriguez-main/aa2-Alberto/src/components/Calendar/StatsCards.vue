@@ -104,86 +104,35 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'StatsCards',
-  
-  props: {
-    /**
-     * Nivel actual del usuario
-     */
-    userLevel: {
-      type: Number,
-      required: true,
-      validator: (value) => value >= 1 && value <= 100
-    },
-    
-    /**
-     * Experiencia actual del usuario
-     */
-    userXP: {
-      type: Number,
-      required: true,
-      validator: (value) => value >= 0
-    },
-    
-    /**
-     * XP necesario para alcanzar el siguiente nivel
-     */
-    xpToNextLevel: {
-      type: Number,
-      required: true,
-      validator: (value) => value > 0
-    },
-    
-    /**
-     * Porcentaje de progreso hacia el siguiente nivel (0-100)
-     */
-    xpProgress: {
-      type: Number,
-      required: true,
-      validator: (value) => value >= 0 && value <= 100
-    },
-    
-    /**
-     * Cantidad de monedas del usuario
-     */
-    coins: {
-      type: Number,
-      required: true,
-      validator: (value) => value >= 0
-    },
-    
-    /**
-     * Número de rutinas completadas
-     */
-    completedRoutines: {
-      type: Number,
-      required: true,
-      validator: (value) => value >= 0
-    }
-  },
-  
-  computed: {
-    /**
-     * Determina si mostrar mensaje motivacional
-     * @returns {Boolean}
-     */
-    showMotivation() {
-      return this.completedRoutines >= 5;
-    },
-    
-    /**
-     * Calcula el color de la barra de progreso según el nivel
-     * @returns {String}
-     */
-    progressColor() {
-      if (this.xpProgress >= 80) return 'success';
-      if (this.xpProgress >= 50) return 'purple';
-      return 'orange';
-    }
-  }
-};
+<script setup lang="ts">
+import { computed } from 'vue';
+
+interface Props {
+  userLevel: number;
+  userXP: number;
+  xpToNextLevel: number;
+  xpProgress: number;
+  coins: number;
+  completedRoutines: number;
+}
+
+const props = defineProps<Props>();
+
+/**
+ * Determina si mostrar mensaje motivacional
+ */
+const showMotivation = computed((): boolean => {
+  return props.completedRoutines >= 5;
+});
+
+/**
+ * Calcula el color de la barra de progreso según el nivel
+ */
+const progressColor = computed((): string => {
+  if (props.xpProgress >= 80) return 'success';
+  if (props.xpProgress >= 50) return 'purple';
+  return 'orange';
+});
 </script>
 
 <style scoped>

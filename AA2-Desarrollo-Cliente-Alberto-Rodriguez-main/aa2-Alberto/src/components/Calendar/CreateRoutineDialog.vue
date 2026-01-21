@@ -311,18 +311,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-
-// Interfaz de Routines
-export interface Routines {
-  id: number;
-  name: string;
-  description: string;
-  difficulty: number;
-  reward: number;
-  iscompleted: boolean;
-  createdAt: Date;
-  userId: number;
-}
+import type { Routines } from '../Models/Routines';
 
 // Props
 interface Props {
@@ -439,7 +428,7 @@ const handleCreate = async () => {
     difficulty: selectedDifficulty.value, // Nota el typo en la interfaz
     reward: calculatedXP.value,
     iscompleted: false,
-    createdAt: new Date(),
+    createdat: new Date(),
     userId: props.userId
   };
 
