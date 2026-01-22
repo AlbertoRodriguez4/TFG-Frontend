@@ -1,313 +1,364 @@
-  <template>
-    <!-- ✅ CORRECTO -->
-    <v-dialog :value="value" @input="(val: boolean) => $emit('input', val)" max-width="1100" persistent
-      transition="dialog-transition" scrollable>
-      <v-card rounded="xl" class="create-dialog" elevation="24">
-        <!-- Header épico con animación -->
-        <div class="dialog-header">
-          <div class="header-bg-animation"></div>
-          <div class="header-content">
-            <div class="header-icon-wrapper">
-              <v-icon size="56" color="white" class="pulse-icon">mdi-dumbbell</v-icon>
-              <div class="icon-glow"></div>
+<template>
+  <!-- ✅ CORRECTO -->
+  <v-dialog :value="value" @input="(val: boolean) => $emit('input', val)" max-width="1100" persistent
+    transition="dialog-transition" scrollable>
+    <v-card rounded="xl" class="create-dialog" elevation="24">
+      <!-- Header épico con animación -->
+      <div class="dialog-header">
+        <div class="header-bg-animation"></div>
+        <div class="header-content">
+          <div class="header-icon-wrapper">
+            <v-icon size="56" color="white" class="pulse-icon">mdi-dumbbell</v-icon>
+            <div class="icon-glow"></div>
+          </div>
+          <div class="header-text">
+            <div class="level-badge">
+              <v-icon small color="white">mdi-star</v-icon>
+              <span>CREAR RUTINA</span>
             </div>
-            <div class="header-text">
-              <div class="level-badge">
-                <v-icon small color="white">mdi-star</v-icon>
-                <span>CREAR RUTINA</span>
-              </div>
-              <h2 class="text-h3 font-weight-black white--text mb-2 title-glow">
-                Nueva Rutina Épica
-              </h2>
-              <div class="d-flex align-center">
-                <div class="date-chip">
-                  <v-icon small color="white" class="mr-2">mdi-calendar-star</v-icon>
-                  <span class="white--text font-weight-bold">{{ formatDate }}</span>
-                </div>
+            <h2 class="text-h3 font-weight-black white--text mb-2 title-glow">
+              Nueva Rutina Épica
+            </h2>
+            <div class="d-flex align-center">
+              <div class="date-chip">
+                <v-icon small color="white" class="mr-2">mdi-calendar-star</v-icon>
+                <span class="white--text font-weight-bold">{{ formatDate }}</span>
               </div>
             </div>
           </div>
-          <v-btn icon x-large dark @click="handleClose" class="close-btn">
-            <v-icon size="32">mdi-close-thick</v-icon>
-          </v-btn>
+        </div>
+        <v-btn icon x-large dark @click="handleClose" class="close-btn">
+          <v-icon size="32">mdi-close-thick</v-icon>
+        </v-btn>
+      </div>
+
+      <!-- Contenido del formulario -->
+      <v-card-text class="pa-8 dialog-body">
+        <!-- Nombre de la rutina con efecto gaming -->
+        <div class="form-section mb-8">
+          <div class="section-header mb-4">
+            <div class="section-icon-wrapper">
+              <v-icon color="white" size="24">mdi-format-title</v-icon>
+            </div>
+            <div>
+              <div class="section-title">Nombre de tu Rutina</div>
+              <div class="section-subtitle">Dale un nombre épico a tu entrenamiento</div>
+            </div>
+            <v-chip x-small color="error" class="ml-auto chip-required">
+              <v-icon x-small left>mdi-alert-circle</v-icon>
+              Requerido
+            </v-chip>
+          </div>
+          <div class="input-wrapper">
+            <v-text-field v-model="localRoutineName" placeholder="Ej: Destrucción de Piernas - Día del Juicio" outlined
+              dense color="purple" hide-details="auto" class="custom-textfield-epic">
+              <template v-slot:prepend-inner>
+                <div class="input-icon-wrapper">
+                  <v-icon color="purple lighten-2">mdi-weight-lifter</v-icon>
+                </div>
+              </template>
+              <template v-slot:append>
+                <v-fade-transition>
+                  <div v-if="localRoutineName" class="success-indicator">
+                    <v-icon color="success">mdi-check-circle</v-icon>
+                  </div>
+                </v-fade-transition>
+              </template>
+            </v-text-field>
+            <div class="char-counter" v-if="localRoutineName">
+              {{ localRoutineName.length }}/50
+            </div>
+          </div>
         </div>
 
-        <!-- Contenido del formulario -->
-        <v-card-text class="pa-8 dialog-body">
-          <!-- Nombre de la rutina con efecto gaming -->
-          <div class="form-section mb-8">
-            <div class="section-header mb-4">
-              <div class="section-icon-wrapper">
-                <v-icon color="white" size="24">mdi-format-title</v-icon>
-              </div>
-              <div>
-                <div class="section-title">Nombre de tu Rutina</div>
-                <div class="section-subtitle">Dale un nombre épico a tu entrenamiento</div>
-              </div>
-              <v-chip x-small color="error" class="ml-auto chip-required">
-                <v-icon x-small left>mdi-alert-circle</v-icon>
-                Requerido
-              </v-chip>
+        <!-- NUEVO: Tipo de Entrenamiento -->
+        <div class="form-section mb-8">
+          <div class="section-header mb-4">
+            <div class="section-icon-wrapper gradient-success">
+              <v-icon color="white" size="24">mdi-target</v-icon>
             </div>
-            <div class="input-wrapper">
-              <v-text-field v-model="localRoutineName" placeholder="Ej: Destrucción de Piernas - Día del Juicio"
-                outlined dense color="purple" hide-details="auto" class="custom-textfield-epic">
-                <template v-slot:prepend-inner>
-                  <div class="input-icon-wrapper">
-                    <v-icon color="purple lighten-2">mdi-weight-lifter</v-icon>
-                  </div>
-                </template>
-                <template v-slot:append>
-                  <v-fade-transition>
-                    <div v-if="localRoutineName" class="success-indicator">
-                      <v-icon color="success">mdi-check-circle</v-icon>
-                    </div>
-                  </v-fade-transition>
-                </template>
-              </v-text-field>
-              <div class="char-counter" v-if="localRoutineName">
-                {{ localRoutineName.length }}/50
-              </div>
+            <div>
+              <div class="section-title">Enfoque de Entrenamiento</div>
+              <div class="section-subtitle">Selecciona el tipo de entrenamiento</div>
             </div>
+            <v-chip x-small color="error" class="ml-auto chip-required">
+              <v-icon x-small left>mdi-alert-circle</v-icon>
+              Requerido
+            </v-chip>
           </div>
-
-          <!-- Ejercicios con diseño mejorado -->
-          <div class="form-section mb-8">
-            <div class="section-header mb-4">
-              <div class="section-icon-wrapper gradient-secondary">
-                <v-icon color="white" size="24">mdi-clipboard-list-outline</v-icon>
+          <div class="training-type-selector">
+            <div v-for="type in trainingTypes" :key="type.value" @click="trainingFocus = type.value"
+              :class="['training-type-card', { 'active': trainingFocus === type.value }]"
+              :style="{ '--type-color': type.color }">
+              <div class="training-type-icon">
+                <v-icon :color="trainingFocus === type.value ? 'white' : type.color" size="36">
+                  {{ type.icon }}
+                </v-icon>
               </div>
-              <div>
-                <div class="section-title">Ejercicios Principales</div>
-                <div class="section-subtitle">Define tu arsenal de ejercicios</div>
-              </div>
-              <v-chip x-small color="error" class="ml-auto chip-required">
-                <v-icon x-small left>mdi-alert-circle</v-icon>
-                Requerido
-              </v-chip>
-            </div>
-            <div class="input-wrapper">
-              <v-textarea v-model="localRoutineExercises"
-                placeholder="Lista tus ejercicios con sets y reps:&#10;🔥 Sentadilla Profunda 4x10 (RPE 9)&#10;💪 Prensa Inclinada 3x12&#10;⚡ Peso Muerto Rumano 4x8&#10;🎯 Extensiones de Cuádriceps 3x15"
-                outlined color="purple" hide-details="auto" rows="5" class="custom-textfield-epic" auto-grow>
-                <template v-slot:prepend-inner>
-                  <div class="input-icon-wrapper">
-                    <v-icon color="purple lighten-2">mdi-format-list-checks</v-icon>
-                  </div>
-                </template>
-                <template v-slot:append>
-                  <v-fade-transition>
-                    <div v-if="localRoutineExercises" class="success-indicator">
-                      <v-icon color="success">mdi-check-circle</v-icon>
-                    </div>
-                  </v-fade-transition>
-                </template>
-              </v-textarea>
-            </div>
-            <div class="tips-box mt-3">
-              <v-icon small color="amber" class="mr-2">mdi-lightbulb-on</v-icon>
-              <span class="text-caption font-weight-medium">
-                Pro Tip: Incluye series, repeticiones y RPE para maximizar tu progreso
-              </span>
-            </div>
-          </div>
-
-          <!-- Grid de opciones -->
-          <v-row class="mb-8">
-            <!-- Nivel de dificultad rediseñado -->
-            <v-col cols="12" md="6">
-              <div class="form-section">
-                <div class="section-header mb-4">
-                  <div class="section-icon-wrapper gradient-warning">
-                    <v-icon color="white" size="24">mdi-speedometer</v-icon>
-                  </div>
-                  <div>
-                    <div class="section-title">Nivel de Desafío</div>
-                    <div class="section-subtitle">¿Qué tan intenso será?</div>
-                  </div>
+              <div class="training-type-label">{{ type.label }}</div>
+              <div class="training-type-description">{{ type.description }}</div>
+              <v-fade-transition>
+                <div v-if="trainingFocus === type.value" class="check-indicator">
+                  <v-icon color="white" size="20">mdi-check-circle</v-icon>
                 </div>
-                <div class="difficulty-selector">
-                  <div v-for="level in difficultyLevels" :key="level.value" @click="selectedDifficulty = level.value"
-                    :class="['difficulty-card', { 'active': selectedDifficulty === level.value }]"
-                    :style="{ '--card-color': level.color }">
-                    <div class="difficulty-icon">
-                      <v-icon :color="selectedDifficulty === level.value ? 'white' : level.color" size="32">
-                        {{ level.icon }}
-                      </v-icon>
-                    </div>
-                    <div class="difficulty-label">{{ level.label }}</div>
-                    <div class="difficulty-xp">+{{ level.xpBonus }} XP</div>
+              </v-fade-transition>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ejercicios con diseño mejorado -->
+        <div class="form-section mb-8">
+          <div class="section-header mb-4">
+            <div class="section-icon-wrapper gradient-secondary">
+              <v-icon color="white" size="24">mdi-clipboard-list-outline</v-icon>
+            </div>
+            <div>
+              <div class="section-title">Ejercicios Principales</div>
+              <div class="section-subtitle">Define tu arsenal de ejercicios</div>
+            </div>
+            <v-chip x-small color="error" class="ml-auto chip-required">
+              <v-icon x-small left>mdi-alert-circle</v-icon>
+              Requerido
+            </v-chip>
+          </div>
+          <div class="input-wrapper">
+            <v-textarea v-model="localRoutineExercises"
+              placeholder="Lista tus ejercicios con sets y reps:&#10;🔥 Sentadilla Profunda 4x10 (RPE 9)&#10;💪 Prensa Inclinada 3x12&#10;⚡ Peso Muerto Rumano 4x8&#10;🎯 Extensiones de Cuádriceps 3x15"
+              outlined color="purple" hide-details="auto" rows="5" class="custom-textfield-epic" auto-grow>
+              <template v-slot:prepend-inner>
+                <div class="input-icon-wrapper">
+                  <v-icon color="purple lighten-2">mdi-format-list-checks</v-icon>
+                </div>
+              </template>
+              <template v-slot:append>
+                <v-fade-transition>
+                  <div v-if="localRoutineExercises" class="success-indicator">
+                    <v-icon color="success">mdi-check-circle</v-icon>
                   </div>
+                </v-fade-transition>
+              </template>
+            </v-textarea>
+          </div>
+          <div class="tips-box mt-3">
+            <v-icon small color="amber" class="mr-2">mdi-lightbulb-on</v-icon>
+            <span class="text-caption font-weight-medium">
+              Pro Tip: Incluye series, repeticiones y RPE para maximizar tu progreso
+            </span>
+          </div>
+        </div>
+
+        <!-- Grid de opciones -->
+        <v-row class="mb-8">
+          <!-- Nivel de dificultad rediseñado -->
+          <v-col cols="12" md="6">
+            <div class="form-section">
+              <div class="section-header mb-4">
+                <div class="section-icon-wrapper gradient-warning">
+                  <v-icon color="white" size="24">mdi-speedometer</v-icon>
+                </div>
+                <div>
+                  <div class="section-title">Nivel de Desafío</div>
+                  <div class="section-subtitle">¿Qué tan intenso será?</div>
+                </div>
+              </div>
+              <div class="difficulty-selector">
+                <div v-for="level in difficultyLevels" :key="level.value" @click="selectedDifficulty = level.value"
+                  :class="['difficulty-card', { 'active': selectedDifficulty === level.value }]"
+                  :style="{ '--card-color': level.color }">
+                  <div class="difficulty-icon">
+                    <v-icon :color="selectedDifficulty === level.value ? 'white' : level.color" size="32">
+                      {{ level.icon }}
+                    </v-icon>
+                  </div>
+                  <div class="difficulty-label">{{ level.label }}</div>
+                  <div class="difficulty-xp">+{{ level.xpBonus }} XP</div>
+                </div>
+              </div>
+            </div>
+          </v-col>
+
+          <!-- Duración con visualización mejorada -->
+          <v-col cols="12" md="6">
+            <div class="form-section">
+              <div class="section-header mb-4">
+                <div class="section-icon-wrapper gradient-info">
+                  <v-icon color="white" size="24">mdi-clock-fast</v-icon>
+                </div>
+                <div>
+                  <div class="section-title">Duración Estimada</div>
+                  <div class="section-subtitle">Tiempo de entrenamiento</div>
+                </div>
+              </div>
+              <div class="duration-display">
+                <div class="duration-value">{{ estimatedDuration }}</div>
+                <div class="duration-unit">minutos</div>
+              </div>
+              <v-slider v-model="estimatedDuration" :min="15" :max="120" :step="15" color="purple"
+                track-color="grey lighten-3" class="custom-slider-epic mt-4" hide-details>
+                <template v-slot:prepend>
+                  <div class="slider-label">15m</div>
+                </template>
+                <template v-slot:append>
+                  <div class="slider-label">120m</div>
+                </template>
+              </v-slider>
+              <div class="duration-bonus mt-2">
+                <v-icon small color="success">mdi-plus-circle</v-icon>
+                <span>+{{ durationBonus }} XP por intensidad</span>
+              </div>
+            </div>
+          </v-col>
+        </v-row>
+
+        <!-- Recompensas ÉPICAS - DINÁMICAS -->
+        <div class="rewards-epic-section">
+          <div class="rewards-epic-header">
+            <div class="rewards-title-wrapper">
+              <div class="rewards-icon-mega">
+                <v-icon size="48" color="white">mdi-trophy-variant</v-icon>
+              </div>
+              <div>
+                <h3 class="text-h4 font-weight-black mb-1">
+                  Recompensas Épicas
+                </h3>
+                <p class="rewards-subtitle mb-0">
+                  Completa esta rutina y conquista estas recompensas
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <v-row class="rewards-grid">
+            <!-- XP Card -->
+            <v-col cols="12" sm="6" :md="rewardColumnSize">
+              <div class="reward-card-epic reward-xp">
+                <div class="reward-glow"></div>
+                <div class="reward-icon-container">
+                  <v-icon size="48" color="white">mdi-star-circle</v-icon>
+                </div>
+                <div class="reward-amount">{{ calculatedXP }}</div>
+                <div class="reward-label">Experiencia</div>
+                <div class="reward-progress">
+                  <v-progress-linear :value="75" height="6" color="white" background-color="rgba(255,255,255,0.2)"
+                    rounded></v-progress-linear>
+                  <div class="progress-text">Nivel +{{ calculatedRewards.level }}</div>
                 </div>
               </div>
             </v-col>
 
-            <!-- Duración con visualización mejorada -->
-            <v-col cols="12" md="6">
-              <div class="form-section">
-                <div class="section-header mb-4">
-                  <div class="section-icon-wrapper gradient-info">
-                    <v-icon color="white" size="24">mdi-clock-fast</v-icon>
-                  </div>
-                  <div>
-                    <div class="section-title">Duración Estimada</div>
-                    <div class="section-subtitle">Tiempo de entrenamiento</div>
-                  </div>
+            <!-- Monedas Card -->
+            <v-col cols="12" sm="6" :md="rewardColumnSize">
+              <div class="reward-card-epic reward-coins">
+                <div class="reward-glow"></div>
+                <div class="reward-icon-container">
+                  <v-icon size="48" color="white">mdi-cash-multiple</v-icon>
                 </div>
-                <div class="duration-display">
-                  <div class="duration-value">{{ estimatedDuration }}</div>
-                  <div class="duration-unit">minutos</div>
+                <div class="reward-amount">{{ calculatedRewards.gold }}</div>
+                <div class="reward-label">Monedas</div>
+                <div class="reward-info">
+                  <v-icon x-small color="white">mdi-store</v-icon>
+                  <span>Úsalas en la tienda</span>
                 </div>
-                <v-slider v-model="estimatedDuration" :min="15" :max="120" :step="15" color="purple"
-                  track-color="grey lighten-3" class="custom-slider-epic mt-4" hide-details>
-                  <template v-slot:prepend>
-                    <div class="slider-label">15m</div>
-                  </template>
-                  <template v-slot:append>
-                    <div class="slider-label">120m</div>
-                  </template>
-                </v-slider>
-                <div class="duration-bonus mt-2">
-                  <v-icon small color="success">mdi-plus-circle</v-icon>
-                  <span>+{{ durationBonus }} XP por intensidad</span>
+              </div>
+            </v-col>
+
+            <!-- Fuerza Card (solo si aplica) -->
+            <v-col v-if="calculatedRewards.strength > 0" cols="12" sm="6" :md="rewardColumnSize">
+              <div class="reward-card-epic reward-strength">
+                <div class="reward-glow"></div>
+                <div class="reward-icon-container">
+                  <v-icon size="48" color="white">mdi-arm-flex</v-icon>
+                </div>
+                <div class="reward-amount">+{{ calculatedRewards.strength }}</div>
+                <div class="reward-label">Fuerza</div>
+                <div class="reward-info">
+                  <v-icon x-small color="white">mdi-trending-up</v-icon>
+                  <span>Mejora tu poder</span>
+                </div>
+              </div>
+            </v-col>
+
+            <!-- Resistencia Card (solo si aplica) -->
+            <v-col v-if="calculatedRewards.endurance > 0" cols="12" sm="6" :md="rewardColumnSize">
+              <div class="reward-card-epic reward-endurance">
+                <div class="reward-glow"></div>
+                <div class="reward-icon-container">
+                  <v-icon size="48" color="white">mdi-run-fast</v-icon>
+                </div>
+                <div class="reward-amount">+{{ calculatedRewards.endurance }}</div>
+                <div class="reward-label">Resistencia</div>
+                <div class="reward-info">
+                  <v-icon x-small color="white">mdi-lightning-bolt</v-icon>
+                  <span>Aumenta tu energía</span>
+                </div>
+              </div>
+            </v-col>
+
+            <!-- Racha Card -->
+            <v-col cols="12" sm="6" :md="rewardColumnSize">
+              <div class="reward-card-epic reward-streak">
+                <div class="reward-glow"></div>
+                <div class="reward-icon-container">
+                  <v-icon size="48" color="white">mdi-fire</v-icon>
+                </div>
+                <div class="reward-amount">+1</div>
+                <div class="reward-label">Racha Activa</div>
+                <div class="reward-info">
+                  <v-icon x-small color="white">mdi-trending-up</v-icon>
+                  <span>Mantén el impulso</span>
                 </div>
               </div>
             </v-col>
           </v-row>
 
-          <!-- Recompensas ÉPICAS -->
-          <div class="rewards-epic-section">
-            <div class="rewards-epic-header">
-              <div class="rewards-title-wrapper">
-                <div class="rewards-icon-mega">
-                  <v-icon size="48" color="white">mdi-trophy-variant</v-icon>
-                </div>
-                <div>
-                  <h3 class="text-h4 font-weight-black mb-1">
-                    Recompensas Épicas
-                  </h3>
-                  <p class="rewards-subtitle mb-0">
-                    Completa esta rutina y conquista estas recompensas
-                  </p>
-                </div>
-              </div>
+          <!-- Barra de logros adicional -->
+          <div class="achievements-preview">
+            <div class="achievement-item">
+              <v-icon color="amber">mdi-medal</v-icon>
+              <span>Primera Rutina Completada</span>
             </div>
-
-            <v-row class="rewards-grid">
-              <!-- XP Card -->
-              <v-col cols="12" sm="6" md="3">
-                <div class="reward-card-epic reward-xp">
-                  <div class="reward-glow"></div>
-                  <div class="reward-icon-container">
-                    <v-icon size="48" color="white">mdi-star-circle</v-icon>
-                  </div>
-                  <div class="reward-amount">{{ calculatedXP }}</div>
-                  <div class="reward-label">Experiencia</div>
-                  <div class="reward-progress">
-                    <v-progress-linear :value="75" height="6" color="white" background-color="rgba(255,255,255,0.2)"
-                      rounded></v-progress-linear>
-                    <div class="progress-text">Nivel 12 → 13</div>
-                  </div>
-                </div>
-              </v-col>
-
-              <!-- Monedas Card -->
-              <v-col cols="12" sm="6" md="3">
-                <div class="reward-card-epic reward-coins">
-                  <div class="reward-glow"></div>
-                  <div class="reward-icon-container">
-                    <v-icon size="48" color="white">mdi-cash-multiple</v-icon>
-                  </div>
-                  <div class="reward-amount">50</div>
-                  <div class="reward-label">Monedas</div>
-                  <div class="reward-info">
-                    <v-icon x-small color="white">mdi-store</v-icon>
-                    <span>Úsalas en la tienda</span>
-                  </div>
-                </div>
-              </v-col>
-
-              <!-- Racha Card -->
-              <v-col cols="12" sm="6" md="3">
-                <div class="reward-card-epic reward-streak">
-                  <div class="reward-glow"></div>
-                  <div class="reward-icon-container">
-                    <v-icon size="48" color="white">mdi-fire</v-icon>
-                  </div>
-                  <div class="reward-amount">+1</div>
-                  <div class="reward-label">Racha Activa</div>
-                  <div class="reward-info">
-                    <v-icon x-small color="white">mdi-trending-up</v-icon>
-                    <span>Mantén el impulso</span>
-                  </div>
-                </div>
-              </v-col>
-
-              <!-- Atributos Card -->
-              <v-col cols="12" sm="6" md="3">
-                <div class="reward-card-epic reward-stats">
-                  <div class="reward-glow"></div>
-                  <div class="reward-icon-container">
-                    <v-icon size="48" color="white">mdi-arm-flex</v-icon>
-                  </div>
-                  <div class="reward-amount">+3</div>
-                  <div class="reward-label">Atributos</div>
-                  <div class="reward-info">
-                    <v-icon x-small color="white">mdi-chart-line</v-icon>
-                    <span>Mejora tu personaje</span>
-                  </div>
-                </div>
-              </v-col>
-            </v-row>
-
-            <!-- Barra de logros adicional -->
-            <div class="achievements-preview">
-              <div class="achievement-item">
-                <v-icon color="amber">mdi-medal</v-icon>
-                <span>Primera Rutina Completada</span>
-              </div>
-              <div class="achievement-item">
-                <v-icon color="purple">mdi-crown</v-icon>
-                <span>Desbloquea Salas Premium</span>
-              </div>
-              <div class="achievement-item">
-                <v-icon color="blue">mdi-account-group</v-icon>
-                <span>+10 Puntos de Comunidad</span>
-              </div>
+            <div class="achievement-item">
+              <v-icon color="purple">mdi-crown</v-icon>
+              <span>Desbloquea Salas Premium</span>
+            </div>
+            <div class="achievement-item">
+              <v-icon color="blue">mdi-account-group</v-icon>
+              <span>+10 Puntos de Comunidad</span>
             </div>
           </div>
-        </v-card-text>
+        </div>
+      </v-card-text>
 
-        <!-- Footer épico -->
-        <v-divider></v-divider>
-        <v-card-actions class="pa-6 dialog-footer">
-          <div class="footer-stats">
-            <div class="stat-item">
-              <v-icon small color="grey darken-1">mdi-calendar-check</v-icon>
-              <span>Fecha: {{ formatDate }}</span>
-            </div>
-            <div class="stat-item">
-              <v-icon small color="grey darken-1">mdi-account</v-icon>
-              <span>Personal</span>
-            </div>
+      <!-- Footer épico -->
+      <v-divider></v-divider>
+      <v-card-actions class="pa-6 dialog-footer">
+        <div class="footer-stats">
+          <div class="stat-item">
+            <v-icon small color="grey darken-1">mdi-calendar-check</v-icon>
+            <span>Fecha: {{ formatDate }}</span>
           </div>
-          <v-spacer></v-spacer>
-          <v-btn x-large text @click="handleClose" class="px-8 cancel-btn">
-            <v-icon left>mdi-close-circle-outline</v-icon>
-            Cancelar
-          </v-btn>
-          <v-btn x-large color="purple" dark depressed @click="handleCreate" :disabled="!isFormValid"
-            :loading="creating" class="px-10 ml-4 create-btn-epic" elevation="8">
-            <v-icon left size="28">mdi-rocket-launch</v-icon>
-            <span class="button-text">
-              <span class="main-text">Crear Rutina</span>
-              <span class="sub-text">+{{ calculatedXP }} XP</span>
-            </span>
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </template>
+          <div class="stat-item">
+            <v-icon small color="grey darken-1">mdi-account</v-icon>
+            <span>Personal</span>
+          </div>
+        </div>
+        <v-spacer></v-spacer>
+        <v-btn x-large text @click="handleClose" class="px-8 cancel-btn">
+          <v-icon left>mdi-close-circle-outline</v-icon>
+          Cancelar
+        </v-btn>
+        <v-btn x-large color="purple" dark depressed @click="handleCreate" :disabled="!isFormValid" :loading="creating"
+          class="px-10 ml-4 create-btn-epic" elevation="8">
+          <v-icon left size="28">mdi-rocket-launch</v-icon>
+          <span class="button-text">
+            <span class="main-text">Crear Rutina</span>
+            <span class="sub-text">+{{ calculatedXP }} XP</span>
+          </span>
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
@@ -332,13 +383,12 @@ const props = withDefaults(defineProps<Props>(), {
 
 // Emits
 interface Emits {
-  (e: 'input', value: boolean): void;  // ← AGREGAR ESTA LÍNEA
+  (e: 'input', value: boolean): void;
   (e: 'close'): void;
   (e: 'create', routine: Routines): void;
 }
 
 const emit = defineEmits<Emits>();
-
 
 // Types
 interface DifficultyLevel {
@@ -349,12 +399,21 @@ interface DifficultyLevel {
   xpBonus: number;
 }
 
+interface TrainingType {
+  value: string;
+  label: string;
+  icon: string;
+  color: string;
+  description: string;
+}
+
 // Data
 const creating = ref(false);
 const selectedDifficulty = ref(1);
 const estimatedDuration = ref(60);
 const localRoutineName = ref('');
 const localRoutineExercises = ref('');
+const trainingFocus = ref('strength'); // NUEVO
 
 const difficultyLevels: DifficultyLevel[] = [
   {
@@ -380,13 +439,38 @@ const difficultyLevels: DifficultyLevel[] = [
   }
 ];
 
+// NUEVO: Tipos de entrenamiento
+const trainingTypes: TrainingType[] = [
+  {
+    value: 'strength',
+    label: 'Fuerza',
+    icon: 'mdi-dumbbell',
+    color: '#e74c3c',
+    description: 'Aumenta Fuerza'
+  },
+  {
+    value: 'endurance',
+    label: 'Resistencia',
+    icon: 'mdi-run-fast',
+    color: '#3498db',
+    description: 'Aumenta Resistencia'
+  },
+  {
+    value: 'ambas',
+    label: 'Híbrido',
+    icon: 'mdi-star-four-points',
+    color: '#9b59b6',
+    description: 'Fuerza + Resistencia'
+  }
+];
+
 // Computed
 const formatDate = computed(() => {
   return `${props.selectedDay} de ${props.monthName}`;
 });
 
 const isFormValid = computed(() => {
-  return localRoutineName.value && localRoutineExercises.value;
+  return localRoutineName.value && localRoutineExercises.value && trainingFocus.value;
 });
 
 const durationBonus = computed(() => {
@@ -399,6 +483,40 @@ const calculatedXP = computed(() => {
   return baseXP + difficultyBonus + durationBonus.value;
 });
 
+// NUEVO: Calcular recompensas según el tipo de entrenamiento
+const calculatedRewards = computed(() => {
+  const rewards = {
+    strength: 0,
+    endurance: 0,
+    level: 0,
+    gold: calculatedXP.value,
+    streak: 1
+  };
+
+  if (trainingFocus.value === 'strength') {
+    rewards.strength = Math.floor(calculatedXP.value / 10);
+  } else if (trainingFocus.value === 'endurance') {
+    rewards.endurance = Math.floor(calculatedXP.value / 10);
+  } else if (trainingFocus.value === 'ambas') {
+    rewards.strength = Math.floor(calculatedXP.value / 20);
+    rewards.endurance = Math.floor(calculatedXP.value / 20);
+  }
+
+  rewards.level = Math.floor(calculatedXP.value / 100);
+
+  return rewards;
+});
+
+// NUEVO: Tamaño de columna dinámico según recompensas visibles
+const rewardColumnSize = computed(() => {
+  const visibleRewards = 3 + // XP, Monedas, Racha (siempre visibles)
+    (calculatedRewards.value.strength > 0 ? 1 : 0) +
+    (calculatedRewards.value.endurance > 0 ? 1 : 0);
+
+  // Si hay 4 recompensas, usar md="3", si hay 5, usar md="2.4" (aproximado a 3)
+  return visibleRewards === 5 ? 3 : 3;
+});
+
 // Watch
 watch(() => props.value, (newVal) => {
   if (newVal && !localRoutineName.value && !localRoutineExercises.value) {
@@ -409,7 +527,7 @@ watch(() => props.value, (newVal) => {
 
 // Methods
 const handleClose = () => {
-  emit('input', false);  
+  emit('input', false);
   emit('close');
 };
 
@@ -422,11 +540,12 @@ const handleCreate = async () => {
 
   // Crear objeto que cumple con la interfaz Routines
   const newRoutine: Routines = {
-    id: 0, // Esto lo asignará el backend normalmente
+    id: 0,
     name: localRoutineName.value,
     description: localRoutineExercises.value,
-    difficulty: selectedDifficulty.value, // Nota el typo en la interfaz
+    difficulty: selectedDifficulty.value,
     reward: calculatedXP.value,
+    trainingfocus: trainingFocus.value, // NUEVO CAMPO
     iscompleted: false,
     createdat: new Date(),
     userId: props.userId
@@ -437,6 +556,7 @@ const handleCreate = async () => {
   creating.value = false;
   localRoutineName.value = '';
   localRoutineExercises.value = '';
+  trainingFocus.value = 'strength'; // Reset
 };
 </script>
 
@@ -615,11 +735,15 @@ const handleCreate = async () => {
 }
 
 .form-section:nth-child(2) {
-  animation-delay: 0.2s;
+  animation-delay: 0.15s;
 }
 
 .form-section:nth-child(3) {
-  animation-delay: 0.3s;
+  animation-delay: 0.2s;
+}
+
+.form-section:nth-child(4) {
+  animation-delay: 0.25s;
 }
 
 @keyframes slideInUp {
@@ -1271,6 +1395,141 @@ const handleCreate = async () => {
 
 .dialog-body::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, #764ba2, #667eea);
+}
+
+/* ===== SELECTOR DE TIPO DE ENTRENAMIENTO ===== */
+.training-type-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.training-type-card {
+  background: white;
+  border: 3px solid #e8eaf0;
+  border-radius: 20px;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.training-type-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--type-color), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.training-type-card:hover {
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.training-type-card.active {
+  border-color: var(--type-color);
+  background: var(--type-color);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.training-type-card.active::before {
+  opacity: 1;
+}
+
+.training-type-card.active .training-type-label,
+.training-type-card.active .training-type-description {
+  color: white;
+}
+
+.training-type-icon {
+  width: 64px;
+  height: 64px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.training-type-card.active .training-type-icon {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.training-type-label {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.training-type-description {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #666;
+  position: relative;
+  z-index: 1;
+}
+
+.check-indicator {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  animation: checkPop 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes checkPop {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ===== RESPONSIVE PARA SELECTOR DE TIPO ===== */
+@media (max-width: 960px) {
+  .training-type-selector {
+    grid-template-columns: 1fr;
+  }
+
+  .training-type-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-align: left;
+    padding: 1rem 1.5rem;
+  }
+
+  .training-type-icon {
+    margin: 0;
+    width: 56px;
+    height: 56px;
+  }
 }
 
 /* ===== RESPONSIVE ===== */

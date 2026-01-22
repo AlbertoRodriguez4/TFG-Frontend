@@ -7,4 +7,5 @@ export interface Routines {
     iscompleted: boolean;
     createdat: Date;
     userId: number;
+    trainingfocus: string;
 }
