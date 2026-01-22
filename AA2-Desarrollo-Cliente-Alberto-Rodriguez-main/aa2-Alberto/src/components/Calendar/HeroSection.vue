@@ -33,6 +33,7 @@
                 outlined
                 dark
                 class="hero-btn-secondary"
+                @click="showStats = true"
               >
                 <v-icon left>mdi-chart-timeline-variant</v-icon>
                 Ver Estadísticas
@@ -83,6 +84,9 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Diálogo de Estadísticas -->
+    <RoutineStats v-model="showStats" />
   </section>
 </template>
 
@@ -90,11 +94,13 @@
 import { defineComponent, type PropType, ref, computed } from 'vue';
 import { useRoutineStore } from '@/stores/RoutineStore';
 import StatsCards from './StatsCards.vue';
+import RoutineStats from './RoutineStats.vue';
 
 export default defineComponent({
   name: 'HeroSection',
   components: {
-    StatsCards
+    StatsCards,
+    RoutineStats
   },
   props: {
     userLevel: {
@@ -130,8 +136,8 @@ export default defineComponent({
   setup(props, { emit }) {
     const routineStore = useRoutineStore();
     const showRestDialog = ref(false);
+    const showStats = ref(false);
 
-    // Computed para verificar si ya hay una rutina creada hoy
     const hasRoutineToday = computed((): boolean => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -153,6 +159,7 @@ export default defineComponent({
 
     return {
       showRestDialog,
+      showStats,
       handleCreateRoutine,
       hasRoutineToday
     };
@@ -291,7 +298,6 @@ export default defineComponent({
   transform: translateY(-2px);
 }
 
-/* Estilos del diálogo de descanso */
 .rest-dialog {
   border-radius: 16px;
   overflow: hidden;

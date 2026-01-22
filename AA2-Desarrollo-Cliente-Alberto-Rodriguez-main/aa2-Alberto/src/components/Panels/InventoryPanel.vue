@@ -27,7 +27,9 @@ const getItemRarity = (bonus: number) => {
 const getItemIcon = (type: string) => {
   const icons: Record<string, string> = {
     'fuerza': '💪',
+    'strength': '💪',
     'resistencia': '🏃',
+    'endurance': '🏃',
     'velocidad': '⚡',
     'defensa': '🛡️',
     'agilidad': '🦅',
@@ -35,6 +37,13 @@ const getItemIcon = (type: string) => {
     'default': '🎁'
   }
   return icons[type.toLowerCase()] || icons.default
+}
+
+const getItemTypeClass = (type: string) => {
+  const typeLower = type.toLowerCase()
+  if (typeLower === 'strength' || typeLower === 'fuerza') return 'type-strength'
+  if (typeLower === 'endurance' || typeLower === 'resistencia') return 'type-endurance'
+  return ''
 }
 </script>
 
@@ -71,7 +80,7 @@ const getItemIcon = (type: string) => {
       >
         <div 
           class="item-card"
-          :class="`rarity-${getItemRarity(item.itemBonus)}`"
+          :class="[`rarity-${getItemRarity(item.itemBonus)}`, getItemTypeClass(item.itemType)]"
         >
           <div class="item-shine"></div>
           <div class="item-glow"></div>
@@ -219,6 +228,45 @@ const getItemIcon = (type: string) => {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
 }
 
+/* Type-specific Styles */
+.type-strength {
+  border-color: #dc3545 !important;
+  background: linear-gradient(135deg, #ffffff 0%, #ffe5e8 100%) !important;
+}
+
+.type-strength:hover {
+  border-color: #c82333 !important;
+  box-shadow: 0 12px 32px rgba(220, 53, 69, 0.4) !important;
+}
+
+.type-strength .item-type-badge {
+  background: linear-gradient(135deg, #dc3545, #c82333) !important;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3) !important;
+}
+
+.type-strength .item-glow {
+  background: linear-gradient(135deg, #dc3545, #c82333) !important;
+}
+
+.type-endurance {
+  border-color: #0dcaf0 !important;
+  background: linear-gradient(135deg, #ffffff 0%, #e5f8fc 100%) !important;
+}
+
+.type-endurance:hover {
+  border-color: #0aa2c0 !important;
+  box-shadow: 0 12px 32px rgba(13, 202, 240, 0.4) !important;
+}
+
+.type-endurance .item-type-badge {
+  background: linear-gradient(135deg, #0dcaf0, #0aa2c0) !important;
+  box-shadow: 0 2px 8px rgba(13, 202, 240, 0.3) !important;
+}
+
+.type-endurance .item-glow {
+  background: linear-gradient(135deg, #0dcaf0, #0aa2c0) !important;
+}
+
 /* Rarity Styles */
 .rarity-common {
   border-color: #adb5bd;
@@ -295,6 +343,11 @@ const getItemIcon = (type: string) => {
   opacity: 0;
   transition: opacity 0.3s;
   z-index: -1;
+}
+
+.item-card:hover .item-glow {
+  opacity: 1;
+  filter: blur(12px);
 }
 
 .rarity-rare:hover .item-glow {
