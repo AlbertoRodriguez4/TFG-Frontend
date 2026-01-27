@@ -44,15 +44,11 @@
             Rutinas del mes
           </h3>
 
-          <div
-            v-for="routine in sortedRoutines"
-            :key="routine.id"
-            class="routine-item"
-            :class="{ 'completed': routine.iscompleted }"
-          >
+          <div v-for="routine in sortedRoutines" :key="routine.id" class="routine-item"
+            :class="{ 'completed': routine.iscompleted }">
             <div class="routine-date">
               <div class="date-circle" :class="{ 'completed': routine.iscompleted }">
-                {{ (routine.createdat) }}
+                {{ new Date(routine.createdat).getDate() }}
               </div>
               <div class="date-info">
                 <div class="weekday">{{ (routine.createdat) }}</div>
@@ -62,10 +58,7 @@
 
             <div class="routine-info">
               <div class="routine-name">
-                <v-icon
-                  :color="routine.iscompleted ? 'success' : 'warning'"
-                  class="mr-2"
-                >
+                <v-icon :color="routine.iscompleted ? 'success' : 'warning'" class="mr-2">
                   {{ routine.iscompleted ? 'mdi-check-circle' : 'mdi-clock-outline' }}
                 </v-icon>
                 {{ routine.name }}
@@ -74,12 +67,7 @@
             </div>
 
             <div class="routine-stats">
-              <v-chip
-                small
-                :color="getDifficultyColor(routine.difficulty)"
-                dark
-                class="mb-2"
-              >
+              <v-chip small :color="getDifficultyColor(routine.difficulty)" dark class="mb-2">
                 {{ getDifficultyText(routine.difficulty) }}
               </v-chip>
               <div class="reward-badge">
@@ -294,6 +282,7 @@ const closeDialog = (): void => {
 .routines-list {
   max-height: 500px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .routine-item {
