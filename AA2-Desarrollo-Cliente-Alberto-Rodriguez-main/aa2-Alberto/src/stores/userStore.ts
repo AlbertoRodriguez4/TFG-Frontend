@@ -44,6 +44,7 @@ export const useUserStore = defineStore('user', () => {
       console.error("Error fetching users:", error);
     }
   }
+  
   async function registerUser(newUser: User): Promise<boolean> { 
     try {
       const response = await fetch(`${BASE_URL}/api/auth/register`, {
@@ -190,8 +191,10 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  // FUNCIÓN CORREGIDA: Ya no sobrescribe el token
   async function refreshLoggedUser() {
     if (!loggedUser.value) return;
+    
     try {
       const response = await fetch(`${BASE_URL}/api/User/${loggedUser.value.id}`, {
         method: 'GET',
@@ -205,17 +208,13 @@ export const useUserStore = defineStore('user', () => {
 
       const updatedUser = await response.json();
 
+      // Solo actualizar el estado local del usuario, NO tocar el token
       loggedUser.value = {
         ...loggedUser.value,
         ...updatedUser
       };
 
-      const newSession = {
-        ...updatedUser,
-        ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]: updatedUser.id
-      };
-
-      localStorage.setItem('token', JSON.stringify(newSession));
+      console.log('Usuario actualizado:', loggedUser.value);
     } catch (error) {
       console.error("Error actualizando el usuario:", error);
     }

@@ -1,6 +1,7 @@
 import type { Item } from "../components/Models/Item"
 import { defineStore } from "pinia"
 import { ref } from "vue"
+import { useUserStore } from "./userStore"; // Importar el store de usuario
 
 const BASE_URL = "http://localhost:6873";
 
@@ -34,6 +35,7 @@ export const usePurchaseStore = defineStore('purchase', () => {
         }
     }
 
+    // FUNCIÓN CORREGIDA: Ahora actualiza los datos del usuario después de la compra
     async function addPurchase(userid: number, itemid: number, itemPrice: number) {
         const body = {
             userid,
@@ -55,6 +57,13 @@ export const usePurchaseStore = defineStore('purchase', () => {
             }
 
             console.log("Compra realizada:", result)
+            
+            // ACTUALIZAR LOS DATOS DEL USUARIO después de la compra
+            const userStore = useUserStore();
+            await userStore.refreshLoggedUser();
+            
+            console.log('Usuario actualizado después de la compra');
+            
             return result
 
         } catch (error) {
