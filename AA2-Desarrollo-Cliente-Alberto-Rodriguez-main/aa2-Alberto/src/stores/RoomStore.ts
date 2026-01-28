@@ -30,7 +30,8 @@ export const useRoomStore = defineStore('room', () => {
                 minstats: d.minstats,
                 minconsistency: d.minconsistency,
                 description: d.description,
-                date: d.date
+                date: d.date,
+                localization: d.localization
             }));
         } catch (error) {
             console.error("Error fetching rooms:", error);

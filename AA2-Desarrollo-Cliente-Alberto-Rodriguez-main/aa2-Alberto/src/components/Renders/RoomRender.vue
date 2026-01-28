@@ -6,7 +6,6 @@ import { useRouter } from 'vue-router'
 import CreateRoomPopup from '../PopUps/RoomPopup.vue'
 import { useUserStore } from '@/stores/userStore'
 import EditRoomPopup from '../PopUps/EditRoomPopup.vue'
-import type { Room } from '../Models/Room'
 
 const store = useRoomStore()
 const userRoomStore = useUserRoomStore()
@@ -17,7 +16,7 @@ const loggedUser = ref(userStore.loggedUser)
 const sortField = ref<'level' | 'stats' | null>(null)
 const sortDirection = ref<'asc' | 'desc'>('asc')
 const searchTerm = ref('')
-const selectedRoom = defineModel<{ id: number; name: string; minlevel: number; minstats: number; minconsistency: number; description: string; date: string } | null>('selectedItem')
+const selectedRoom = defineModel<{ id: number; name: string; minlevel: number; minstats: number; minconsistency: number; description: string; date: string; localization: string } | null>('selectedItem')
 const showRoomPopup = ref(false)
 const isPopupVisible = ref(false)
 
@@ -159,13 +158,13 @@ function closePopup() {
   isPopupVisible.value = false
 }
 
-async function handleCreateRoom(newRoom: { name: string; minlevel: number; minstats: number; minconsistency: number; description: string; date: string; }) {
+async function handleCreateRoom(newRoom: { name: string; minlevel: number; minstats: number; minconsistency: number; description: string; date: string; localization: string }) {
   await store.createRoom(newRoom, loggedUser.value?.id ?? 0)
   await loadRoomMemberCounts()
   closePopup()
 }
 
-const openPopup = (room: { id: number; name: string; minlevel: number; minstats: number; minconsistency: number; description: string; date: string }) => {
+const openPopup = (room: { id: number; name: string; minlevel: number; minstats: number; minconsistency: number; description: string; date: string; localization: string }) => {
   selectedRoom.value = room;
   showRoomPopup.value = true
 }
@@ -199,7 +198,8 @@ const goToRoom = (room: any) => {
       minstats: room.minstats,
       minconsistency: room.minconsistency,
       description: room.description,
-      date: room.date
+      date: room.date,
+      localization: room.localization
     }
   })
 }
@@ -337,6 +337,15 @@ const goToRoom = (room: any) => {
                 <p class="desc-text">{{ room.description || 'Sin descripción disponible' }}</p>
               </div>
 
+              <!-- Ubicación -->
+              <div class="location-item">
+                <span class="location-icon">📍</span>
+                <div class="location-content">
+                  <span class="location-label">{{ $t('ubicacion') || 'Ubicación' }}</span>
+                  <span class="location-value">{{ room.localization || 'No especificada' }}</span>
+                </div>
+              </div>
+
               <!-- Fecha de Creación -->
               <div class="date-item">
                 <span class="date-icon">📅</span>
@@ -353,7 +362,7 @@ const goToRoom = (room: any) => {
             <button
               v-if="loggedUser?.role === 'userStaff'"
               class="edit-btn"
-              @click="openPopup(room)"
+              @click="openPopup({ ...room, localization: room.localization ?? '' })"
             >
               <span class="btn-icon">✏️</span>
               <span>{{ $t('editar') || 'Editar' }}</span>
@@ -1133,6 +1142,55 @@ const goToRoom = (room: any) => {
   font-style: italic;
   padding-left: 2rem;
   font-weight: 500;
+}
+
+/* Location Item - Nuevo estilo */
+.location-item {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem 1.125rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.12));
+  border: 2px solid rgba(16, 185, 129, 0.2);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
+}
+
+.location-item:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(16, 185, 129, 0.18));
+  border-color: rgba(16, 185, 129, 0.35);
+  transform: translateX(6px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.2);
+}
+
+.location-icon {
+  font-size: 1.625rem;
+  filter: drop-shadow(0 2px 6px rgba(16, 185, 129, 0.4));
+}
+
+.location-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.location-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #065f46;
+  text-transform: uppercase;
+  letter-spacing: 0.75px;
+}
+
+.location-value {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #10b981;
+  letter-spacing: 0.25px;
+  word-break: break-word;
 }
 
 /* Date Item - Estilo mejorado */

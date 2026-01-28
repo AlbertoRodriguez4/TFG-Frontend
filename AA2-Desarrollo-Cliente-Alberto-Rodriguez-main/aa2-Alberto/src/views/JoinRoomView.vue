@@ -23,7 +23,8 @@ const roomData = ref({
   minstats: Number(route.query.minstats) || 0,
   minconsistency: Number(route.query.minconsistency) || 0,
   description: route.query.description as string || '',
-  date: route.query.date as string || ''
+  date: route.query.date as string || '',
+  localization: route.query.localization as string || ''
 })
 
 // Computed para verificar si el usuario está en la sala
@@ -240,10 +241,17 @@ const goBack = () => {
           <span class="date-box-icon">📅</span>
           <div class="date-box-content">
             <span class="date-box-label">El evento es el día </span>
-            <span class="date-box-value">{{roomData.date }}</span>
+            <span class="date-box-value">{{ roomData.date }}</span>
           </div>
         </div>
-
+        <!--Localización-->
+        <div class="room-localization-box">
+          <span class="localization-box-icon">📍</span>
+          <div class="localization-box-content">
+            <span class="localization-box-label">Localización: </span>
+            <span class="localization-box-value">{{ roomData.localization || 'No especificada' }}</span>
+          </div>
+        </div>
         <div class="room-requirements-grid">
           <div class="requirement-card">
             <div class="req-card-icon">📊</div>
@@ -1093,6 +1101,52 @@ const goBack = () => {
   font-size: 1.125rem;
   font-weight: 800;
   color: #f59e0b;
+  font-family: 'Courier New', monospace;
+}
+
+/* Localización de la Sala */
+.room-localization-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.08));
+  border: 2px solid rgba(16, 185, 129, 0.25);
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.room-localization-box:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.12));
+  border-color: rgba(16, 185, 129, 0.4);
+  transform: translateX(4px);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.15);
+}
+
+.localization-box-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 6px rgba(16, 185, 129, 0.3));
+}
+
+.localization-box-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.localization-box-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #065f46;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.localization-box-value {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #10b981;
   font-family: 'Courier New', monospace;
 }
 

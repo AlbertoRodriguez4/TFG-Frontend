@@ -8,4 +8,5 @@ export interface Room {
     minconsistency: number;
     description: string;
     date: string;
+    localization?: string;
 }

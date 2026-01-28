@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useUserStore } from "@/stores/userStore"
 import { useRoomStore } from "@/stores/RoomStore"
-import { ref, defineProps, watch } from "vue"
+import { ref, watch } from "vue"
 
 const props = defineProps({
   isVisible: Boolean,
@@ -27,6 +27,7 @@ const loggedUser = ref(store.loggedUser)
 const roomName = ref('')
 const roomDescription = ref('')
 const roomDate = ref('')
+const roomLocalization = ref('')
 const minLevel = ref<number | null>(1)
 const minStats = ref<number | null>(10)
 const minConsistency = ref<number | null>(0)
@@ -47,6 +48,7 @@ function resetForm() {
   roomName.value = ''
   roomDescription.value = ''
   roomDate.value = ''
+  roomLocalization.value = ''
   minLevel.value = 1
   minStats.value = 10
   minConsistency.value = 0
@@ -60,6 +62,10 @@ function validateInputs(): boolean {
   }
   if (!roomDate.value) {
     error.value = "La fecha del evento es obligatoria."
+    return false
+  }
+  if (!roomLocalization.value) {
+    error.value = "La ubicación es obligatoria."
     return false
   }
   if (minLevel.value === null || isNaN(minLevel.value) || minLevel.value < 1) {
@@ -91,6 +97,7 @@ async function createRoom() {
     name: roomName.value.trim(),
     description: roomDescription.value.trim() || 'Sin descripción disponible',
     date: dateString,
+    localization: roomLocalization.value,
     minlevel: minLevel.value as number,
     minstats: minStats.value as number,
     minconsistency: minConsistency.value as number,
@@ -222,6 +229,28 @@ async function createRoom() {
             >
               <template v-slot:prepend-inner>
                 <v-icon color="#f59e0b" size="20">mdi-calendar</v-icon>
+              </template>
+            </v-text-field>
+          </div>
+
+          <!-- Location -->
+          <div class="form-field">
+            <label class="field-label">
+              <v-icon size="18" class="label-icon">mdi-map-marker</v-icon>
+              {{ $t('ubicacion') || 'Ubicación' }}
+            </label>
+            <v-text-field
+              v-model="roomLocalization"
+              :placeholder="$t('insertar ubicacion') || 'Ej: Pabellón Municipal, Calle Mayor 123, Zaragoza'"
+              required
+              variant="outlined"
+              density="comfortable"
+              class="custom-field custom-location-field"
+              bg-color="rgba(255, 255, 255, 0.05)"
+              hide-details
+            >
+              <template v-slot:prepend-inner>
+                <v-icon color="#10b981" size="20">mdi-map-marker-radius</v-icon>
               </template>
             </v-text-field>
           </div>
@@ -539,6 +568,16 @@ async function createRoom() {
 
 .custom-date-field :deep(input[type="date"]::-webkit-calendar-picker-indicator:hover) {
   opacity: 1;
+}
+
+/* Location field específico */
+.custom-location-field :deep(.v-field--focused) {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.custom-location-field :deep(.v-field:hover) {
+  border-color: rgba(16, 185, 129, 0.4);
 }
 
 /* Requirements Section */
