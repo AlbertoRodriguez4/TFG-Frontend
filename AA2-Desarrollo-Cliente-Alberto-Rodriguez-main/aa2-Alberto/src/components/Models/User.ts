@@ -10,5 +10,8 @@ export interface User {
     gold: number;
     role: string;
     consistencyStreak: number;
+    experience: number;
+    xpRequired: number;
+    xpRemaining: number;
   }
   

@@ -7,6 +7,7 @@ const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
 const isLoading = ref(false)
+const showPassword = ref(false) // Estado para mostrar/ocultar contraseña
 const store = useUserStore()
 const router = useRouter()
 
@@ -19,6 +20,11 @@ const showSnackbar = (message: string, color: string = 'error') => {
   snackbarMessage.value = message
   snackbarColor.value = color
   snackbar.value = true
+}
+
+// Alternar visibilidad de contraseña
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value
 }
 
 async function handleLogin() {
@@ -150,15 +156,27 @@ async function handleLogin() {
                   <label class="input-label">CONTRASEÑA</label>
                   <v-text-field
                     v-model="password"
-                    type="password"
+                    :type="showPassword ? 'text' : 'password'"
                     :placeholder="$t('placeholder_password')"
                     variant="solo-filled"
                     density="comfortable"
                     color="purple-lighten-2"
-                    class="custom-input"
+                    class="custom-input password-input"
                     hide-details="auto"
                     autocomplete="current-password"
-                  ></v-text-field>
+                  >
+                    <template v-slot:append-inner>
+                      <v-btn
+                        @click="togglePasswordVisibility"
+                        icon
+                        size="small"
+                        variant="text"
+                        class="password-toggle-btn"
+                      >
+                        <span class="toggle-icon">{{ showPassword ? '👁️' : '👁️‍🗨️' }}</span>
+                      </v-btn>
+                    </template>
+                  </v-text-field>
                 </div>
               </div>
 
@@ -556,6 +574,34 @@ async function handleLogin() {
 
 :deep(.custom-input input::placeholder) {
   color: #475569 !important;
+}
+
+/* Password Toggle Button */
+.password-toggle-btn {
+  color: #64748b !important;
+  transition: all 0.3s ease !important;
+}
+
+.password-toggle-btn:hover {
+  color: #a78bfa !important;
+  background: rgba(139, 92, 246, 0.1) !important;
+}
+
+.toggle-icon {
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.password-toggle-btn:hover .toggle-icon {
+  transform: scale(1.1);
+}
+
+:deep(.password-input .v-field__append-inner) {
+  padding-top: 0 !important;
+  align-items: center !important;
 }
 
 /* Quick Info */

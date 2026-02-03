@@ -13,10 +13,6 @@ export const useUserStore = defineStore('user', () => {
 
   async function fetchUser() {
     try {
-      if (isTokenExpired()) {
-        await refreshTokenByLogin();
-      }
-
       const token = localStorage.getItem('token');
       const response = await fetch(`${BASE_URL}/api/User`, {
         method: "GET",
@@ -38,7 +34,8 @@ export const useUserStore = defineStore('user', () => {
         level: d.level,
         strength: d.strength,
         endurance: d.endurance,
-        gold: d.gold
+        gold: d.gold,
+        experience: d.experience // --- NUEVO CAMPO ---
       }));
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -85,7 +82,11 @@ export const useUserStore = defineStore('user', () => {
         endurance: Number(decoded.endurance),
         consistencystreak: Number(decoded.consistencystreak),
         consistencyStreak: Number(decoded.consistencystreak),
-        gold: Number(decoded.gold)
+        gold: Number(decoded.gold),
+        // --- NUEVOS CAMPOS DE XP ---
+        experience: Number(decoded.experience),
+        xpRequired: Number(decoded.xpRequired),
+        xpRemaining: Number(decoded.xpRemaining)
       };
     } catch (error) {
       console.error('Error al decodificar el token JWT:', error);
@@ -110,11 +111,7 @@ export const useUserStore = defineStore('user', () => {
       const token = data.token;
       const decoded = decodeToken(token);
 
-      const expiresIn = decoded.exp;
-      const expirationDate = new Date(expiresIn * 1000);
-
       localStorage.setItem('token', token);
-      localStorage.setItem('token_expiration', expirationDate.toString());
 
       loggedUser.value = {
         id: Number(decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]),
@@ -127,7 +124,11 @@ export const useUserStore = defineStore('user', () => {
         endurance: decoded.endurance,
         consistencystreak: Number(decoded.consistencystreak),
         consistencyStreak: Number(decoded.consistencystreak),
-        gold: decoded.gold
+        gold: decoded.gold,
+        // --- NUEVOS CAMPOS DE XP ---
+        experience: Number(decoded.experience),
+        xpRequired: Number(decoded.xpRequired),
+        xpRemaining: Number(decoded.xpRemaining)
       };
 
       return true;
@@ -135,13 +136,6 @@ export const useUserStore = defineStore('user', () => {
       console.error("Login failed:", error);
       return false;
     }
-  }
-
-  function isTokenExpired(): boolean {
-    const expiration = localStorage.getItem('token_expiration');
-    if (!expiration) return true;
-    const expirationDate = new Date(expiration);
-    return expirationDate <= new Date();
   }
 
   async function refreshTokenByLogin() {
@@ -167,11 +161,7 @@ export const useUserStore = defineStore('user', () => {
       const token = data.token;
       const decoded = decodeToken(token);
 
-      const expiresIn = decoded.exp;
-      const expirationDate = new Date(expiresIn * 1000);
-
       localStorage.setItem('token', token);
-      localStorage.setItem('token_expiration', expirationDate.toString());
 
       loggedUser.value = {
         id: Number(decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]),
@@ -184,14 +174,17 @@ export const useUserStore = defineStore('user', () => {
         endurance: decoded.endurance,
         consistencystreak: Number(decoded.consistencystreak),
         consistencyStreak: Number(decoded.consistencystreak),
-        gold: decoded.gold
+        gold: decoded.gold,
+        // --- NUEVOS CAMPOS DE XP ---
+        experience: Number(decoded.experience),
+        xpRequired: Number(decoded.xpRequired),
+        xpRemaining: Number(decoded.xpRemaining)
       };
     } catch (error) {
       console.error('Error al hacer login para renovar el token:', error);
     }
   }
 
-  // FUNCIÓN CORREGIDA: Ya no sobrescribe el token
   async function refreshLoggedUser() {
     if (!loggedUser.value) return;
     
@@ -208,7 +201,6 @@ export const useUserStore = defineStore('user', () => {
 
       const updatedUser = await response.json();
 
-      // Solo actualizar el estado local del usuario, NO tocar el token
       loggedUser.value = {
         ...loggedUser.value,
         ...updatedUser
@@ -265,9 +257,11 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  async function getItems(email: string, password: string) {
+  // --- FUNCIÓN ACTUALIZADA ---
+  // Ya no requiere email/password, usa el token y el endpoint seguro
+  async function getItems() {
     try {
-      const response = await fetch(`${BASE_URL}/api/Purchase/userEmail/${email}/userPassword/${password}`, {
+      const response = await fetch(`${BASE_URL}/api/Purchase/my-purchases`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -338,7 +332,6 @@ export const useUserStore = defineStore('user', () => {
 
   function logoutUser() {
     localStorage.removeItem('token');
-    localStorage.removeItem('token_expiration');
     loggedUser.value = null;
   }
 

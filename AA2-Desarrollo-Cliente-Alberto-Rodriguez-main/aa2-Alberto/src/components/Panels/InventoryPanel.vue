@@ -7,13 +7,13 @@ const loggedUser = computed(() => store.loggedUser)
 
 onMounted(() => {
   if (loggedUser.value?.email && loggedUser.value?.passwordhash) {
-    store.getItems(loggedUser.value.email, loggedUser.value.passwordhash)
+    store.getItems()
   }
 })
 
 watch(loggedUser, (newUser) => {
   if (newUser?.email && newUser?.passwordhash) {
-    store.getItems(newUser.email, newUser.passwordhash)
+    store.getItems()
   }
 })
 

@@ -27,7 +27,7 @@ const activeUsers = computed(() => store.user.filter(u => u.role !== 'userMaster
 
 onMounted(async () => {
     if (loggedUser.value?.email && loggedUser.value.passwordhash) {
-        await store.getItems(loggedUser.value.email, loggedUser.value.passwordhash)
+        await store.getItems()
     }
     if (loggedUser.value?.role === 'userMaster') {
         await store.fetchUser()

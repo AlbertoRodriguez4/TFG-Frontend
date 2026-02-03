@@ -13,6 +13,9 @@ interface User {
   consistencystreak: number;
   gold: number;
   role: string;
+  experience: number;
+  xpRequired: number;
+  xpRemaining: number;
 }
 
 const store = useUserStore()
@@ -39,33 +42,27 @@ const labelMap: Record<StatKey, string> = {
   gold: 'Oro',
 }
 
-/**
- * Valores máximos para cada estadística
- * Ajusta estos valores según tu sistema de progresión
- */
 const maxValues: Record<StatKey, number> = {
   strength: 100000,   // Máximo de fuerza (100k)
   endurance: 100000,  // Máximo de resistencia (100k)
   gold: 1000000,      // Máximo de oro (1M)
 }
 
-/**
- * Calcula el porcentaje de progreso para una estadística
- * Retorna un valor entre 0 y 100
- */
 const calculateProgress = (stat: StatKey, value: number): number => {
   const maxValue = maxValues[stat]
   const percentage = (value / maxValue) * 100
   return Math.min(percentage, 100) // Nunca exceder 100%
 }
 
-/**
- * Formatea números grandes para mostrarlos de manera legible
- * Ejemplos:
- * - 1234 → "1.2K"
- * - 123456 → "123.5K"
- * - 1234567 → "1.2M"
- */
+// Calcular el progreso de XP
+const calculateXpProgress = (): number => {
+  if (!loggedUser.value) return 0
+  const currentXp = loggedUser.value.experience
+  const requiredXp = loggedUser.value.xpRequired
+  if (requiredXp === 0) return 100
+  return Math.min((currentXp / requiredXp) * 100, 100)
+}
+
 const formatNumber = (value: number): string => {
   if (value >= 1000000) {
     return `${(value / 1000000).toFixed(1)}M`
@@ -96,6 +93,30 @@ const formatNumber = (value: number): string => {
             <span class="streak-text">{{ loggedUser.consistencystreak }} días</span>
           </div>
         </div>
+
+        <!-- Barra de Experiencia -->
+        <div class="xp-container">
+          <div class="xp-header">
+            <span class="xp-icon">✨</span>
+            <span class="xp-label">Experiencia</span>
+          </div>
+          <div class="xp-progress-wrapper">
+            <div class="xp-progress-bar">
+              <div class="xp-progress-fill" :style="{ width: `${calculateXpProgress()}%` }">
+                <div class="xp-progress-shine"></div>
+              </div>
+            </div>
+            <div class="xp-values">
+              <span class="xp-current">{{ formatNumber(loggedUser.experience) }}</span>
+              <span class="xp-separator">/</span>
+              <span class="xp-required">{{ formatNumber(loggedUser.xpRequired) }}</span>
+            </div>
+          </div>
+          <div class="xp-remaining">
+            <span class="xp-remaining-icon">🎯</span>
+            <span>{{ formatNumber(loggedUser.xpRemaining) }} XP para nivel {{ Number(loggedUser.level) + 1 }}</span>
+          </div>
+        </div>
       </div>
 
       <!-- Card de Estadísticas -->
@@ -105,24 +126,17 @@ const formatNumber = (value: number): string => {
           Estadísticas
         </h2>
         <div class="stats-grid">
-          <div
-            v-for="stat in statList"
-            :key="stat"
-            class="stat-item"
-          >
+          <div v-for="stat in statList" :key="stat" class="stat-item">
             <div class="stat-header">
               <span class="stat-icon">{{ iconMap[stat] }}</span>
               <span class="stat-label">{{ labelMap[stat] }}</span>
             </div>
             <div class="progress-container">
               <div class="progress-bar">
-                <div
-                  class="progress-fill"
-                  :style="{
-                    width: `${calculateProgress(stat, loggedUser[stat])}%`,
-                    backgroundColor: colorMap[stat]
-                  }"
-                >
+                <div class="progress-fill" :style="{
+                  width: `${calculateProgress(stat, loggedUser[stat])}%`,
+                  backgroundColor: colorMap[stat]
+                }">
                   <div class="progress-shine"></div>
                 </div>
               </div>
@@ -133,7 +147,7 @@ const formatNumber = (value: number): string => {
                 <span class="stat-max">/ {{ formatNumber(maxValues[stat]) }}</span>
               </div>
             </div>
-            
+
             <!-- Indicador de porcentaje (opcional) -->
             <div class="stat-percentage">
               {{ calculateProgress(stat, loggedUser[stat]).toFixed(1) }}%
@@ -188,8 +202,13 @@ const formatNumber = (value: number): string => {
 }
 
 @keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .avatar-container {
@@ -211,8 +230,17 @@ const formatNumber = (value: number): string => {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.1); opacity: 0.8; }
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
 }
 
 .avatar-image {
@@ -245,8 +273,15 @@ const formatNumber = (value: number): string => {
 }
 
 @keyframes zap {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
 }
 
 .user-info {
@@ -280,8 +315,136 @@ const formatNumber = (value: number): string => {
 }
 
 @keyframes flicker {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* XP Container */
+.xp-container {
+  width: 100%;
+  background: rgba(139, 92, 246, 0.1);
+  border: 2px solid rgba(139, 92, 246, 0.4);
+  border-radius: 16px;
+  padding: 1.2rem;
+  z-index: 1;
+}
+
+.xp-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+
+.xp-icon {
+  font-size: 1.4rem;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+
+  50% {
+    transform: scale(1.15) rotate(10deg);
+  }
+}
+
+.xp-label {
+  color: #a78bfa;
+  font-weight: bold;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.xp-progress-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.6rem;
+}
+
+.xp-progress-bar {
+  flex: 1;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.xp-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+  border-radius: 10px;
+  position: relative;
+  transition: width 0.5s ease;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.6);
+}
+
+.xp-progress-shine {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shine 2s infinite;
+}
+
+@keyframes shine {
+  to {
+    left: 100%;
+  }
+}
+
+.xp-values {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #a78bfa;
+  font-weight: bold;
+  font-size: 0.95rem;
+  min-width: 100px;
+}
+
+.xp-current {
+  color: #c4b5fd;
+}
+
+.xp-separator {
+  color: rgba(167, 139, 250, 0.5);
+}
+
+.xp-required {
+  color: rgba(167, 139, 250, 0.7);
+}
+
+.xp-remaining {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #e9d5ff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  justify-content: center;
+}
+
+.xp-remaining-icon {
+  font-size: 1rem;
 }
 
 /* Stats Card */
@@ -380,10 +543,6 @@ const formatNumber = (value: number): string => {
   animation: shine 2s infinite;
 }
 
-@keyframes shine {
-  to { left: 100%; }
-}
-
 .stat-values {
   display: flex;
   align-items: baseline;
@@ -453,6 +612,15 @@ const formatNumber = (value: number): string => {
   .stat-max {
     font-size: 0.9rem;
   }
+
+  .xp-values {
+    font-size: 0.85rem;
+    min-width: 80px;
+  }
+
+  .xp-remaining {
+    font-size: 0.85rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -496,6 +664,22 @@ const formatNumber = (value: number): string => {
   }
 
   .stat-percentage {
+    font-size: 0.8rem;
+  }
+
+  .xp-container {
+    padding: 1rem;
+  }
+
+  .xp-label {
+    font-size: 1rem;
+  }
+
+  .xp-values {
+    font-size: 0.8rem;
+  }
+
+  .xp-remaining {
     font-size: 0.8rem;
   }
 }
