@@ -14,6 +14,7 @@ onMounted(() => {
 watch(loggedUser, (newUser) => {
   if (newUser?.email && newUser?.passwordhash) {
     store.getItems()
+    
   }
 })
 
@@ -33,6 +34,34 @@ const enduranceItems = computed(() => {
 })
 
 const totalItems = computed(() => store.purchasedItems?.length || 0)
+
+// Verificar si un item está equipado
+const isItemEquipped = (itemId: number, itemType: string) => {
+  if (!loggedUser.value) return false
+  
+  const typeLower = itemType.toLowerCase()
+  if (typeLower === 'strength' || typeLower === 'fuerza') {
+    return loggedUser.value.equippedStrengthItemId === itemId
+  }
+  if (typeLower === 'endurance' || typeLower === 'resistencia') {
+    return loggedUser.value.equippedEnduranceItemId === itemId
+  }
+  return false
+}
+
+// Manejar equipar/desequipar
+const handleItemClick = async (item: any) => {
+  const typeLower = item.itemType.toLowerCase()
+  const isEquipped = isItemEquipped(item.itemId, item.itemType)
+  
+  if (isEquipped) {
+    // Desequipar
+    await store.unequipItem(typeLower === 'strength' || typeLower === 'fuerza' ? 'strength' : 'endurance')
+  } else {
+    // Equipar
+    await store.equipItem(item.itemId)
+  }
+}
 
 const getItemRarity = (bonus: number) => {
   if (bonus >= 50) return 'legendary'
@@ -110,12 +139,35 @@ const getItemTypeClass = (type: string) => {
           >
             <div 
               class="item-card"
-              :class="[`rarity-${getItemRarity(item.itemBonus)}`, getItemTypeClass(item.itemType)]"
+              :class="[
+                `rarity-${getItemRarity(item.itemBonus)}`, 
+                getItemTypeClass(item.itemType),
+                { 'equipped': isItemEquipped(item.itemId, item.itemType) }
+              ]"
+              @click="handleItemClick(item)"
             >
+              <!-- Efectos de equipado -->
+              <div v-if="isItemEquipped(item.itemId, item.itemType)" class="equipped-effects">
+                <div class="equipped-border-animation"></div>
+                <div class="equipped-particles">
+                  <span class="particle">✨</span>
+                  <span class="particle">⭐</span>
+                  <span class="particle">✨</span>
+                  <span class="particle">⭐</span>
+                </div>
+              </div>
+              
               <div class="item-shine"></div>
               <div class="item-glow"></div>
               
-              <!-- Bonus destacado en la parte superior -->
+              <!-- Badge de equipado renovado -->
+              <div v-if="isItemEquipped(item.itemId, item.itemType)" class="equipped-badge">
+                <div class="badge-glow"></div>
+                <span class="equipped-icon">⚔️</span>
+                
+              </div>
+              
+              <!-- Bonus destacado -->
               <div class="bonus-badge">
                 <span class="bonus-sign">+</span>
                 <span class="bonus-number">{{ item.itemBonus }}</span>
@@ -123,6 +175,7 @@ const getItemTypeClass = (type: string) => {
               
               <div class="item-icon-wrapper">
                 <div class="item-icon">{{ getItemIcon(item.itemType) }}</div>
+                <div v-if="isItemEquipped(item.itemId, item.itemType)" class="icon-ring"></div>
               </div>
               
               <div class="item-content">
@@ -132,11 +185,24 @@ const getItemTypeClass = (type: string) => {
                   {{ item.itemType }}
                 </div>
               </div>
-              
-              <div class="item-corner tl"></div>
-              <div class="item-corner tr"></div>
-              <div class="item-corner bl"></div>
-              <div class="item-corner br"></div>
+
+              <!-- Nuevo sistema de acción -->
+              <div class="equip-action-container">
+                <button 
+                  v-if="isItemEquipped(item.itemId, item.itemType)" 
+                  class="equip-button unequip"
+                >
+                  <span class="button-icon">🔓</span>
+                  <span class="button-text">Desequipar</span>
+                </button>
+                <button 
+                  v-else 
+                  class="equip-button equip"
+                >
+                  <span class="button-icon">⚡</span>
+                  <span class="button-text">Equipar</span>
+                </button>
+              </div>
             </div>
           </v-col>
         </v-row>
@@ -165,12 +231,34 @@ const getItemTypeClass = (type: string) => {
           >
             <div 
               class="item-card"
-              :class="[`rarity-${getItemRarity(item.itemBonus)}`, getItemTypeClass(item.itemType)]"
+              :class="[
+                `rarity-${getItemRarity(item.itemBonus)}`, 
+                getItemTypeClass(item.itemType),
+                { 'equipped': isItemEquipped(item.itemId, item.itemType) }
+              ]"
+              @click="handleItemClick(item)"
             >
+              <!-- Efectos de equipado -->
+              <div v-if="isItemEquipped(item.itemId, item.itemType)" class="equipped-effects">
+                <div class="equipped-border-animation"></div>
+                <div class="equipped-particles">
+                  <span class="particle">✨</span>
+                  <span class="particle">⭐</span>
+                  <span class="particle">✨</span>
+                  <span class="particle">⭐</span>
+                </div>
+              </div>
+              
               <div class="item-shine"></div>
               <div class="item-glow"></div>
               
-              <!-- Bonus destacado en la parte superior -->
+              <!-- Badge de equipado renovado -->
+              <div v-if="isItemEquipped(item.itemId, item.itemType)" class="equipped-badge">
+                <div class="badge-glow"></div>
+                <span class="equipped-icon">⚔️</span>
+              </div>
+              
+              <!-- Bonus destacado -->
               <div class="bonus-badge">
                 <span class="bonus-sign">+</span>
                 <span class="bonus-number">{{ item.itemBonus }}</span>
@@ -178,6 +266,7 @@ const getItemTypeClass = (type: string) => {
               
               <div class="item-icon-wrapper">
                 <div class="item-icon">{{ getItemIcon(item.itemType) }}</div>
+                <div v-if="isItemEquipped(item.itemId, item.itemType)" class="icon-ring"></div>
               </div>
               
               <div class="item-content">
@@ -187,11 +276,24 @@ const getItemTypeClass = (type: string) => {
                   {{ item.itemType }}
                 </div>
               </div>
-              
-              <div class="item-corner tl"></div>
-              <div class="item-corner tr"></div>
-              <div class="item-corner bl"></div>
-              <div class="item-corner br"></div>
+
+              <!-- Nuevo sistema de acción -->
+              <div class="equip-action-container">
+                <button 
+                  v-if="isItemEquipped(item.itemId, item.itemType)" 
+                  class="equip-button unequip"
+                >
+                  <span class="button-icon">🔓</span>
+                  <span class="button-text">Desequipar</span>
+                </button>
+                <button 
+                  v-else 
+                  class="equip-button equip"
+                >
+                  <span class="button-icon">⚡</span>
+                  <span class="button-text">Equipar</span>
+                </button>
+              </div>
             </div>
           </v-col>
         </v-row>
@@ -392,21 +494,21 @@ const getItemTypeClass = (type: string) => {
   gap: 2rem;
 }
 
-/* Item Card - REESTRUCTURADO */
+/* Item Card */
 .item-card {
   position: relative;
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   border-radius: 20px;
-  padding: 1.75rem;
+  padding: 1.75rem 1.75rem 4rem;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   border: 3px solid #e9ecef;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-  min-height: 280px;
+  min-height: 340px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
 }
 
@@ -415,7 +517,198 @@ const getItemTypeClass = (type: string) => {
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
 }
 
-/* Bonus Badge - DESTACADO EN LA PARTE SUPERIOR */
+/* ========== EFECTOS DE EQUIPADO ========== */
+
+/* Estado equipado mejorado */
+.item-card.equipped {
+  border: 4px solid transparent;
+  background: 
+    linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(135deg, #ffd700, #ffed4e, #ffd700, #ffb700) border-box;
+  box-shadow: 
+    0 0 30px rgba(255, 215, 0, 0.6),
+    0 8px 24px rgba(255, 215, 0, 0.4),
+    inset 0 0 20px rgba(255, 215, 0, 0.1);
+  animation: equipped-pulse 3s ease-in-out infinite;
+}
+
+.item-card.equipped:hover {
+  box-shadow: 
+    0 0 40px rgba(255, 215, 0, 0.8),
+    0 16px 40px rgba(255, 215, 0, 0.6),
+    inset 0 0 30px rgba(255, 215, 0, 0.15);
+  transform: translateY(-12px) scale(1.05);
+}
+
+@keyframes equipped-pulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 30px rgba(255, 215, 0, 0.6),
+      0 8px 24px rgba(255, 215, 0, 0.4),
+      inset 0 0 20px rgba(255, 215, 0, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 45px rgba(255, 215, 0, 0.8),
+      0 12px 32px rgba(255, 215, 0, 0.6),
+      inset 0 0 30px rgba(255, 215, 0, 0.2);
+  }
+}
+
+/* Borde animado para items equipados */
+.equipped-border-animation {
+  position: absolute;
+  inset: -4px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #ffd700, #ffed4e, #ffd700, #ffb700);
+  background-size: 300% 300%;
+  animation: gradient-rotate 4s ease infinite;
+  z-index: -1;
+  opacity: 0.8;
+}
+
+@keyframes gradient-rotate {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Partículas flotantes */
+.equipped-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.particle {
+  position: absolute;
+  font-size: 1.2rem;
+  animation: float-particle 3s ease-in-out infinite;
+  opacity: 0;
+}
+
+.particle:nth-child(1) {
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.particle:nth-child(2) {
+  top: 60%;
+  right: 15%;
+  animation-delay: 0.7s;
+}
+
+.particle:nth-child(3) {
+  bottom: 30%;
+  left: 20%;
+  animation-delay: 1.4s;
+}
+
+.particle:nth-child(4) {
+  top: 40%;
+  right: 20%;
+  animation-delay: 2.1s;
+}
+
+@keyframes float-particle {
+  0%, 100% {
+    opacity: 0;
+    transform: translateY(0) scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1);
+  }
+}
+
+/* Badge de equipado renovado */
+.equipped-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
+  color: #8b6914;
+  padding: 0.6rem 1rem;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 
+    0 6px 20px rgba(255, 215, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  z-index: 15;
+  animation: badge-glow 2s ease-in-out infinite;
+  overflow: hidden;
+}
+
+.badge-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  animation: badge-shine 3s linear infinite;
+}
+
+@keyframes badge-shine {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+@keyframes badge-glow {
+  0%, 100% {
+    box-shadow: 
+      0 6px 20px rgba(255, 215, 0, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  }
+  50% {
+    box-shadow: 
+      0 8px 30px rgba(255, 215, 0, 0.9),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+}
+
+.equipped-icon {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.equipped-text {
+  line-height: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Anillo alrededor del icono para items equipados */
+.icon-ring {
+  position: absolute;
+  inset: -15px;
+  border: 3px solid #ffd700;
+  border-radius: 50%;
+  box-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.6),
+    inset 0 0 20px rgba(255, 215, 0, 0.3);
+  animation: ring-pulse 2s ease-in-out infinite;
+}
+
+@keyframes ring-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+/* Bonus Badge */
 .bonus-badge {
   position: absolute;
   top: 12px;
@@ -455,6 +748,137 @@ const getItemTypeClass = (type: string) => {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+/* ========== SISTEMA DE BOTONES DE EQUIPAR ========== */
+
+.equip-action-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.75rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.equip-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.equip-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.4s, height 0.4s;
+}
+
+.equip-button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.button-icon {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  transition: transform 0.3s;
+}
+
+.equip-button:hover .button-icon {
+  transform: scale(1.2) rotate(10deg);
+}
+
+.button-text {
+  position: relative;
+  z-index: 1;
+}
+
+/* Botón Equipar */
+.equip-button.equip {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 
+    0 4px 15px rgba(16, 185, 129, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.equip-button.equip:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 
+    0 6px 25px rgba(16, 185, 129, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.equip-button.equip:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 2px 10px rgba(16, 185, 129, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Botón Desequipar */
+.equip-button.unequip {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 
+    0 4px 15px rgba(239, 68, 68, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  animation: unequip-pulse 2s ease-in-out infinite;
+}
+
+.equip-button.unequip:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  box-shadow: 
+    0 6px 25px rgba(239, 68, 68, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  animation: none;
+}
+
+.equip-button.unequip:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 2px 10px rgba(239, 68, 68, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+@keyframes unequip-pulse {
+  0%, 100% {
+    box-shadow: 
+      0 4px 15px rgba(239, 68, 68, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 
+      0 6px 20px rgba(239, 68, 68, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* ========== FIN SISTEMA DE BOTONES ========== */
+
 /* Type-specific Styles */
 .type-strength {
   border-color: #dc3545 !important;
@@ -464,6 +888,11 @@ const getItemTypeClass = (type: string) => {
 .type-strength:hover {
   border-color: #c82333 !important;
   box-shadow: 0 16px 40px rgba(220, 53, 69, 0.4) !important;
+}
+
+.type-strength.equipped {
+  border-color: #ffd700 !important;
+  background: linear-gradient(135deg, #fffef0 0%, #ffe5e8 100%) !important;
 }
 
 .type-strength .item-type-badge {
@@ -483,6 +912,11 @@ const getItemTypeClass = (type: string) => {
 .type-endurance:hover {
   border-color: #0aa2c0 !important;
   box-shadow: 0 16px 40px rgba(13, 202, 240, 0.4) !important;
+}
+
+.type-endurance.equipped {
+  border-color: #ffd700 !important;
+  background: linear-gradient(135deg, #fffef0 0%, #e5f8fc 100%) !important;
 }
 
 .type-endurance .item-type-badge {
@@ -613,54 +1047,16 @@ const getItemTypeClass = (type: string) => {
   filter: blur(15px);
 }
 
-/* Corners */
-.item-corner {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border: 2px solid currentColor;
-  opacity: 0.5;
-  transition: opacity 0.3s;
-}
-
-.item-card:hover .item-corner {
-  opacity: 0.8;
-}
-
-.item-corner.tl {
-  top: 8px;
-  left: 8px;
-  border-right: none;
-  border-bottom: none;
-}
-
-.item-corner.tr {
-  top: 8px;
-  right: 8px;
-  border-left: none;
-  border-bottom: none;
-}
-
-.item-corner.bl {
-  bottom: 8px;
-  left: 8px;
-  border-right: none;
-  border-top: none;
-}
-
-.item-corner.br {
-  bottom: 8px;
-  right: 8px;
-  border-left: none;
-  border-top: none;
-}
-
 /* Item Icon */
 .item-icon-wrapper {
+  position: relative;
   display: flex;
   justify-content: center;
+  align-items: center;
   margin-top: 1rem;
   margin-bottom: 1rem;
+  width: 80px;
+  height: 80px;
 }
 
 .item-icon {
@@ -761,13 +1157,25 @@ const getItemTypeClass = (type: string) => {
   }
   
   .item-card {
-    padding: 1.5rem;
-    min-height: 260px;
+    padding: 1.5rem 1.5rem 3.5rem;
+    min-height: 320px;
+  }
+
+  .equipped-badge {
+    top: 6px;
+    left: 6px;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.7rem;
+    gap: 0.35rem;
+  }
+
+  .equipped-icon {
+    font-size: 1rem;
   }
 
   .bonus-badge {
-    top: 10px;
-    right: 10px;
+    top: 8px;
+    right: 8px;
     padding: 0.4rem 0.75rem;
   }
 
@@ -778,9 +1186,19 @@ const getItemTypeClass = (type: string) => {
   .bonus-number {
     font-size: 1.4rem;
   }
+
+  .item-icon-wrapper {
+    width: 70px;
+    height: 70px;
+  }
   
   .item-icon {
     font-size: 3rem;
+  }
+
+  .icon-ring {
+    inset: -12px;
+    border-width: 2px;
   }
   
   .item-name {
@@ -791,6 +1209,19 @@ const getItemTypeClass = (type: string) => {
   .item-type-badge {
     padding: 0.4rem 0.85rem;
     font-size: 0.75rem;
+  }
+
+  .equip-button {
+    padding: 0.6rem 0.85rem;
+    font-size: 0.75rem;
+  }
+
+  .button-icon {
+    font-size: 1rem;
+  }
+
+  .particle {
+    font-size: 1rem;
   }
 
   .empty-section {

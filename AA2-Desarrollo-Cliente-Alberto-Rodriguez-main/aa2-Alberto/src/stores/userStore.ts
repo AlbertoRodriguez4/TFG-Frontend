@@ -86,7 +86,9 @@ export const useUserStore = defineStore('user', () => {
         // --- NUEVOS CAMPOS DE XP ---
         experience: Number(decoded.experience),
         xpRequired: Number(decoded.xpRequired),
-        xpRemaining: Number(decoded.xpRemaining)
+        xpRemaining: Number(decoded.xpRemaining),
+        equippedStrengthItemId: decoded.equippedStrengthItemId !== null ? Number(decoded.equippedStrengthItemId) : null,
+        equippedEnduranceItemId: decoded.equippedEnduranceItemId !== null ? Number(decoded.equippedEnduranceItemId) : null
       };
     } catch (error) {
       console.error('Error al decodificar el token JWT:', error);
@@ -128,7 +130,9 @@ export const useUserStore = defineStore('user', () => {
         // --- NUEVOS CAMPOS DE XP ---
         experience: Number(decoded.experience),
         xpRequired: Number(decoded.xpRequired),
-        xpRemaining: Number(decoded.xpRemaining)
+        xpRemaining: Number(decoded.xpRemaining),
+        equippedStrengthItemId: decoded.equippedStrengthItemId !== null ? Number(decoded.equippedStrengthItemId) : null,
+        equippedEnduranceItemId: decoded.equippedEnduranceItemId !== null ? Number(decoded.equippedEnduranceItemId) : null
       };
 
       return true;
@@ -178,7 +182,9 @@ export const useUserStore = defineStore('user', () => {
         // --- NUEVOS CAMPOS DE XP ---
         experience: Number(decoded.experience),
         xpRequired: Number(decoded.xpRequired),
-        xpRemaining: Number(decoded.xpRemaining)
+        xpRemaining: Number(decoded.xpRemaining),
+        equippedStrengthItemId: decoded.equippedStrengthItemId !== null ? Number(decoded.equippedStrengthItemId) : null,
+        equippedEnduranceItemId: decoded.equippedEnduranceItemId !== null ? Number(decoded.equippedEnduranceItemId) : null
       };
     } catch (error) {
       console.error('Error al hacer login para renovar el token:', error);
@@ -353,6 +359,85 @@ export const useUserStore = defineStore('user', () => {
       console.error('Error deleting user:', error);
     }
   }
+  // --- NUEVAS FUNCIONES DE EQUIPAMIENTO ---
+
+  // --- NUEVAS FUNCIONES DE EQUIPAMIENTO (MODIFICADAS) ---
+
+  async function equipItem(itemId: number) {
+    if (!loggedUser.value) return;
+
+    try {
+      // 1. Guardamos el tipo de item antes de enviar (necesitamos saber si es Fuerza o Resistencia)
+      // Buscamos el item en la lista de comprados para saber su tipo
+      const itemToEquip = purchasedItems.value.find(i => i.itemId === itemId);
+      
+      if (!itemToEquip) {
+        console.error("Item no encontrado en inventario");
+        return;
+      }
+
+      const response = await fetch(`${BASE_URL}/api/User/equip/${loggedUser.value.id}/${itemId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Error al equipar objeto");
+      }
+
+      // 2. ACTUALIZACIÓN INMEDIATA (Optimistic Update)
+      // Actualizamos el estado local sin esperar a recargar todo el usuario
+      const typeLower = itemToEquip.itemType.toLowerCase();
+
+      if (typeLower === 'strength' || typeLower === 'fuerza') {
+        loggedUser.value.equippedStrengthItemId = itemId;
+      } else if (typeLower === 'endurance' || typeLower === 'resistencia') {
+        loggedUser.value.equippedEnduranceItemId = itemId;
+      }
+
+      // Opcional: Si quieres asegurar consistencia total, puedes llamar a refreshLoggedUser()
+      // pero con la asignación de arriba la UI cambiará al instante.
+      await refreshLoggedUser(); 
+      
+      console.log("Objeto equipado con éxito");
+    } catch (error) {
+      console.error("Error equipando objeto:", error);
+      alert("No se pudo equipar el objeto.");
+    }
+  }
+
+  async function unequipItem(type: string) {
+    if (!loggedUser.value) return;
+
+    try {
+      const response = await fetch(`${BASE_URL}/api/User/unequip/${loggedUser.value.id}/${type}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (!response.ok) throw new Error("Error al desequipar");
+
+      // 2. ACTUALIZACIÓN INMEDIATA
+      const typeLower = type.toLowerCase();
+      
+      if (typeLower === 'strength' || typeLower === 'fuerza') {
+        loggedUser.value.equippedStrengthItemId = null; // Ponemos null
+      } else if (typeLower === 'endurance' || typeLower === 'resistencia') {
+        loggedUser.value.equippedEnduranceItemId = null; // Ponemos null
+      }
+
+      await refreshLoggedUser();
+    } catch (error) {
+      console.error("Error desequipando:", error);
+    }
+  }
 
   const userById = (id: number) => user.value.find(user => user.id === id);
 
@@ -372,6 +457,8 @@ export const useUserStore = defineStore('user', () => {
     logoutUser,
     createUser,
     DeleteUser,
-    registerUser
+    registerUser,
+    equipItem,
+    unequipItem
   };
 });
