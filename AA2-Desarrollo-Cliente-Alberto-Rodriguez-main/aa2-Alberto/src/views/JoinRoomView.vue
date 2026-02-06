@@ -34,19 +34,27 @@ const isJoined = computed(() => {
 })
 
 // Computed para obtener los usuarios de la sala formateados
+// CAMBIO PRINCIPAL: Ahora accedemos a member.user porque la estructura es UserRoom[]
 const roomUsers = computed(() => {
-  return userRoomStore.currentRoomMembers.map(member => ({
-    id: member.name, // Usando name como id único
-    username: member.name,
-    level: member.level,
-    stats: member.strength + member.endurance, // Suma de stats como total
-    strength: member.strength,
-    endurance: member.endurance,
-    experience: member.experience,
-    consistency: member.consistencyStreak,
-    avatar: getRandomAvatar(),
-    status: 'online' // Por defecto online, puedes implementar lógica de estado real
-  }))
+  return userRoomStore.currentRoomMembers.map(member => {
+    // member es un objeto UserRoom que tiene { userid, roomid, user: {...}, room: {...} }
+    const user = member.user || {}
+    
+    return {
+      id: user.name || member.userid, // Usando name como id único, fallback a userid
+      username: user.name || 'Usuario desconocido',
+      level: user.level || 0,
+      stats: (user.strength || 0) + (user.endurance || 0), // Suma de stats como total
+      strength: user.strength || 0,
+      endurance: user.endurance || 0,
+      experience: user.experience || 0,
+      consistency: user.consistencystreak || 0,
+      avatar: getRandomAvatar(),
+      status: 'online', // Por defecto online, puedes implementar lógica de estado real
+      equippedStrengthItem: user.equippedStrengthItem || null,
+      equippedEnduranceItem: user.equippedEnduranceItem || null
+    }
+  })
 })
 
 // Función para obtener avatares aleatorios
@@ -69,6 +77,9 @@ onMounted(async () => {
   } finally {
     isLoading.value = false
   }
+  
+  console.log("Usuarios en la sala:", roomUsers.value)
+  console.log("Miembros raw del store:", userRoomStore.currentRoomMembers)
 })
 
 const getRoomDifficulty = (level: number) => {
@@ -353,6 +364,30 @@ const goBack = () => {
             <div class="user-consistency">
               <span class="consistency-label">🎯 Racha de consistencia</span>
               <span class="consistency-value">{{ user.consistency }} días</span>
+            </div>
+
+            <!-- Equipped Items Section -->
+            <div v-if="user.equippedStrengthItem || user.equippedEnduranceItem" class="user-equipment">
+              <div class="equipment-header">
+                <span class="equipment-icon">⚔️</span>
+                <span class="equipment-title">Equipamiento</span>
+              </div>
+              <div class="equipment-items">
+                <div v-if="user.equippedStrengthItem" class="equipment-item item-strength">
+                  <div class="item-icon">💪</div>
+                  <div class="item-info">
+                    <span class="item-name">{{ user.equippedStrengthItem.name }}</span>
+                    <span class="item-bonus">+{{ user.equippedStrengthItem.bonus }} Fuerza</span>
+                  </div>
+                </div>
+                <div v-if="user.equippedEnduranceItem" class="equipment-item item-endurance">
+                  <div class="item-icon">🏃</div>
+                  <div class="item-info">
+                    <span class="item-name">{{ user.equippedEnduranceItem.name }}</span>
+                    <span class="item-bonus">+{{ user.equippedEnduranceItem.bonus }} Resistencia</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -664,7 +699,6 @@ const goBack = () => {
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  /* Necesario para que z-index funcione */
   z-index: 50;
 }
 
@@ -688,7 +722,6 @@ const goBack = () => {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
   position: relative;
-  /* Necesario para que z-index funcione */
   z-index: 50;
 }
 
@@ -854,6 +887,7 @@ const goBack = () => {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
   border: 1px solid rgba(59, 130, 246, 0.2);
   border-radius: 10px;
+  margin-bottom: 1rem;
 }
 
 .consistency-label {
@@ -865,6 +899,125 @@ const goBack = () => {
 .consistency-value {
   font-size: 1rem;
   font-weight: 700;
+  color: #3b82f6;
+}
+
+/* User Equipment Section */
+.user-equipment {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.equipment-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.equipment-icon {
+  font-size: 1.25rem;
+}
+
+.equipment-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.equipment-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.equipment-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid;
+  transition: all 0.3s ease;
+}
+
+.equipment-item:hover {
+  transform: translateX(4px);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.item-strength {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+}
+
+.item-strength:hover {
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.item-endurance {
+  border-color: rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+}
+
+.item-endurance:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.item-icon {
+  font-size: 1.5rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.item-strength .item-icon {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.item-endurance .item-icon {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.item-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.item-bonus {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fbbf24;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.item-strength .item-bonus {
+  color: #ef4444;
+}
+
+.item-endurance .item-bonus {
   color: #3b82f6;
 }
 
@@ -1054,7 +1207,7 @@ const goBack = () => {
   margin: 0;
   font-size: 1rem;
   line-height: 1.6;
-  color: #4b5563;
+  color: #cbd5e1;
   padding-left: 2.125rem;
 }
 
@@ -1181,6 +1334,14 @@ const goBack = () => {
 
   .popup-actions {
     grid-template-columns: 1fr;
+  }
+
+  .item-name {
+    font-size: 0.8rem;
+  }
+
+  .item-bonus {
+    font-size: 0.7rem;
   }
 }
 </style>
