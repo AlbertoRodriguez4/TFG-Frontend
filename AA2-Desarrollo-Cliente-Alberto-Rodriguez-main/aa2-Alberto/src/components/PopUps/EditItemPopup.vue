@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, defineEmits, watch, reactive, ref } from 'vue'
+import { watch, reactive, ref } from 'vue'
 import type { Item } from '@/components/Models/Item'
 import { useItemStore } from '@/stores/itemStore'
 
@@ -17,6 +17,9 @@ watch(() => props.visible, val => dialogVisible.value = val)
 watch(dialogVisible, val => { if (!val) emit('close') })
 
 const errorMessage = ref('')
+const snackbar = ref(false)
+const snackbarText = ref('')
+const snackbarColor = ref('success')
 
 const editedItem = reactive<Item>({
   id: 0,
@@ -32,6 +35,12 @@ watch(() => props.item, (newItem) => {
 
 function closePopup() {
   dialogVisible.value = false
+}
+
+function showSnackbar(text: string, color: string = 'success') {
+  snackbarText.value = text
+  snackbarColor.value = color
+  snackbar.value = true
 }
 
 const handleEdit = async () => {
@@ -60,7 +69,7 @@ const handleEdit = async () => {
     }
     const result = await store.editItem(updatedItem.id, updatedItem)
     if (result != null) {
-      alert("Ítem editado correctamente")
+      showSnackbar('Ítem editado correctamente', 'success')
       emit('edit')
       closePopup()
     } else {
@@ -76,11 +85,11 @@ const handleEdit = async () => {
 const handleDelete = async () => {
   const result = await store.deleteItem(editedItem.id)
   if (result !== null) {
-    alert("Ítem eliminado correctamente")
+    showSnackbar('Ítem eliminado correctamente', 'success')
     emit('delete')
     closePopup()
   } else {
-    errorMessage.value = "Hubo un problema al eliminar el ítem."
+    showSnackbar('Hubo un problema al eliminar el ítem', 'error')
   }
 }
 </script>
@@ -241,6 +250,22 @@ const handleDelete = async () => {
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <!-- Snackbar -->
+  <v-snackbar
+    v-model="snackbar"
+    :color="snackbarColor"
+    :timeout="3000"
+    location="top"
+    rounded="pill"
+  >
+    <div class="d-flex align-center">
+      <v-icon class="mr-2">
+        {{ snackbarColor === 'success' ? 'mdi-check-circle' : 'mdi-alert-circle' }}
+      </v-icon>
+      {{ snackbarText }}
+    </div>
+  </v-snackbar>
 </template>
 
 <style scoped>

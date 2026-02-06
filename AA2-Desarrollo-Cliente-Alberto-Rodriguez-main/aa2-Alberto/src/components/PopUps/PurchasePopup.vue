@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/userStore'
 import { usePurchaseStore } from '@/stores/PurchaseStore'
-import { defineProps, defineEmits, ref, watchEffect, watch } from 'vue'
+import { ref, watchEffect, watch } from 'vue'
 
 const store = useUserStore()
 const purchaseStore = usePurchaseStore()
@@ -22,11 +22,22 @@ const props = defineProps<{
   }
 }>()
 
-const emit = defineEmits(['close', 'buy']) //declarar eventos del componente/ Luego el emit es la funcion devuelta de ésta declarada
+const emit = defineEmits(['close', 'buy'])
+
+// Snackbar state
+const snackbar = ref(false)
+const snackbarText = ref('')
+const snackbarColor = ref('success')
+
+function showSnackbar(text: string, color: string = 'success') {
+  snackbarText.value = text
+  snackbarColor.value = color
+  snackbar.value = true
+}
 
 const dialogVisible = ref(props.visible)
-watch(() => props.visible, val => dialogVisible.value = val) //Observamos en el dialogVisible del prop la situación en la que se encuentra
-watch(dialogVisible, val => { if (!val) emit('close') }) //Si el dialogVisible cambia a false, emitimos el evento close
+watch(() => props.visible, val => dialogVisible.value = val)
+watch(dialogVisible, val => { if (!val) emit('close') })
 
 const handleBuy = async () => {
   const userId = loggedUser.value?.id
@@ -39,7 +50,7 @@ const handleBuy = async () => {
     const purchase = await purchaseStore.addPurchase(userId, props.item.id, props.item.price)
 
     if (purchase && purchase.id) {
-      alert("Compra realizada correctamente")
+      showSnackbar("Compra realizada correctamente", 'success')
       await store.refreshLoggedUser()
       dialogVisible.value = false
     } else {
@@ -48,12 +59,12 @@ const handleBuy = async () => {
   } catch (error: any) {
     const message = error?.data?.message
     if (message?.includes("no tiene suficiente oro")) {
-      alert("No tienes suficiente oro para realizar esta compra.")
+      showSnackbar("No tienes suficiente oro para realizar esta compra", 'error')
     } else if (message) {
-      alert(message)
+      showSnackbar(message, 'error')
     } else {
       console.error("Error al realizar la compra:", error)
-      alert("Hubo un problema al realizar la compra.")
+      showSnackbar("Hubo un problema al realizar la compra", 'error')
     }
     dialogVisible.value = false
   }
@@ -97,8 +108,23 @@ const handleBuy = async () => {
       </v-card-actions>
     </v-card>
   </v-dialog>
-</template>
 
+  <!-- Snackbar -->
+  <v-snackbar
+    v-model="snackbar"
+    :color="snackbarColor"
+    :timeout="3000"
+    location="top"
+    rounded="pill"
+  >
+    <div class="d-flex align-center">
+      <v-icon class="mr-2">
+        {{ snackbarColor === 'success' ? 'mdi-check-circle' : 'mdi-alert-circle' }}
+      </v-icon>
+      {{ snackbarText }}
+    </div>
+  </v-snackbar>
+</template>
 
 <style scoped>
 .popup-overlay {

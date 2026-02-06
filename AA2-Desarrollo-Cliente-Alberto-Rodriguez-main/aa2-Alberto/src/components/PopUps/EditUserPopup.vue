@@ -15,6 +15,11 @@ const emit = defineEmits(['close', 'edit', 'delete']);
 
 const errorMessage = ref('');
 
+// Snackbar state
+const snackbar = ref(false)
+const snackbarText = ref('')
+const snackbarColor = ref('success')
+
 const editedUser = reactive<User>({
   id: 0,
   name: '',
@@ -25,7 +30,13 @@ const editedUser = reactive<User>({
   endurance: 0,
   consistencystreak: 0,
   gold: 0,
-  role: ''
+  role: '',
+  consistencyStreak: 0,
+  experience: 0,
+  xpRequired: 0,
+  xpRemaining: 0,
+  equippedStrengthItemId: 0,
+  equippedEnduranceItemId: 0
 });
 
 watch(() => props.user, (newUser) => {
@@ -33,6 +44,12 @@ watch(() => props.user, (newUser) => {
     Object.assign(editedUser, { ...newUser });
   }
 }, { immediate: true });
+
+function showSnackbar(text: string, color: string = 'success') {
+  snackbarText.value = text
+  snackbarColor.value = color
+  snackbar.value = true
+}
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -70,13 +87,19 @@ const handleEdit = async () => {
       endurance: editedUser.endurance,
       gold: editedUser.gold,
       consistencystreak: editedUser.consistencystreak,
-      role: loggedUser.value?.role || 'userNormal'
+      consistencyStreak: editedUser.consistencystreak,
+      role: loggedUser.value?.role || 'userNormal',
+      experience: editedUser.experience,
+      xpRequired: editedUser.xpRequired,
+      xpRemaining: editedUser.xpRemaining,
+      equippedStrengthItemId: editedUser.equippedStrengthItemId,
+      equippedEnduranceItemId: editedUser.equippedEnduranceItemId
     };
 
     const result = await store.editUser(updatedUser.id, updatedUser);
 
     if (result != null) {
-      alert("Usuario editado correctamente");
+      showSnackbar("Usuario editado correctamente", 'success')
       emit('close');
     } else {
       errorMessage.value = "Hubo un problema al editar el usuario.";
@@ -94,10 +117,10 @@ const handleDelete = async () => {
   const result = await store.DeleteUser(userId);
 
   if (result != null) {
-    alert("Usuario eliminado correctamente");
+    showSnackbar("Usuario eliminado correctamente", 'success')
     emit('close');
   } else {
-    errorMessage.value = "Hubo un problema al eliminar el usuario.";
+    showSnackbar("Hubo un problema al eliminar el usuario", 'error')
   }
 };
 
@@ -120,24 +143,14 @@ watch(internalVisible, (val) => {
           <v-icon class="header-icon">mdi-account-circle</v-icon>
           <h2 class="header-title">Editar Perfil de Usuario</h2>
         </div>
-        <v-btn 
-          icon 
-          class="close-button" 
-          @click="emit('close')"
-          size="small"
-        >
+        <v-btn icon class="close-button" @click="emit('close')" size="small">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </div>
 
       <v-card-text class="user-content">
         <!-- Error message -->
-        <v-alert 
-          v-if="errorMessage" 
-          type="error" 
-          variant="tonal"
-          class="error-alert"
-        >
+        <v-alert v-if="errorMessage" type="error" variant="tonal" class="error-alert">
           {{ errorMessage }}
         </v-alert>
 
@@ -154,13 +167,8 @@ watch(internalVisible, (val) => {
                 <v-icon size="small" class="label-icon">mdi-account</v-icon>
                 Nombre
               </label>
-              <v-text-field
-                v-model="editedUser.name"
-                variant="outlined"
-                density="comfortable"
-                hide-details
-                class="custom-input"
-              />
+              <v-text-field v-model="editedUser.name" variant="outlined" density="comfortable" hide-details
+                class="custom-input" />
             </v-col>
 
             <v-col cols="12" md="6">
@@ -168,14 +176,8 @@ watch(internalVisible, (val) => {
                 <v-icon size="small" class="label-icon">mdi-email</v-icon>
                 Correo Electrónico
               </label>
-              <v-text-field
-                v-model="editedUser.email"
-                type="email"
-                variant="outlined"
-                density="comfortable"
-                hide-details
-                class="custom-input"
-              />
+              <v-text-field v-model="editedUser.email" type="email" variant="outlined" density="comfortable"
+                hide-details class="custom-input" />
             </v-col>
 
             <v-col cols="12">
@@ -183,15 +185,8 @@ watch(internalVisible, (val) => {
                 <v-icon size="small" class="label-icon">mdi-lock</v-icon>
                 Contraseña
               </label>
-              <v-text-field
-                v-model="editedUser.passwordhash"
-                type="password"
-                variant="outlined"
-                density="comfortable"
-                hide-details
-                placeholder="••••••••"
-                class="custom-input"
-              />
+              <v-text-field v-model="editedUser.passwordhash" type="password" variant="outlined" density="comfortable"
+                hide-details placeholder="••••••••" class="custom-input" />
             </v-col>
           </v-row>
         </div>
@@ -210,12 +205,7 @@ watch(internalVisible, (val) => {
                   <v-icon class="stat-icon">mdi-trending-up</v-icon>
                   <span class="stat-label">Nivel</span>
                 </div>
-                <input
-                  v-model.number="editedUser.level"
-                  type="number"
-                  min="0"
-                  class="stat-input"
-                />
+                <input v-model.number="editedUser.level" type="number" min="0" class="stat-input" />
               </div>
             </v-col>
 
@@ -225,12 +215,7 @@ watch(internalVisible, (val) => {
                   <v-icon class="stat-icon">mdi-lightning-bolt</v-icon>
                   <span class="stat-label">Fuerza</span>
                 </div>
-                <input
-                  v-model.number="editedUser.strength"
-                  type="number"
-                  min="0"
-                  class="stat-input"
-                />
+                <input v-model.number="editedUser.strength" type="number" min="0" class="stat-input" />
               </div>
             </v-col>
 
@@ -240,12 +225,7 @@ watch(internalVisible, (val) => {
                   <v-icon class="stat-icon">mdi-heart-pulse</v-icon>
                   <span class="stat-label">Resistencia</span>
                 </div>
-                <input
-                  v-model.number="editedUser.endurance"
-                  type="number"
-                  min="0"
-                  class="stat-input"
-                />
+                <input v-model.number="editedUser.endurance" type="number" min="0" class="stat-input" />
               </div>
             </v-col>
 
@@ -255,12 +235,7 @@ watch(internalVisible, (val) => {
                   <v-icon class="stat-icon">mdi-coin</v-icon>
                   <span class="stat-label">Oro</span>
                 </div>
-                <input
-                  v-model.number="editedUser.gold"
-                  type="number"
-                  min="0"
-                  class="stat-input"
-                />
+                <input v-model.number="editedUser.gold" type="number" min="0" class="stat-input" />
               </div>
             </v-col>
           </v-row>
@@ -276,12 +251,7 @@ watch(internalVisible, (val) => {
                 <span class="streak-description">Días consecutivos entrenando</span>
               </div>
             </div>
-            <input
-              v-model.number="editedUser.consistencystreak"
-              type="number"
-              min="0"
-              class="streak-input"
-            />
+            <input v-model.number="editedUser.consistencystreak" type="number" min="0" class="streak-input" />
           </div>
         </div>
 
@@ -313,36 +283,31 @@ watch(internalVisible, (val) => {
 
       <!-- Footer con acciones -->
       <v-card-actions class="user-actions">
-        <v-btn
-          color="error"
-          variant="outlined"
-          @click="handleDelete"
-          class="action-btn delete-btn"
-        >
+        <v-btn color="error" variant="outlined" @click="handleDelete" class="action-btn delete-btn">
           <v-icon left>mdi-delete</v-icon>
           Eliminar
         </v-btn>
         <v-spacer />
-        <v-btn
-          color="grey"
-          variant="outlined"
-          @click="emit('close')"
-          class="action-btn cancel-btn"
-        >
+        <v-btn color="grey" variant="outlined" @click="emit('close')" class="action-btn cancel-btn">
           Cancelar
         </v-btn>
-        <v-btn
-          color="primary"
-          variant="elevated"
-          @click="handleEdit"
-          class="action-btn save-btn"
-        >
+        <v-btn color="primary" variant="elevated" @click="handleEdit" class="action-btn save-btn">
           <v-icon left>mdi-content-save</v-icon>
           Guardar Cambios
         </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <!-- Snackbar -->
+  <v-snackbar v-model="snackbar" :color="snackbarColor" :timeout="3000" location="top" rounded="pill">
+    <div class="d-flex align-center">
+      <v-icon class="mr-2">
+        {{ snackbarColor === 'success' ? 'mdi-check-circle' : 'mdi-alert-circle' }}
+      </v-icon>
+      {{ snackbarText }}
+    </div>
+  </v-snackbar>
 </template>
 
 <style scoped>
@@ -769,6 +734,7 @@ watch(internalVisible, (val) => {
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);

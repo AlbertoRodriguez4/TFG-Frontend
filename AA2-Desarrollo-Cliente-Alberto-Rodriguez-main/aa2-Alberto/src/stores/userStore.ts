@@ -408,7 +408,6 @@ export const useUserStore = defineStore('user', () => {
       console.log("Objeto equipado con éxito");
     } catch (error) {
       console.error("Error equipando objeto:", error);
-      alert("No se pudo equipar el objeto.");
     }
   }
 

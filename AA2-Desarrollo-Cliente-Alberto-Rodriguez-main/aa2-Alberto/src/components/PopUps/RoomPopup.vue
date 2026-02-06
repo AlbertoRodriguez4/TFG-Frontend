@@ -24,6 +24,17 @@ const store = useUserStore()
 const roomStore = useRoomStore()
 const loggedUser = ref(store.loggedUser)
 
+// Snackbar state
+const snackbar = ref(false)
+const snackbarText = ref('')
+const snackbarColor = ref('success')
+
+function showSnackbar(text: string, color: string = 'success') {
+  snackbarText.value = text
+  snackbarColor.value = color
+  snackbar.value = true
+}
+
 const roomName = ref('')
 const roomDescription = ref('')
 const roomDate = ref('')
@@ -105,10 +116,11 @@ async function createRoom() {
 
   try {
     await roomStore.createRoom(newRoom, loggedUser.value.id)
-    alert("Sala creada correctamente")
+    showSnackbar("Sala creada correctamente", 'success')
     closePopup()
   } catch (e) {
     error.value = "Error al crear la sala."
+    showSnackbar("Error al crear la sala", 'error')
     console.error(e)
   }
 }
@@ -359,6 +371,22 @@ async function createRoom() {
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <!-- Snackbar -->
+  <v-snackbar
+    v-model="snackbar"
+    :color="snackbarColor"
+    :timeout="3000"
+    location="top"
+    rounded="pill"
+  >
+    <div class="d-flex align-center">
+      <v-icon class="mr-2">
+        {{ snackbarColor === 'success' ? 'mdi-check-circle' : 'mdi-alert-circle' }}
+      </v-icon>
+      {{ snackbarText }}
+    </div>
+  </v-snackbar>
 </template>
 
 <style scoped>

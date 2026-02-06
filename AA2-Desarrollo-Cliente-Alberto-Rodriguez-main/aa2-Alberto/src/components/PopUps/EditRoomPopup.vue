@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, defineEmits, ref, reactive, watch } from 'vue';
+import { ref, reactive, watch } from 'vue';
 import { useRoomStore } from '@/stores/RoomStore';
 
 const store = useRoomStore()
@@ -13,6 +13,8 @@ const props = defineProps({
       minlevel: number
       minstats: number
       minconsistency: number
+      description?: string
+      date?: string
     },
     required: true
   }
@@ -21,6 +23,11 @@ const props = defineProps({
 const emit = defineEmits(['close', 'edit'])
 
 const dialogVisible = ref(props.isVisible)
+
+// Snackbar state
+const snackbar = ref(false)
+const snackbarText = ref('')
+const snackbarType = ref<'success' | 'error'>('success')
 
 watch(() => props.isVisible, (val) => {
   dialogVisible.value = val
@@ -34,12 +41,23 @@ function closePopup() {
   dialogVisible.value = false
 }
 
+function showSnackbar(text: string, type: 'success' | 'error' = 'success') {
+  snackbarText.value = text
+  snackbarType.value = type
+  snackbar.value = true
+  setTimeout(() => {
+    snackbar.value = false
+  }, 3000)
+}
+
 const editedRoom = reactive({
   id: 0,
   name: '',
   minlevel: 0,
   minstats: 0,
-  minconsistency: 0
+  minconsistency: 0,
+  description: '',
+  date: ''
 })
 
 watch(() => props.room, (newRoom) => {
@@ -49,6 +67,8 @@ watch(() => props.room, (newRoom) => {
     editedRoom.minlevel = newRoom.minlevel
     editedRoom.minstats = newRoom.minstats
     editedRoom.minconsistency = newRoom.minconsistency
+    editedRoom.description = newRoom.description ?? ''
+    editedRoom.date = newRoom.date ?? ''
   }
 }, { immediate: true })
 
@@ -59,20 +79,23 @@ const handleEdit = async () => {
       name: editedRoom.name,
       minlevel: editedRoom.minlevel,
       minstats: editedRoom.minstats,
-      minconsistency: editedRoom.minconsistency
+      minconsistency: editedRoom.minconsistency,
+      description: editedRoom.description,
+      date: editedRoom.date
     }
 
     const response = await store.editRoom(editedRoom.id, updatedRoom)
 
     if (response !== null) {
-      alert("Sala editada correctamente")
+      showSnackbar("Sala editada correctamente", 'success')
       closePopup()
       emit('edit')
     } else {
-      alert("Hubo un problema al editar la sala.")
+      showSnackbar("Hubo un problema al editar la sala", 'error')
     }
   } catch (error) {
     console.error('Error editing room:', error)
+    showSnackbar("Hubo un problema al editar la sala", 'error')
   }
 }
 </script>
@@ -174,6 +197,16 @@ const handleEdit = async () => {
           </button>
         </div>
       </div>
+    </div>
+  </Transition>
+
+  <!-- Snackbar -->
+  <Transition name="snackbar">
+    <div v-if="snackbar" :class="['snackbar', `snackbar-${snackbarType}`]">
+      <span class="snackbar-icon">
+        {{ snackbarType === 'success' ? '✓' : '✕' }}
+      </span>
+      <span class="snackbar-text">{{ snackbarText }}</span>
     </div>
   </Transition>
 </template>
@@ -386,6 +419,69 @@ const handleEdit = async () => {
   transform: translateY(0);
 }
 
+/* Snackbar */
+.snackbar {
+  position: fixed;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  z-index: 2000;
+  min-width: 300px;
+  backdrop-filter: blur(10px);
+}
+
+.snackbar-success {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.95) 0%, rgba(21, 128, 61, 0.95) 100%);
+  border: 2px solid rgba(134, 239, 172, 0.3);
+  color: white;
+}
+
+.snackbar-error {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.95) 0%, rgba(185, 28, 28, 0.95) 100%);
+  border: 2px solid rgba(252, 165, 165, 0.3);
+  color: white;
+}
+
+.snackbar-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.snackbar-text {
+  flex: 1;
+}
+
+/* Snackbar transitions */
+.snackbar-enter-active,
+.snackbar-leave-active {
+  transition: all 0.3s ease;
+}
+
+.snackbar-enter-from {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-20px);
+}
+
+.snackbar-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-20px);
+}
+
 /* Transitions */
 .popup-enter-active,
 .popup-leave-active {
@@ -431,6 +527,22 @@ const handleEdit = async () => {
 
   .btn-save {
     order: 1;
+  }
+
+  .snackbar {
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    transform: none;
+    min-width: auto;
+  }
+
+  .snackbar-enter-from {
+    transform: translateY(-20px);
+  }
+
+  .snackbar-leave-to {
+    transform: translateY(-20px);
   }
 }
 </style>
