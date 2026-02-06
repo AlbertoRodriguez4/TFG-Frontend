@@ -108,6 +108,26 @@ const getMedalIcon = (index) => {
             </div>
           </div>
 
+          <!-- Equipped Items Section -->
+          <div class="equipped-items">
+            <div class="equipped-title">
+              <v-icon size="16">mdi-sword-cross</v-icon>
+              <span>{{ $t('Equipamiento') }}</span>
+            </div>
+            <div class="items-list">
+              <div v-if="topThreeUsers[1].equippedStrengthItem" class="item-chip item-strength">
+                <v-icon size="14">mdi-dumbbell</v-icon>
+                <span class="item-name">{{ topThreeUsers[1].equippedStrengthItem.name }}</span>
+                <span class="item-bonus">+{{ topThreeUsers[1].equippedStrengthItem.bonus }}</span>
+              </div>
+              <div v-if="topThreeUsers[1].equippedEnduranceItem" class="item-chip item-endurance">
+                <v-icon size="14">mdi-heart-pulse</v-icon>
+                <span class="item-name">{{ topThreeUsers[1].equippedEnduranceItem.name }}</span>
+                <span class="item-bonus">+{{ topThreeUsers[1].equippedEnduranceItem.bonus }}</span>
+              </div>
+            </div>
+          </div>
+
           <div class="card-footer">
             <v-icon size="14" color="rgba(192, 192, 192, 0.6)">mdi-medal</v-icon>
             <span class="footer-text">{{ $t('Plata') }}</span>
@@ -185,6 +205,26 @@ const getMedalIcon = (index) => {
             </div>
           </div>
 
+          <!-- Equipped Items Section -->
+          <div class="equipped-items equipped-gold">
+            <div class="equipped-title">
+              <v-icon size="18">mdi-sword-cross</v-icon>
+              <span>{{ $t('Equipamiento') }}</span>
+            </div>
+            <div class="items-list">
+              <div v-if="topThreeUsers[0].equippedStrengthItem" class="item-chip item-strength">
+                <v-icon size="16">mdi-dumbbell</v-icon>
+                <span class="item-name">{{ topThreeUsers[0].equippedStrengthItem.name }}</span>
+                <span class="item-bonus">+{{ topThreeUsers[0].equippedStrengthItem.bonus }}</span>
+              </div>
+              <div v-if="topThreeUsers[0].equippedEnduranceItem" class="item-chip item-endurance">
+                <v-icon size="16">mdi-heart-pulse</v-icon>
+                <span class="item-name">{{ topThreeUsers[0].equippedEnduranceItem.name }}</span>
+                <span class="item-bonus">+{{ topThreeUsers[0].equippedEnduranceItem.bonus }}</span>
+              </div>
+            </div>
+          </div>
+
           <div class="card-footer footer-gold">
             <v-icon size="16" color="#FFD700">mdi-trophy</v-icon>
             <span class="footer-text">{{ $t('Oro') }}</span>
@@ -248,6 +288,26 @@ const getMedalIcon = (index) => {
                      :style="{ width: Math.min(topThreeUsers[2].endurance, 100) + '%' }">
                   <span class="stat-value">{{ topThreeUsers[2].endurance }}</span>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Equipped Items Section -->
+          <div class="equipped-items">
+            <div class="equipped-title">
+              <v-icon size="16">mdi-sword-cross</v-icon>
+              <span>{{ $t('Equipamiento') }}</span>
+            </div>
+            <div class="items-list">
+              <div v-if="topThreeUsers[2].equippedStrengthItem" class="item-chip item-strength">
+                <v-icon size="14">mdi-dumbbell</v-icon>
+                <span class="item-name">{{ topThreeUsers[2].equippedStrengthItem.name }}</span>
+                <span class="item-bonus">+{{ topThreeUsers[2].equippedStrengthItem.bonus }}</span>
+              </div>
+              <div v-if="topThreeUsers[2].equippedEnduranceItem" class="item-chip item-endurance">
+                <v-icon size="14">mdi-heart-pulse</v-icon>
+                <span class="item-name">{{ topThreeUsers[2].equippedEnduranceItem.name }}</span>
+                <span class="item-bonus">+{{ topThreeUsers[2].equippedEnduranceItem.bonus }}</span>
               </div>
             </div>
           </div>
@@ -1079,6 +1139,108 @@ const getMedalIcon = (index) => {
   letter-spacing: 0.5px;
 }
 
+/* Equipped Items Section */
+.equipped-items {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.equipped-gold {
+  border-color: rgba(255, 215, 0, 0.2);
+  background: rgba(255, 215, 0, 0.05);
+}
+
+.equipped-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.equipped-gold .equipped-title {
+  color: rgba(255, 215, 0, 0.9);
+}
+
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.item-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  border: 1px solid;
+  transition: all 0.3s ease;
+}
+
+.item-chip:hover {
+  transform: translateX(5px);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.item-strength {
+  border-color: rgba(255, 71, 87, 0.3);
+  background: linear-gradient(135deg, rgba(255, 71, 87, 0.15) 0%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+.item-strength:hover {
+  border-color: rgba(255, 71, 87, 0.5);
+  background: linear-gradient(135deg, rgba(255, 71, 87, 0.2) 0%, rgba(0, 0, 0, 0.4) 100%);
+  box-shadow: 0 0 15px rgba(255, 71, 87, 0.3);
+}
+
+.item-strength .v-icon {
+  color: #FF4757;
+}
+
+.item-endurance {
+  border-color: rgba(0, 210, 255, 0.3);
+  background: linear-gradient(135deg, rgba(0, 210, 255, 0.15) 0%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+.item-endurance:hover {
+  border-color: rgba(0, 210, 255, 0.5);
+  background: linear-gradient(135deg, rgba(0, 210, 255, 0.2) 0%, rgba(0, 0, 0, 0.4) 100%);
+  box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+}
+
+.item-endurance .v-icon {
+  color: #00D2FF;
+}
+
+.item-name {
+  flex: 1;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-bonus {
+  font-size: 0.75rem;
+  font-weight: 900;
+  padding: 0.25rem 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: #FFD700;
+  letter-spacing: 0.5px;
+}
+
 /* Card Footer */
 .card-footer {
   display: flex;
@@ -1311,6 +1473,15 @@ const getMedalIcon = (index) => {
     height: 24px;
   }
 
+  .item-name {
+    font-size: 0.7rem;
+  }
+
+  .item-bonus {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+
   .pedestal-rank {
     font-size: 2.5rem;
   }
@@ -1337,6 +1508,14 @@ const getMedalIcon = (index) => {
 
   .card-gold .avatar-image .v-icon {
     font-size: 64px !important;
+  }
+
+  .equipped-items {
+    padding: 0.75rem;
+  }
+
+  .item-chip {
+    padding: 0.4rem 0.6rem;
   }
 }
 </style>

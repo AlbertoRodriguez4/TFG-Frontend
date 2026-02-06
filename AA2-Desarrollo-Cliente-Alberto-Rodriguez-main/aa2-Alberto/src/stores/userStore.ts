@@ -255,7 +255,9 @@ export const useUserStore = defineStore('user', () => {
         name: d.name,
         level: d.level,
         strength: d.strength,
-        endurance: d.endurance
+        endurance: d.endurance,
+        equippedStrengthItem: d.equippedStrengthItem,
+        equippedEnduranceItem: d.equippedEnduranceItem
       }));
     } catch (error) {
       console.error('Error en getTopThreeUsers:', error);
