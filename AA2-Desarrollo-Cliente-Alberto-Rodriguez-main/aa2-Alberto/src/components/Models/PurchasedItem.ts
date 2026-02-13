@@ -9,5 +9,6 @@ export interface PurchasedItem {
     itemBonus: number;
     itemPrice: number;
     purchaseDate: string; 
+    imageUrl?: string;
   }
   

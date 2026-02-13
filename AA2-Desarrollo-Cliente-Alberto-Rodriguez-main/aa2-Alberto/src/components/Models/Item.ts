@@ -3,5 +3,6 @@ export interface Item {
     name: string;       
     type: "Strength" | "Endurance"; 
     bonus: number;      
-    price: number;      
+    price: number;   
+    imageUrl?: string;   
 }

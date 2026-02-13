@@ -15,6 +15,17 @@ export const useItemStore = defineStore('item', () => {
         "Authorization": `Bearer ${localStorage.getItem('token')}`
     });
 
+    // Función auxiliar para mapear los datos y evitar repetir código
+    // Asegúrate de que tu API de Items devuelve 'imageUrl'
+    const mapItem = (d: any): Item => ({
+        id: d.id,
+        name: d.name,
+        type: d.type,
+        bonus: d.bonus,
+        price: d.price,
+        imageUrl: d.imageUrl // <--- AQUI MAPEAMOS LA IMAGEN
+    });
+
     async function fetchItems() {
         try {
             const response = await fetch(`${BASE_URL}/api/Item`, {
@@ -25,7 +36,9 @@ export const useItemStore = defineStore('item', () => {
 
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             const data = await response.json();
-            items.value = data.map((d: any) => ({ id: d.id, name: d.name, type: d.type, bonus: d.bonus, price: d.price }));
+            
+            // Usamos la función auxiliar mapItem
+            items.value = data.map(mapItem);
         } catch (error) {
             console.error("Error fetching items:", error);
         }
@@ -41,7 +54,7 @@ export const useItemStore = defineStore('item', () => {
 
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             const data = await response.json();
-            strengthItems.value = data.map((d: any) => ({ id: d.id, name: d.name, type: d.type, bonus: d.bonus, price: d.price }));
+            strengthItems.value = data.map(mapItem);
         } catch (error) {
             console.error("Error fetching daily strength items:", error);
         }
@@ -57,7 +70,7 @@ export const useItemStore = defineStore('item', () => {
 
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             const data = await response.json();
-            enduranceItems.value = data.map((d: any) => ({ id: d.id, name: d.name, type: d.type, bonus: d.bonus, price: d.price }));
+            enduranceItems.value = data.map(mapItem);
         } catch (error) {
             console.error("Error fetching daily endurance items:", error);
         }
@@ -73,7 +86,7 @@ export const useItemStore = defineStore('item', () => {
 
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             const data = await response.json();
-            generalItems.value = data.map((d: any) => ({ id: d.id, name: d.name, type: d.type, bonus: d.bonus, price: d.price }));
+            generalItems.value = data.map(mapItem);
         } catch (error) {
             console.error("Error fetching daily general items:", error);
         }

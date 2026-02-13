@@ -14,7 +14,6 @@ onMounted(() => {
 watch(loggedUser, (newUser) => {
   if (newUser?.email && newUser?.passwordhash) {
     store.getItems()
-    
   }
 })
 
@@ -91,6 +90,16 @@ const getItemTypeClass = (type: string) => {
   if (typeLower === 'endurance' || typeLower === 'resistencia') return 'type-endurance'
   return ''
 }
+
+// Función para manejar errores de carga de imagen
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  img.style.display = 'none'
+  const fallbackIcon = img.nextElementSibling as HTMLElement
+  if (fallbackIcon) {
+    fallbackIcon.style.display = 'flex'
+  }
+}
 </script>
 
 <template>
@@ -164,7 +173,6 @@ const getItemTypeClass = (type: string) => {
               <div v-if="isItemEquipped(item.itemId, item.itemType)" class="equipped-badge">
                 <div class="badge-glow"></div>
                 <span class="equipped-icon">⚔️</span>
-                
               </div>
               
               <!-- Bonus destacado -->
@@ -174,7 +182,18 @@ const getItemTypeClass = (type: string) => {
               </div>
               
               <div class="item-icon-wrapper">
-                <div class="item-icon">{{ getItemIcon(item.itemType) }}</div>
+                <!-- Imagen del item -->
+                <img 
+                  v-if="item.imageUrl"
+                  :src="item.imageUrl" 
+                  :alt="item.itemName"
+                  class="item-image"
+                  @error="handleImageError"
+                />
+                <!-- Fallback al icono emoji si la imagen no carga -->
+                <div class="item-icon item-icon-fallback" style="display: none;">
+                  {{ getItemIcon(item.itemType) }}
+                </div>
                 <div v-if="isItemEquipped(item.itemId, item.itemType)" class="icon-ring"></div>
               </div>
               
@@ -265,7 +284,18 @@ const getItemTypeClass = (type: string) => {
               </div>
               
               <div class="item-icon-wrapper">
-                <div class="item-icon">{{ getItemIcon(item.itemType) }}</div>
+                <!-- Imagen del item -->
+                <img 
+                  v-if="item.imageUrl"
+                  :src="item.imageUrl" 
+                  :alt="item.itemName"
+                  class="item-image"
+                  @error="handleImageError"
+                />
+                <!-- Fallback al icono emoji si la imagen no carga -->
+                <div class="item-icon item-icon-fallback" style="display: none;">
+                  {{ getItemIcon(item.itemType) }}
+                </div>
                 <div v-if="isItemEquipped(item.itemId, item.itemType)" class="icon-ring"></div>
               </div>
               
@@ -494,18 +524,19 @@ const getItemTypeClass = (type: string) => {
   gap: 2rem;
 }
 
-/* Item Card */
+/* Item Card - MEJORADO */
 .item-card {
   position: relative;
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   border-radius: 20px;
-  padding: 1.75rem 1.75rem 4rem;
+  padding: 1.5rem;
+  padding-bottom: 4rem;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   border: 3px solid #e9ecef;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-  min-height: 340px;
+  min-height: 380px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -1047,27 +1078,93 @@ const getItemTypeClass = (type: string) => {
   filter: blur(15px);
 }
 
-/* Item Icon */
+/* ========== MEJORAS EN EL CONTENEDOR DE IMAGEN ========== */
+
 .item-icon-wrapper {
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  width: 80px;
-  height: 80px;
+  width: 100%;
+  max-width: 180px;
+  aspect-ratio: 1;
+  margin: 1rem auto;
+  padding: 8px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 249, 250, 0.9));
+  border-radius: 16px;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 2px 4px rgba(255, 255, 255, 0.8);
 }
 
+.item-card:hover .item-icon-wrapper {
+  box-shadow: 
+    0 8px 20px rgba(0, 0, 0, 0.15),
+    inset 0 2px 4px rgba(255, 255, 255, 0.8);
+  transform: scale(1.05);
+  transition: all 0.3s ease;
+}
+
+.item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  image-rendering: crisp-edges;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+.item-card:hover .item-image {
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
+  transform: scale(1.08) rotate(2deg);
+}
+
+/* Items equipados - imagen con brillo especial */
+.item-card.equipped .item-icon-wrapper {
+  background: linear-gradient(135deg, rgba(255, 247, 205, 0.95), rgba(255, 237, 160, 0.95));
+  box-shadow: 
+    0 0 25px rgba(255, 215, 0, 0.4),
+    0 6px 16px rgba(255, 215, 0, 0.3),
+    inset 0 2px 6px rgba(255, 255, 255, 0.9);
+}
+
+.item-card.equipped:hover .item-icon-wrapper {
+  box-shadow: 
+    0 0 35px rgba(255, 215, 0, 0.6),
+    0 10px 24px rgba(255, 215, 0, 0.5),
+    inset 0 2px 6px rgba(255, 255, 255, 0.9);
+}
+
+.item-card.equipped .item-image {
+  filter: drop-shadow(0 6px 12px rgba(255, 215, 0, 0.3));
+}
+
+.item-card.equipped:hover .item-image {
+  filter: drop-shadow(0 10px 20px rgba(255, 215, 0, 0.5));
+}
+
+/* Fallback icon emoji */
 .item-icon {
-  font-size: 3.5rem;
+  font-size: 4rem;
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.15));
   transition: transform 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-icon-fallback {
+  display: none;
 }
 
 .item-card:hover .item-icon {
-  transform: scale(1.2) rotate(8deg);
+  transform: scale(1.15) rotate(8deg);
 }
+
+/* ========== FIN MEJORAS IMAGEN ========== */
 
 /* Item Content */
 .item-content {
@@ -1077,16 +1174,17 @@ const getItemTypeClass = (type: string) => {
   gap: 0.75rem;
   align-items: center;
   width: 100%;
+  margin-top: 0.5rem;
 }
 
 .item-name {
   font-weight: 800;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   color: #212529;
   text-align: center;
   line-height: 1.3;
   word-break: break-word;
-  min-height: 2.6rem;
+  min-height: 2.4rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1112,6 +1210,16 @@ const getItemTypeClass = (type: string) => {
 }
 
 /* Responsive */
+@media (max-width: 960px) {
+  .item-icon-wrapper {
+    max-width: 140px;
+  }
+  
+  .item-card {
+    min-height: 350px;
+  }
+}
+
 @media (max-width: 600px) {
   .inventory-wrapper {
     padding: 1rem;
@@ -1157,8 +1265,9 @@ const getItemTypeClass = (type: string) => {
   }
   
   .item-card {
-    padding: 1.5rem 1.5rem 3.5rem;
-    min-height: 320px;
+    padding: 1.25rem;
+    padding-bottom: 3.5rem;
+    min-height: 340px;
   }
 
   .equipped-badge {
@@ -1188,8 +1297,9 @@ const getItemTypeClass = (type: string) => {
   }
 
   .item-icon-wrapper {
-    width: 70px;
-    height: 70px;
+    max-width: 120px;
+    margin: 0.75rem auto;
+    padding: 6px;
   }
   
   .item-icon {
@@ -1202,8 +1312,8 @@ const getItemTypeClass = (type: string) => {
   }
   
   .item-name {
-    font-size: 1rem;
-    min-height: 2.2rem;
+    font-size: 0.95rem;
+    min-height: 2.1rem;
   }
 
   .item-type-badge {

@@ -89,6 +89,16 @@ const getItemColor = (type: string) => {
   if (type === 'Endurance') return '#00D2FF'
   return '#FFD700'
 }
+
+// Función para manejar errores de carga de imagen
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  img.style.display = 'none'
+  const fallbackIcon = img.nextElementSibling as HTMLElement
+  if (fallbackIcon) {
+    fallbackIcon.style.display = 'flex'
+  }
+}
 </script>
 
 <template>
@@ -124,8 +134,17 @@ const getItemColor = (type: string) => {
               <span>DIARIO</span>
             </div>
             
-            <div class="item-icon" :style="{ borderColor: getItemColor(item.type) }">
-              <v-icon :color="getItemColor(item.type)" size="40">{{ getItemIcon(item.type) }}</v-icon>
+            <div class="item-icon-container" :style="{ borderColor: getItemColor(item.type) }">
+              <img 
+                v-if="item.imageUrl"
+                :src="item.imageUrl" 
+                :alt="item.name"
+                class="item-image"
+                @error="handleImageError"
+              />
+              <div class="item-icon-fallback" style="display: none;">
+                <v-icon :color="getItemColor(item.type)" size="40">{{ getItemIcon(item.type) }}</v-icon>
+              </div>
             </div>
             
             <div class="item-content">
@@ -184,8 +203,17 @@ const getItemColor = (type: string) => {
           <div class="item-card strength-item" @click="openPopup(item)">
             <div class="item-glow" style="background: radial-gradient(circle, #FF475740 0%, transparent 70%)"></div>
             
-            <div class="item-icon" style="border-color: #FF4757;">
-              <v-icon color="#FF4757" size="40">mdi-dumbbell</v-icon>
+            <div class="item-icon-container" style="border-color: #FF4757;">
+              <img 
+                v-if="item.imageUrl"
+                :src="item.imageUrl" 
+                :alt="item.name"
+                class="item-image"
+                @error="handleImageError"
+              />
+              <div class="item-icon-fallback" style="display: none;">
+                <v-icon color="#FF4757" size="40">mdi-dumbbell</v-icon>
+              </div>
             </div>
             
             <div class="item-content">
@@ -244,8 +272,17 @@ const getItemColor = (type: string) => {
           <div class="item-card endurance-item" @click="openPopup(item)">
             <div class="item-glow" style="background: radial-gradient(circle, #00D2FF40 0%, transparent 70%)"></div>
             
-            <div class="item-icon" style="border-color: #00D2FF;">
-              <v-icon color="#00D2FF" size="40">mdi-run-fast</v-icon>
+            <div class="item-icon-container" style="border-color: #00D2FF;">
+              <img 
+                v-if="item.imageUrl"
+                :src="item.imageUrl" 
+                :alt="item.name"
+                class="item-image"
+                @error="handleImageError"
+              />
+              <div class="item-icon-fallback" style="display: none;">
+                <v-icon color="#00D2FF" size="40">mdi-run-fast</v-icon>
+              </div>
             </div>
             
             <div class="item-content">
@@ -285,7 +322,17 @@ const getItemColor = (type: string) => {
       <v-card class="purchase-dialog">
         <div class="dialog-header" :style="{ background: `linear-gradient(135deg, ${getItemColor(selectedItem?.type || '')}30 0%, transparent 100%)` }">
           <div class="dialog-icon" :style="{ background: `linear-gradient(135deg, ${getItemColor(selectedItem?.type || '')} 0%, ${getItemColor(selectedItem?.type || '')}80 100%)` }">
-            <v-icon color="white" size="32">{{ getItemIcon(selectedItem?.type || '') }}</v-icon>
+            <!-- Imagen en el diálogo -->
+            <img 
+              v-if="selectedItem?.imageUrl"
+              :src="selectedItem.imageUrl" 
+              :alt="selectedItem.name"
+              class="dialog-item-image"
+              @error="handleImageError"
+            />
+            <div class="dialog-icon-fallback" style="display: none;">
+              <v-icon color="white" size="32">{{ getItemIcon(selectedItem?.type || '') }}</v-icon>
+            </div>
           </div>
           <h3 class="dialog-title">{{ selectedItem?.name }}</h3>
         </div>
@@ -374,7 +421,6 @@ const getItemColor = (type: string) => {
 </template>
 
 <style scoped>
-/* ... todo el CSS existente se mantiene igual ... */
 .items-container {
   max-width: 100%;
 }
@@ -520,9 +566,10 @@ const getItemColor = (type: string) => {
   letter-spacing: 1px;
 }
 
-.item-icon {
-  width: 80px;
-  height: 80px;
+/* Nuevo contenedor de icono/imagen - MÁS GRANDE */
+.item-icon-container {
+  width: 240px;
+  height: 240px;
   margin: 0 auto 1.5rem;
   background: rgba(0, 0, 0, 0.3);
   border: 3px solid;
@@ -532,10 +579,28 @@ const getItemColor = (type: string) => {
   justify-content: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
+  overflow: hidden;
+  padding: 12px;
 }
 
-.item-card:hover .item-icon {
+.item-card:hover .item-icon-container {
   transform: scale(1.1) rotate(5deg);
+}
+
+.item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+  transition: transform 0.3s ease;
+}
+
+.item-icon-fallback {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 .item-content {
@@ -780,6 +845,11 @@ const getItemColor = (type: string) => {
   .btn-text {
     font-size: 0.85rem;
   }
+  
+  .item-icon-container {
+    width: 110px;
+    height: 110px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -795,6 +865,12 @@ const getItemColor = (type: string) => {
 
   .btn-text {
     font-size: 0.8rem;
+  }
+  
+  .item-icon-container {
+    width: 100px;
+    height: 100px;
+    padding: 10px;
   }
 }
 
@@ -849,15 +925,33 @@ const getItemColor = (type: string) => {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Imagen del diálogo - MÁS GRANDE */
 .dialog-icon {
-  width: 70px;
-  height: 70px;
+  width: 130px;
+  height: 130px;
   margin: 0 auto 1rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  padding: 15px;
+}
+
+.dialog-item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+}
+
+.dialog-icon-fallback {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 .dialog-title {
@@ -958,11 +1052,6 @@ const getItemColor = (type: string) => {
     padding: 1.25rem;
   }
 
-  .item-icon {
-    width: 70px;
-    height: 70px;
-  }
-
   .item-name {
     font-size: 1rem;
   }
@@ -976,8 +1065,9 @@ const getItemColor = (type: string) => {
   }
 
   .dialog-icon {
-    width: 60px;
-    height: 60px;
+    width: 100px;
+    height: 100px;
+    padding: 12px;
   }
 
   .dialog-title {
