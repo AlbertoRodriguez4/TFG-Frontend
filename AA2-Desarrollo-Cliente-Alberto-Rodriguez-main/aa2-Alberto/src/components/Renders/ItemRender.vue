@@ -27,6 +27,17 @@ const enduranceItems = computed(() => itemStore.enduranceItems)
 const showDialog = ref(false)
 const selectedItem = ref<Item | null>(null)
 
+// Snackbar state
+const snackbar = ref(false)
+const snackbarMessage = ref('')
+const snackbarColor = ref('success')
+
+const showSnackbar = (message: string, color: string = 'success') => {
+  snackbarMessage.value = message
+  snackbarColor.value = color
+  snackbar.value = true
+}
+
 const openPopup = (item: Item) => {
   selectedItem.value = item
   showDialog.value = true
@@ -46,7 +57,7 @@ const handleBuy = async () => {
     console.log(userId + " " + item.id + " " + item.price)
     const purchase = await purchaseStore.addPurchase(userId, item.id, item.price)
     if (purchase && purchase.id) {
-      alert("Compra realizada correctamente")
+      showSnackbar("Compra realizada correctamente", "success")
       await userStore.refreshLoggedUser()
       closePopup()
     } else {
@@ -55,9 +66,9 @@ const handleBuy = async () => {
   } catch (error: any) {
     const message = error?.data?.message
     if (message?.includes("no tiene suficiente oro")) {
-      alert("No tienes suficiente oro para realizar esta compra.")
+      showSnackbar("No tienes suficiente oro para realizar esta compra.", "error")
     } else {
-      alert(message || "Hubo un problema al realizar la compra.")
+      showSnackbar(message || "Hubo un problema al realizar la compra.", "error")
     }
     closePopup()
   }
@@ -334,10 +345,36 @@ const getItemColor = (type: string) => {
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Snackbar para notificaciones -->
+    <v-snackbar
+      v-model="snackbar"
+      :color="snackbarColor"
+      :timeout="4000"
+      location="top"
+      multi-line
+    >
+      <div class="d-flex align-center">
+        <v-icon 
+          :icon="snackbarColor === 'success' ? 'mdi-check-circle' : 'mdi-alert-circle'" 
+          class="mr-3"
+        ></v-icon>
+        <span>{{ snackbarMessage }}</span>
+      </div>
+      
+      <template v-slot:actions>
+        <v-btn
+          variant="text"
+          @click="snackbar = false"
+          icon="mdi-close"
+        ></v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 </template>
 
 <style scoped>
+/* ... todo el CSS existente se mantiene igual ... */
 .items-container {
   max-width: 100%;
 }

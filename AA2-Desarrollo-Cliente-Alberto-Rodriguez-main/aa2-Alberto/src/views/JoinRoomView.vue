@@ -15,6 +15,20 @@ const loggedUser = ref(userStore.loggedUser)
 const showJoinPopup = ref(false)
 const isLoading = ref(true)
 
+// Snackbar state
+const snackbar = ref(false)
+const snackbarMessage = ref('')
+const snackbarColor = ref('success')
+
+// Diálogo de confirmación para salir
+const showLeaveConfirmDialog = ref(false)
+
+const showSnackbar = (message: string, color: string = 'success') => {
+  snackbarMessage.value = message
+  snackbarColor.value = color
+  snackbar.value = true
+}
+
 // Datos de la sala
 const roomData = ref({
   id: Number(route.query.id || route.params.id),
@@ -34,23 +48,21 @@ const isJoined = computed(() => {
 })
 
 // Computed para obtener los usuarios de la sala formateados
-// CAMBIO PRINCIPAL: Ahora accedemos a member.user porque la estructura es UserRoom[]
 const roomUsers = computed(() => {
   return userRoomStore.currentRoomMembers.map(member => {
-    // member es un objeto UserRoom que tiene { userid, roomid, user: {...}, room: {...} }
     const user = member.user || {}
     
     return {
-      id: user.name || member.userid, // Usando name como id único, fallback a userid
+      id: user.name || member.userid,
       username: user.name || 'Usuario desconocido',
       level: user.level || 0,
-      stats: (user.strength || 0) + (user.endurance || 0), // Suma de stats como total
+      stats: (user.strength || 0) + (user.endurance || 0),
       strength: user.strength || 0,
       endurance: user.endurance || 0,
       experience: user.experience || 0,
       consistency: user.consistencystreak || 0,
       avatar: getRandomAvatar(),
-      status: 'online', // Por defecto online, puedes implementar lógica de estado real
+      status: 'online',
       equippedStrengthItem: user.equippedStrengthItem || null,
       equippedEnduranceItem: user.equippedEnduranceItem || null
     }
@@ -149,13 +161,19 @@ const confirmJoinRoom = async () => {
     await userRoomStore.fetchMembersByRoomId(roomData.value.id)
 
     showJoinPopup.value = false
-
-    // Opcional: mostrar notificación de éxito
-    console.log('Te has unido a la sala correctamente')
+    showSnackbar('Te has unido a la sala correctamente', 'success')
   } catch (error: any) {
     console.error('Error al unirse a la sala:', error)
-    alert(error.message || 'No se pudo unir a la sala')
+    showSnackbar(error.message || 'No se pudo unir a la sala', 'error')
   }
+}
+
+const openLeaveConfirmDialog = () => {
+  showLeaveConfirmDialog.value = true
+}
+
+const closeLeaveConfirmDialog = () => {
+  showLeaveConfirmDialog.value = false
 }
 
 const leaveRoom = async () => {
@@ -163,15 +181,7 @@ const leaveRoom = async () => {
 
   if (!loggedUser.value?.id) {
     console.error('No hay usuario logueado')
-    alert('Debes estar logueado para salir de la sala')
-    return
-  }
-
-  // Confirmación antes de salir
-  const confirmed = confirm('¿Estás seguro de que quieres salir de esta sala?')
-  console.log('Usuario confirmó:', confirmed)
-
-  if (!confirmed) {
+    showSnackbar('Debes estar logueado para salir de la sala', 'error')
     return
   }
 
@@ -192,10 +202,12 @@ const leaveRoom = async () => {
     await userRoomStore.fetchRoomsByUserId(loggedUser.value.id)
     console.log("✅ Salas del usuario recargadas")
 
-    alert('Has salido de la sala correctamente')
+    showLeaveConfirmDialog.value = false
+    showSnackbar('Has salido de la sala correctamente', 'success')
   } catch (error: any) {
     console.error('❌ Error al salir de la sala:', error)
-    alert(error.message || 'No se pudo salir de la sala')
+    showLeaveConfirmDialog.value = false
+    showSnackbar(error.message || 'No se pudo salir de la sala', 'error')
   }
 }
 
@@ -302,7 +314,7 @@ const goBack = () => {
             <span>Unirse a la Sala</span>
           </button>
 
-          <button v-else @click.prevent="leaveRoom" class="leave-btn" type="button">
+          <button v-else @click.prevent="openLeaveConfirmDialog" class="leave-btn" type="button">
             <span class="btn-icon">🚪</span>
             <span>Salir de la Sala</span>
           </button>
@@ -394,7 +406,7 @@ const goBack = () => {
       </div>
     </div>
 
-    <!-- Popup de Confirmación -->
+    <!-- Popup de Confirmación para Unirse -->
     <Transition name="popup">
       <div v-if="showJoinPopup" class="popup-overlay" @click="closeJoinPopup">
         <div class="popup-content" @click.stop>
@@ -434,10 +446,98 @@ const goBack = () => {
         </div>
       </div>
     </Transition>
+
+    <!-- Diálogo de Confirmación para Salir -->
+    <Transition name="popup">
+      <div v-if="showLeaveConfirmDialog" class="popup-overlay" @click="closeLeaveConfirmDialog">
+        <div class="popup-content confirm-leave-dialog" @click.stop>
+          <div class="popup-icon-container">
+            <div class="popup-icon">❓</div>
+          </div>
+
+          <h2 class="popup-title">¿Salir de la sala?</h2>
+
+          <div class="popup-body">
+            <p class="popup-text">
+              ¿Estás seguro de que quieres salir de <strong>{{ roomData.name }}</strong>?
+            </p>
+            <p class="popup-text-secondary">
+              Podrás volver a unirte en cualquier momento si cumples con los requisitos.
+            </p>
+          </div>
+
+          <div class="popup-actions">
+            <button @click="closeLeaveConfirmDialog" class="popup-btn cancel-btn">
+              <span>Cancelar</span>
+            </button>
+            <button @click="leaveRoom" class="popup-btn danger-btn" :disabled="userRoomStore.loading">
+              <span v-if="!userRoomStore.loading">Sí, salir</span>
+              <span v-else>Saliendo...</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Snackbar para notificaciones -->
+    <v-snackbar
+      v-model="snackbar"
+      :color="snackbarColor"
+      :timeout="4000"
+      location="top"
+      multi-line
+    >
+      <div class="d-flex align-center">
+        <v-icon 
+          :icon="snackbarColor === 'success' ? 'mdi-check-circle' : 'mdi-alert-circle'" 
+          class="mr-3"
+        ></v-icon>
+        <span>{{ snackbarMessage }}</span>
+      </div>
+      
+      <template v-slot:actions>
+        <v-btn
+          variant="text"
+          @click="snackbar = false"
+          icon="mdi-close"
+        ></v-btn>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
 <style scoped>
+/* ... todo el CSS existente se mantiene igual ... */
+
+/* Estilos adicionales para el diálogo de confirmación de salida */
+.confirm-leave-dialog {
+  max-width: 450px;
+}
+
+.popup-text-secondary {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.danger-btn {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.danger-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+}
+
+.danger-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ... resto del CSS ... */
 .room-view-wrapper {
   min-height: 100vh;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
@@ -1084,6 +1184,7 @@ const goBack = () => {
   font-size: 1rem;
   line-height: 1.6;
   margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 .rules-list {
@@ -1145,9 +1246,14 @@ const goBack = () => {
   color: white;
 }
 
-.confirm-btn:hover {
+.confirm-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+}
+
+.confirm-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Transitions */
