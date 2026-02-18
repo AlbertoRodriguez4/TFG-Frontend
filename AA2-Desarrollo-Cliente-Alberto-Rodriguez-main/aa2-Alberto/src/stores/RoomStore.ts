@@ -6,7 +6,9 @@ const BASE_URL = "http://localhost:6873";
 
 export const useRoomStore = defineStore('room', () => {
     const room = ref<Room[]>([])
-
+    const activeUsers = ref(0) 
+    const totalRooms = ref(0); 
+    const dailyChallenges = ref(0); 
     const getAuthHeaders = () => ({
         "Content-Type": "application/json",
         "Authorization": `Bearer ${localStorage.getItem('token')}`
@@ -33,6 +35,7 @@ export const useRoomStore = defineStore('room', () => {
                 date: d.date,
                 localization: d.localization
             }));
+            totalRooms.value = room.value.length; // Update total rooms count
         } catch (error) {
             console.error("Error fetching rooms:", error);
         }
@@ -115,5 +118,5 @@ export const useRoomStore = defineStore('room', () => {
         }
     }
 
-    return { room, fetchRoom, fetchSortedRooms, createRoom, editRoom }
+    return { room, fetchRoom, fetchSortedRooms, createRoom, editRoom, activeUsers, totalRooms, dailyChallenges };
 });

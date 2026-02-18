@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
 import { useRoomStore } from '@/stores/RoomStore'
 import { useUserRoomStore } from '@/stores/UsersRoomStore'
+import defaultAvatar from '@/assets/imgs/usuario.png'
 
 const route = useRoute()
 const router = useRouter()
@@ -51,7 +52,7 @@ const isJoined = computed(() => {
 const roomUsers = computed(() => {
   return userRoomStore.currentRoomMembers.map(member => {
     const user = member.user || {}
-    
+
     return {
       id: user.name || member.userid,
       username: user.name || 'Usuario desconocido',
@@ -61,7 +62,7 @@ const roomUsers = computed(() => {
       endurance: user.endurance || 0,
       experience: user.experience || 0,
       consistency: user.consistencystreak || 0,
-      avatar: getRandomAvatar(),
+      avatarUrl: user.avatarUrl || null,  // ← campo real del backend
       status: 'online',
       equippedStrengthItem: user.equippedStrengthItem || null,
       equippedEnduranceItem: user.equippedEnduranceItem || null
@@ -69,18 +70,9 @@ const roomUsers = computed(() => {
   })
 })
 
-// Función para obtener avatares aleatorios
-const getRandomAvatar = () => {
-  const avatars = ['👤', '🦸', '🧑', '👨', '👩', '🧔', '👱', '🧑‍🦰']
-  return avatars[Math.floor(Math.random() * avatars.length)]
-}
-
 onMounted(async () => {
   try {
-    // Cargar los miembros de la sala desde el backend
     await userRoomStore.fetchMembersByRoomId(roomData.value.id)
-
-    // Verificar si el usuario actual está en la sala
     if (loggedUser.value?.id) {
       await userRoomStore.fetchRoomsByUserId(loggedUser.value.id)
     }
@@ -89,9 +81,7 @@ onMounted(async () => {
   } finally {
     isLoading.value = false
   }
-  
-  console.log("Usuarios en la sala:", roomUsers.value)
-  console.log("Miembros raw del store:", userRoomStore.currentRoomMembers)
+
 })
 
 const getRoomDifficulty = (level: number) => {
@@ -156,10 +146,7 @@ const confirmJoinRoom = async () => {
 
   try {
     await userRoomStore.joinRoom(loggedUser.value.id, roomData.value.id)
-
-    // Recargar los miembros de la sala
     await userRoomStore.fetchMembersByRoomId(roomData.value.id)
-
     showJoinPopup.value = false
     showSnackbar('Te has unido a la sala correctamente', 'success')
   } catch (error: any) {
@@ -177,35 +164,18 @@ const closeLeaveConfirmDialog = () => {
 }
 
 const leaveRoom = async () => {
-  console.log("=== Click detectado en leaveRoom ===")
-
   if (!loggedUser.value?.id) {
-    console.error('No hay usuario logueado')
     showSnackbar('Debes estar logueado para salir de la sala', 'error')
     return
   }
 
   try {
-    console.log("Llamando a userRoomStore.leaveRoom con:", {
-      userId: loggedUser.value.id,
-      roomId: roomData.value.id
-    })
-
     await userRoomStore.leaveRoom(loggedUser.value.id, roomData.value.id)
-    console.log("✅ leaveRoom ejecutado correctamente")
-
-    // Recargar los miembros de la sala
     await userRoomStore.fetchMembersByRoomId(roomData.value.id)
-    console.log("✅ Miembros de sala recargados")
-
-    // Recargar las salas del usuario
     await userRoomStore.fetchRoomsByUserId(loggedUser.value.id)
-    console.log("✅ Salas del usuario recargadas")
-
     showLeaveConfirmDialog.value = false
     showSnackbar('Has salido de la sala correctamente', 'success')
   } catch (error: any) {
-    console.error('❌ Error al salir de la sala:', error)
     showLeaveConfirmDialog.value = false
     showSnackbar(error.message || 'No se pudo salir de la sala', 'error')
   }
@@ -259,7 +229,7 @@ const goBack = () => {
           <p class="description-box-text">{{ roomData.description || 'Sin descripción disponible' }}</p>
         </div>
 
-        <!-- Fecha de Creación -->
+        <!-- Fecha -->
         <div class="room-date-box">
           <span class="date-box-icon">📅</span>
           <div class="date-box-content">
@@ -267,7 +237,8 @@ const goBack = () => {
             <span class="date-box-value">{{ roomData.date }}</span>
           </div>
         </div>
-        <!--Localización-->
+
+        <!-- Localización -->
         <div class="room-localization-box">
           <span class="localization-box-icon">📍</span>
           <div class="localization-box-content">
@@ -275,6 +246,7 @@ const goBack = () => {
             <span class="localization-box-value">{{ roomData.localization || 'No especificada' }}</span>
           </div>
         </div>
+
         <div class="room-requirements-grid">
           <div class="requirement-card">
             <div class="req-card-icon">📊</div>
@@ -283,7 +255,6 @@ const goBack = () => {
               <span class="req-card-value">{{ roomData.minlevel }}</span>
             </div>
           </div>
-
           <div class="requirement-card">
             <div class="req-card-icon">💪</div>
             <div class="req-card-content">
@@ -291,7 +262,6 @@ const goBack = () => {
               <span class="req-card-value">{{ roomData.minstats }}</span>
             </div>
           </div>
-
           <div class="requirement-card">
             <div class="req-card-icon">🎯</div>
             <div class="req-card-content">
@@ -339,10 +309,14 @@ const goBack = () => {
         <div v-else class="users-grid">
           <div v-for="user in roomUsers" :key="user.id" class="user-card">
             <div class="user-card-header">
+
+              <!-- Avatar con imagen real -->
               <div class="user-avatar">
-                <span class="user-avatar-icon">{{ user.avatar }}</span>
+                <img :src="user.avatarUrl || defaultAvatar" :alt="user.username" class="user-avatar-img"
+                  @error="(e) => (e.target as HTMLImageElement).src = defaultAvatar" />
                 <div class="user-status-dot" :style="{ backgroundColor: getStatusColor(user.status) }"></div>
               </div>
+
               <div class="user-info">
                 <h3 class="user-name">{{ user.username }}</h3>
                 <span class="user-status-text" :style="{ color: getStatusColor(user.status) }">
@@ -413,14 +387,11 @@ const goBack = () => {
           <div class="popup-icon-container">
             <div class="popup-icon">⚠️</div>
           </div>
-
           <h2 class="popup-title">Código de Conducta</h2>
-
           <div class="popup-body">
             <p class="popup-text">
               Al unirte a esta sala de entrenamiento, aceptas cumplir con las siguientes normas:
             </p>
-
             <ul class="rules-list">
               <li>🤝 Respetar a todos los miembros de la sala</li>
               <li>💬 Mantener un lenguaje apropiado y constructivo</li>
@@ -428,12 +399,10 @@ const goBack = () => {
               <li>🚫 No hacer spam ni contenido inapropiado</li>
               <li>⚖️ Aceptar las consecuencias por incumplimiento</li>
             </ul>
-
             <p class="popup-warning">
               El incumplimiento de estas normas puede resultar en la expulsión de la sala o sanciones adicionales.
             </p>
           </div>
-
           <div class="popup-actions">
             <button @click="closeJoinPopup" class="popup-btn cancel-btn">
               <span>Cancelar</span>
@@ -454,9 +423,7 @@ const goBack = () => {
           <div class="popup-icon-container">
             <div class="popup-icon">❓</div>
           </div>
-
           <h2 class="popup-title">¿Salir de la sala?</h2>
-
           <div class="popup-body">
             <p class="popup-text">
               ¿Estás seguro de que quieres salir de <strong>{{ roomData.name }}</strong>?
@@ -465,7 +432,6 @@ const goBack = () => {
               Podrás volver a unirte en cualquier momento si cumples con los requisitos.
             </p>
           </div>
-
           <div class="popup-actions">
             <button @click="closeLeaveConfirmDialog" class="popup-btn cancel-btn">
               <span>Cancelar</span>
@@ -479,37 +445,20 @@ const goBack = () => {
       </div>
     </Transition>
 
-    <!-- Snackbar para notificaciones -->
-    <v-snackbar
-      v-model="snackbar"
-      :color="snackbarColor"
-      :timeout="4000"
-      location="top"
-      multi-line
-    >
+    <!-- Snackbar -->
+    <v-snackbar v-model="snackbar" :color="snackbarColor" :timeout="4000" location="top" multi-line>
       <div class="d-flex align-center">
-        <v-icon 
-          :icon="snackbarColor === 'success' ? 'mdi-check-circle' : 'mdi-alert-circle'" 
-          class="mr-3"
-        ></v-icon>
+        <v-icon :icon="snackbarColor === 'success' ? 'mdi-check-circle' : 'mdi-alert-circle'" class="mr-3"></v-icon>
         <span>{{ snackbarMessage }}</span>
       </div>
-      
       <template v-slot:actions>
-        <v-btn
-          variant="text"
-          @click="snackbar = false"
-          icon="mdi-close"
-        ></v-btn>
+        <v-btn variant="text" @click="snackbar = false" icon="mdi-close"></v-btn>
       </template>
     </v-snackbar>
   </div>
 </template>
 
 <style scoped>
-/* ... todo el CSS existente se mantiene igual ... */
-
-/* Estilos adicionales para el diálogo de confirmación de salida */
 .confirm-leave-dialog {
   max-width: 450px;
 }
@@ -537,7 +486,6 @@ const goBack = () => {
   cursor: not-allowed;
 }
 
-/* ... resto del CSS ... */
 .room-view-wrapper {
   min-height: 100vh;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
@@ -607,7 +555,6 @@ const goBack = () => {
   gap: 2rem;
 }
 
-/* Room Info Card */
 .room-info-card {
   position: relative;
   background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
@@ -821,8 +768,6 @@ const goBack = () => {
 .leave-btn {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
-  position: relative;
-  z-index: 50;
 }
 
 .leave-btn:hover {
@@ -908,19 +853,27 @@ const goBack = () => {
   margin-bottom: 1rem;
 }
 
+/* Avatar con imagen real */
 .user-avatar {
   position: relative;
   width: 60px;
   height: 60px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-shrink: 0;
 }
 
-.user-avatar-icon {
-  font-size: 2rem;
+.user-avatar-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(59, 130, 246, 0.4);
+  background-color: #1e293b;
+  display: block;
+  transition: border-color 0.3s ease;
+}
+
+.user-card:hover .user-avatar-img {
+  border-color: rgba(59, 130, 246, 0.7);
 }
 
 .user-status-dot {
@@ -1002,7 +955,6 @@ const goBack = () => {
   color: #3b82f6;
 }
 
-/* User Equipment Section */
 .user-equipment {
   margin-top: 1rem;
   padding: 1rem;
@@ -1108,9 +1060,6 @@ const goBack = () => {
   font-size: 0.75rem;
   font-weight: 700;
   color: #fbbf24;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
 }
 
 .item-strength .item-bonus {
@@ -1121,7 +1070,7 @@ const goBack = () => {
   color: #3b82f6;
 }
 
-/* Popup Styles */
+/* Popup */
 .popup-overlay {
   position: fixed;
   inset: 0;
@@ -1256,7 +1205,6 @@ const goBack = () => {
   cursor: not-allowed;
 }
 
-/* Transitions */
 .popup-enter-active,
 .popup-leave-active {
   transition: all 0.3s ease;
@@ -1272,7 +1220,7 @@ const goBack = () => {
   transform: scale(0.9) translateY(20px);
 }
 
-/* Descripción de la Sala */
+/* Descripción */
 .room-description-box {
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08));
   border: 2px solid rgba(99, 102, 241, 0.25);
@@ -1317,7 +1265,7 @@ const goBack = () => {
   padding-left: 2.125rem;
 }
 
-/* Fecha de Creación */
+/* Fecha */
 .room-date-box {
   display: flex;
   align-items: center;
@@ -1363,7 +1311,7 @@ const goBack = () => {
   font-family: 'Courier New', monospace;
 }
 
-/* Localización de la Sala */
+/* Localización */
 .room-localization-box {
   display: flex;
   align-items: center;
@@ -1442,12 +1390,14 @@ const goBack = () => {
     grid-template-columns: 1fr;
   }
 
-  .item-name {
-    font-size: 0.8rem;
+  .user-avatar-img {
+    width: 50px;
+    height: 50px;
   }
 
-  .item-bonus {
-    font-size: 0.7rem;
+  .user-avatar {
+    width: 50px;
+    height: 50px;
   }
 }
 </style>

@@ -98,33 +98,22 @@ const getDayCardClass = computed(() => {
   };
 });
 
-/**
- * Maneja el click en la tarjeta del día
- * - Si NO hay rutina → Emite 'click' para abrir modal de crear
- * - Si hay rutina PENDIENTE (iscompleted=false) → Emite 'click' para abrir modal de detalle
- * - Si hay rutina COMPLETADA (iscompleted=true) → NO hace nada (tarjeta de solo lectura)
- */
 const handleClick = () => {
-  console.log('🖱️ Click en DayCard, día:', props.day);
-  console.log('📋 Rutina:', props.routine);
-  console.log('✅ Completada:', props.routine?.iscompleted);
+
 
   // Si no hay rutina, abrir modal de crear
   if (!props.routine) {
-    console.log('➕ Abriendo modal de crear rutina');
     emit('click');
     return;
   }
 
   // Si hay rutina PENDIENTE, abrir modal de detalle para completarla
   if (!props.routine.iscompleted) {
-    console.log('📋 Abriendo modal de detalle para rutina PENDIENTE');
     emit('click');
     return;
   }
 
   // Si la rutina ya está COMPLETADA, no hacer nada
-  console.log('🔒 Rutina ya completada, no se abre modal');
 };
 </script>
 

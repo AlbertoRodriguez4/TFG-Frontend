@@ -56,18 +56,15 @@ export const usePurchaseStore = defineStore('purchase', () => {
                 throw { status: response.status, data: result }
             }
 
-            console.log("Compra realizada:", result)
             
             // ACTUALIZAR LOS DATOS DEL USUARIO después de la compra
             const userStore = useUserStore();
             await userStore.refreshLoggedUser();
             
-            console.log('Usuario actualizado después de la compra');
             
             return result
 
         } catch (error) {
-            console.log(JSON.stringify(body))
             console.error("Error al agregar compra:", error)
             throw error
         }

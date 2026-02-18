@@ -32,11 +32,7 @@ import FooterView from './views/FooterView.vue';
         
         <!-- RouterView con transiciones -->
         <div class="router-content">
-          <RouterView v-slot="{ Component }">
-            <transition name="page-transition" mode="out-in">
-              <component :is="Component" />
-            </transition>
-          </RouterView>
+          <RouterView />
         </div>
       </div>
     </v-main>

@@ -92,7 +92,6 @@ export const useUserRoomStore = defineStore('userRoom', () => {
             const data = await response.json();
             currentRoomMembers.value = data;
             
-            console.log("Miembros (UserRoom structure):", data);
         } catch (err: any) {
             console.error("Error fetching room members:", err);
             error.value = err.message;

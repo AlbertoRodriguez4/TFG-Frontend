@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import defaultAvatar from '@/assets/imgs/usuario.png'
 
 interface User {
   id: number;
@@ -16,6 +17,7 @@ interface User {
   experience: number;
   xpRequired: number;
   xpRemaining: number;
+  avatarUrl: string;
 }
 
 const store = useUserStore()
@@ -43,18 +45,17 @@ const labelMap: Record<StatKey, string> = {
 }
 
 const maxValues: Record<StatKey, number> = {
-  strength: 100000,   // Máximo de fuerza (100k)
-  endurance: 100000,  // Máximo de resistencia (100k)
-  gold: 1000000,      // Máximo de oro (1M)
+  strength: 100000,
+  endurance: 100000,
+  gold: 1000000,
 }
 
 const calculateProgress = (stat: StatKey, value: number): number => {
   const maxValue = maxValues[stat]
   const percentage = (value / maxValue) * 100
-  return Math.min(percentage, 100) // Nunca exceder 100%
+  return Math.min(percentage, 100)
 }
 
-// Calcular el progreso de XP
 const calculateXpProgress = (): number => {
   if (!loggedUser.value) return 0
   const currentXp = loggedUser.value.experience
@@ -80,7 +81,14 @@ const formatNumber = (value: number): string => {
       <div class="profile-card">
         <div class="avatar-container">
           <div class="avatar-glow"></div>
-          <img src="@/assets/imgs/usuario.png" alt="Avatar" class="avatar-image" />
+          <div class="avatar-wrapper">
+            <img
+              :src="loggedUser.avatarUrl || defaultAvatar"
+              alt="Avatar"
+              class="avatar-image"
+              @error="(e) => (e.target as HTMLImageElement).src = defaultAvatar"
+            />
+          </div>
           <div class="level-badge">
             <span class="level-icon">⚡</span>
             <span class="level-text">LVL {{ loggedUser.level }}</span>
@@ -147,8 +155,6 @@ const formatNumber = (value: number): string => {
                 <span class="stat-max">/ {{ formatNumber(maxValues[stat]) }}</span>
               </div>
             </div>
-
-            <!-- Indicador de porcentaje (opcional) -->
             <div class="stat-percentage">
               {{ calculateProgress(stat, loggedUser[stat]).toFixed(1) }}%
             </div>
@@ -202,13 +208,8 @@ const formatNumber = (value: number): string => {
 }
 
 @keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .avatar-container {
@@ -222,36 +223,45 @@ const formatNumber = (value: number): string => {
 
 .avatar-glow {
   position: absolute;
-  width: 180px;
-  height: 180px;
+  width: 190px;
+  height: 190px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(255, 193, 7, 0.4), transparent);
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
 @keyframes pulse-glow {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
 
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.5;
-  }
+/* Nuevo wrapper para el borde animado del avatar */
+.avatar-wrapper {
+  position: relative;
+  width: 168px;
+  height: 168px;
+  border-radius: 50%;
+  padding: 4px;
+  background: linear-gradient(135deg, #ffc107, #ff9800, #ffc107);
+  background-size: 200% 200%;
+  animation: border-spin 3s linear infinite;
+  box-shadow: 0 8px 32px rgba(255, 193, 7, 0.5);
+  z-index: 1;
+}
 
-  50% {
-    transform: scale(1.1);
-    opacity: 0.8;
-  }
+@keyframes border-spin {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .avatar-image {
-  width: 160px;
-  height: 160px;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
-  border: 4px solid #ffc107;
   object-fit: cover;
-  box-shadow: 0 8px 32px rgba(255, 193, 7, 0.4);
-  position: relative;
-  z-index: 1;
+  display: block;
+  background-color: #1a1a2e;
 }
 
 .level-badge {
@@ -273,15 +283,8 @@ const formatNumber = (value: number): string => {
 }
 
 @keyframes zap {
-
-  0%,
-  100% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.2);
-  }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
 }
 
 .user-info {
@@ -315,15 +318,8 @@ const formatNumber = (value: number): string => {
 }
 
 @keyframes flicker {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.7;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 /* XP Container */
@@ -349,15 +345,8 @@ const formatNumber = (value: number): string => {
 }
 
 @keyframes sparkle {
-
-  0%,
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
-
-  50% {
-    transform: scale(1.15) rotate(10deg);
-  }
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.15) rotate(10deg); }
 }
 
 .xp-label {
@@ -406,9 +395,7 @@ const formatNumber = (value: number): string => {
 }
 
 @keyframes shine {
-  to {
-    left: 100%;
-  }
+  to { left: 100%; }
 }
 
 .xp-values {
@@ -421,17 +408,9 @@ const formatNumber = (value: number): string => {
   min-width: 100px;
 }
 
-.xp-current {
-  color: #c4b5fd;
-}
-
-.xp-separator {
-  color: rgba(167, 139, 250, 0.5);
-}
-
-.xp-required {
-  color: rgba(167, 139, 250, 0.7);
-}
+.xp-current { color: #c4b5fd; }
+.xp-separator { color: rgba(167, 139, 250, 0.5); }
+.xp-required { color: rgba(167, 139, 250, 0.7); }
 
 .xp-remaining {
   display: flex;
@@ -443,9 +422,7 @@ const formatNumber = (value: number): string => {
   justify-content: center;
 }
 
-.xp-remaining-icon {
-  font-size: 1rem;
-}
+.xp-remaining-icon { font-size: 1rem; }
 
 /* Stats Card */
 .stats-card {
@@ -468,9 +445,7 @@ const formatNumber = (value: number): string => {
   font-weight: bold;
 }
 
-.title-icon {
-  font-size: 2rem;
-}
+.title-icon { font-size: 2rem; }
 
 .stats-grid {
   display: flex;
@@ -498,9 +473,7 @@ const formatNumber = (value: number): string => {
   margin-bottom: 1rem;
 }
 
-.stat-icon {
-  font-size: 2rem;
-}
+.stat-icon { font-size: 2rem; }
 
 .stat-label {
   font-size: 1.3rem;
@@ -583,59 +556,36 @@ const formatNumber = (value: number): string => {
     min-width: 100%;
   }
 
-  .avatar-image {
-    width: 120px;
-    height: 120px;
+  .avatar-wrapper {
+    width: 128px;
+    height: 128px;
   }
 
   .avatar-glow {
-    width: 140px;
-    height: 140px;
+    width: 148px;
+    height: 148px;
   }
 
-  .user-name {
-    font-size: 1.5rem;
-  }
-
-  .stats-title {
-    font-size: 1.5rem;
-  }
-
-  .stat-values {
-    min-width: 100px;
-  }
-
-  .stat-value {
-    font-size: 1.2rem;
-  }
-
-  .stat-max {
-    font-size: 0.9rem;
-  }
-
-  .xp-values {
-    font-size: 0.85rem;
-    min-width: 80px;
-  }
-
-  .xp-remaining {
-    font-size: 0.85rem;
-  }
+  .user-name { font-size: 1.5rem; }
+  .stats-title { font-size: 1.5rem; }
+  .stat-values { min-width: 100px; }
+  .stat-value { font-size: 1.2rem; }
+  .stat-max { font-size: 0.9rem; }
+  .xp-values { font-size: 0.85rem; min-width: 80px; }
+  .xp-remaining { font-size: 0.85rem; }
 }
 
 @media (max-width: 480px) {
-  .user-stats-container {
-    padding: 0.5rem;
-  }
+  .user-stats-container { padding: 0.5rem; }
 
   .profile-card,
   .stats-card {
     padding: 1.5rem;
   }
 
-  .avatar-image {
-    width: 100px;
-    height: 100px;
+  .avatar-wrapper {
+    width: 108px;
+    height: 108px;
   }
 
   .level-badge {
@@ -643,44 +593,15 @@ const formatNumber = (value: number): string => {
     font-size: 1rem;
   }
 
-  .stat-item {
-    padding: 1rem;
-  }
-
-  .stat-label {
-    font-size: 1.1rem;
-  }
-
-  .stat-values {
-    min-width: 90px;
-  }
-
-  .stat-value {
-    font-size: 1.1rem;
-  }
-
-  .stat-max {
-    font-size: 0.85rem;
-  }
-
-  .stat-percentage {
-    font-size: 0.8rem;
-  }
-
-  .xp-container {
-    padding: 1rem;
-  }
-
-  .xp-label {
-    font-size: 1rem;
-  }
-
-  .xp-values {
-    font-size: 0.8rem;
-  }
-
-  .xp-remaining {
-    font-size: 0.8rem;
-  }
+  .stat-item { padding: 1rem; }
+  .stat-label { font-size: 1.1rem; }
+  .stat-values { min-width: 90px; }
+  .stat-value { font-size: 1.1rem; }
+  .stat-max { font-size: 0.85rem; }
+  .stat-percentage { font-size: 0.8rem; }
+  .xp-container { padding: 1rem; }
+  .xp-label { font-size: 1rem; }
+  .xp-values { font-size: 0.8rem; }
+  .xp-remaining { font-size: 0.8rem; }
 }
 </style>

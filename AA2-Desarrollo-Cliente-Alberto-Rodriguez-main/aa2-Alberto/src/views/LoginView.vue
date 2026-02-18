@@ -1,30 +1,56 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useUserStore } from '../stores/userStore'
 import { useRouter } from 'vue-router'
+
+const REMEMBER_EMAIL_KEY = 'remember_email'
+const REMEMBER_FLAG_KEY = 'remember_me'
 
 const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
 const isLoading = ref(false)
-const showPassword = ref(false) // Estado para mostrar/ocultar contraseña
+const showPassword = ref(false)
+const rememberMe = ref(false)
+
 const store = useUserStore()
 const router = useRouter()
 
-// Snackbar states
+// Snackbar
 const snackbar = ref(false)
 const snackbarMessage = ref('')
 const snackbarColor = ref('error')
 
-const showSnackbar = (message: string, color: string = 'error') => {
+const showSnackbar = (message: string, color = 'error') => {
   snackbarMessage.value = message
   snackbarColor.value = color
   snackbar.value = true
 }
 
-// Alternar visibilidad de contraseña
+// ── Al montar: recuperar email guardado ──────────────────────────────────────
+onMounted(() => {
+  const savedFlag = localStorage.getItem(REMEMBER_FLAG_KEY)
+  const savedEmail = localStorage.getItem(REMEMBER_EMAIL_KEY)
+
+  if (savedFlag === 'true' && savedEmail) {
+    rememberMe.value = true
+    email.value = savedEmail
+  }
+})
+
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value
+}
+
+// ── Guardar / limpiar email según la preferencia ─────────────────────────────
+function applyRememberMe(emailValue: string) {
+  if (rememberMe.value) {
+    localStorage.setItem(REMEMBER_FLAG_KEY, 'true')
+    localStorage.setItem(REMEMBER_EMAIL_KEY, emailValue)
+  } else {
+    localStorage.removeItem(REMEMBER_FLAG_KEY)
+    localStorage.removeItem(REMEMBER_EMAIL_KEY)
+  }
 }
 
 async function handleLogin() {
@@ -34,42 +60,32 @@ async function handleLogin() {
   const emailTrimmed = email.value.trim()
   const passwordTrimmed = password.value.trim()
 
-  // Validación de campos vacíos
   if (!emailTrimmed || !passwordTrimmed) {
-    errorMessage.value = 'Completa todos los campos.'
     showSnackbar('Por favor, completa todos los campos.', 'warning')
     isLoading.value = false
     return
   }
 
-  // Validación de email mejorada
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
   if (!emailRegex.test(emailTrimmed)) {
-    errorMessage.value = 'Email inválido.'
     showSnackbar('Por favor, ingresa un correo electrónico válido.', 'warning')
     isLoading.value = false
     return
   }
 
-  // Validar que el email no contenga espacios
   if (/\s/.test(emailTrimmed)) {
-    errorMessage.value = 'El email no puede contener espacios.'
     showSnackbar('El email no puede contener espacios.', 'warning')
     isLoading.value = false
     return
   }
 
-  // Validación de contraseña
   if (passwordTrimmed.length < 6) {
-    errorMessage.value = 'Contraseña muy corta.'
     showSnackbar('La contraseña debe tener al menos 6 caracteres.', 'warning')
     isLoading.value = false
     return
   }
 
-  // Validar que la contraseña no contenga espacios
   if (/\s/.test(passwordTrimmed)) {
-    errorMessage.value = 'La contraseña no puede contener espacios.'
     showSnackbar('La contraseña no puede contener espacios.', 'warning')
     isLoading.value = false
     return
@@ -79,10 +95,11 @@ async function handleLogin() {
     const loginResult = await store.loginUser(emailTrimmed, passwordTrimmed)
 
     if (loginResult && store.loggedUser?.email === emailTrimmed) {
+      // Guardar o limpiar el email según la preferencia ANTES de redirigir
+      applyRememberMe(emailTrimmed)
+
       showSnackbar('¡Bienvenido de vuelta, entrenador!', 'success')
-      setTimeout(() => {
-        router.push('/homeLogged')
-      }, 1500)
+      setTimeout(() => { router.push('/homeLogged') }, 1500)
     } else {
       errorMessage.value = 'Usuario o contraseña incorrectos.'
       showSnackbar('Usuario o contraseña incorrectos. Verifica tus credenciales.', 'error')
@@ -99,11 +116,8 @@ async function handleLogin() {
 
 <template>
   <div class="login-wrapper">
-    <!-- Gradient orbs - efecto futurista sutil -->
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
-    
-    <!-- Grid lines futuristas -->
     <div class="grid-lines"></div>
 
     <div class="login-container">
@@ -118,9 +132,9 @@ async function handleLogin() {
         <p class="hero-subtitle">TU PROGRESO TE ESTÁ ESPERANDO</p>
       </div>
 
-      <!-- Contenedor Principal -->
+      <!-- Content Grid -->
       <div class="content-grid">
-        <!-- Panel de Login -->
+        <!-- Form Panel -->
         <div class="form-panel">
           <div class="form-card">
             <div class="form-header">
@@ -133,52 +147,49 @@ async function handleLogin() {
             </div>
 
             <v-form @submit.prevent="handleLogin" class="login-form">
-              <!-- Inputs -->
               <div class="inputs-container">
                 <!-- Email -->
                 <div class="input-wrapper">
                   <label class="input-label">EMAIL</label>
-                  <v-text-field
-                    v-model="email"
-                    type="email"
-                    :placeholder="$t('placeholder_email')"
-                    variant="solo-filled"
-                    density="comfortable"
-                    color="purple-lighten-2"
-                    class="custom-input"
-                    hide-details="auto"
-                    autocomplete="email"
-                  ></v-text-field>
+                  <v-text-field v-model="email" type="email" :placeholder="$t('placeholder_email')"
+                    variant="solo-filled" density="comfortable" color="purple-lighten-2" class="custom-input"
+                    hide-details="auto" autocomplete="email" />
                 </div>
 
                 <!-- Contraseña -->
                 <div class="input-wrapper">
                   <label class="input-label">CONTRASEÑA</label>
-                  <v-text-field
-                    v-model="password"
-                    :type="showPassword ? 'text' : 'password'"
-                    :placeholder="$t('placeholder_password')"
-                    variant="solo-filled"
-                    density="comfortable"
-                    color="purple-lighten-2"
-                    class="custom-input password-input"
-                    hide-details="auto"
-                    autocomplete="current-password"
-                  >
-                    <template v-slot:append-inner>
-                      <v-btn
-                        @click="togglePasswordVisibility"
-                        icon
-                        size="small"
-                        variant="text"
-                        class="password-toggle-btn"
-                      >
+                  <v-text-field v-model="password" :type="showPassword ? 'text' : 'password'"
+                    :placeholder="$t('placeholder_password')" variant="solo-filled" density="comfortable"
+                    color="purple-lighten-2" class="custom-input password-input" hide-details="auto"
+                    autocomplete="current-password">
+                    <template #append-inner>
+                      <v-btn @click="togglePasswordVisibility" icon size="small" variant="text"
+                        class="password-toggle-btn">
                         <span class="toggle-icon">{{ showPassword ? '👁️' : '👁️‍🗨️' }}</span>
                       </v-btn>
                     </template>
                   </v-text-field>
                 </div>
               </div>
+
+              <!-- ── Recordar sesión ────────────────────────────── -->
+              <div class="remember-row">
+                <button type="button" class="remember-toggle" :class="{ checked: rememberMe }"
+                  @click="rememberMe = !rememberMe" :aria-checked="rememberMe" role="checkbox">
+                  <span class="remember-box">
+                    <span v-if="rememberMe" class="remember-check">✓</span>
+                  </span>
+                  <span class="remember-label">Recordar mi correo</span>
+                </button>
+
+                <!-- Indicador visual cuando está activo -->
+                <div v-if="rememberMe" class="remember-active">
+                  <span class="ra-dot"></span>
+                  <span class="ra-text">Se guardará al iniciar sesión</span>
+                </div>
+              </div>
+              <!-- ───────────────────────────────────────────────── -->
 
               <!-- Quick Info -->
               <div class="quick-info">
@@ -192,32 +203,20 @@ async function handleLogin() {
                 </div>
               </div>
 
-              <!-- Error Alert -->
+              <!-- Error -->
               <div v-if="errorMessage" class="error-alert">
                 <span class="error-icon">⚠️</span>
                 <span class="error-text">{{ errorMessage }}</span>
               </div>
 
-              <!-- Submit Button -->
-              <v-btn
-                type="submit"
-                size="x-large"
-                class="submit-btn"
-                :loading="isLoading"
-                :disabled="isLoading"
-                block
-              >
+              <!-- Submit -->
+              <v-btn type="submit" size="x-large" class="submit-btn" :loading="isLoading" :disabled="isLoading" block>
                 <span v-if="!isLoading" class="btn-text">
                   <span>{{ $t('login_button') }}</span>
                   <span class="btn-arrow">→</span>
                 </span>
                 <span v-else class="btn-loading">
-                  <v-progress-circular
-                    indeterminate
-                    size="20"
-                    width="2"
-                    color="white"
-                  ></v-progress-circular>
+                  <v-progress-circular indeterminate size="20" width="2" color="white" />
                   <span>Verificando...</span>
                 </span>
               </v-btn>
@@ -229,16 +228,10 @@ async function handleLogin() {
                 <div class="separator-line"></div>
               </div>
 
-              <!-- Register Link -->
+              <!-- Register -->
               <div class="register-section">
                 <p class="register-text">{{ $t('no_account') }}</p>
-                <v-btn
-                  variant="outlined"
-                  size="large"
-                  class="register-btn"
-                  to="/register"
-                  block
-                >
+                <v-btn variant="outlined" size="large" class="register-btn" to="/register" block>
                   {{ $t('register_button') }}
                 </v-btn>
               </div>
@@ -294,27 +287,15 @@ async function handleLogin() {
     </div>
 
     <!-- Snackbar -->
-    <v-snackbar
-      v-model="snackbar"
-      :color="snackbarColor"
-      :timeout="4000"
-      location="top"
-      rounded="pill"
-    >
+    <v-snackbar v-model="snackbar" :color="snackbarColor" :timeout="4000" location="top" rounded="pill">
       <div class="snackbar-content">
         <span class="snackbar-icon">
           {{ snackbarColor === 'success' ? '✓' : snackbarColor === 'warning' ? '⚠' : '✕' }}
         </span>
         <span>{{ snackbarMessage }}</span>
       </div>
-      <template v-slot:actions>
-        <v-btn
-          variant="text"
-          @click="snackbar = false"
-          size="small"
-        >
-          Cerrar
-        </v-btn>
+      <template #actions>
+        <v-btn variant="text" @click="snackbar = false" size="small">Cerrar</v-btn>
       </template>
     </v-snackbar>
   </div>
@@ -334,7 +315,6 @@ async function handleLogin() {
   overflow-x: hidden;
 }
 
-/* Orbes de luz */
 .orb {
   position: fixed;
   border-radius: 50%;
@@ -362,21 +342,23 @@ async function handleLogin() {
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.5;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.8;
     transform: scale(1.1);
   }
 }
 
-/* Grid lines */
 .grid-lines {
   position: fixed;
   inset: 0;
-  background-image: 
+  background-image:
     linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
   background-size: 50px 50px;
@@ -404,6 +386,7 @@ async function handleLogin() {
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -454,7 +437,6 @@ async function handleLogin() {
   align-items: start;
 }
 
-/* Form Panel */
 .form-panel {
   animation: slideUp 0.8s ease-out;
 }
@@ -464,6 +446,7 @@ async function handleLogin() {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -504,8 +487,15 @@ async function handleLogin() {
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
 }
 
 .badge-text {
@@ -532,7 +522,7 @@ async function handleLogin() {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .input-wrapper {
@@ -576,7 +566,6 @@ async function handleLogin() {
   color: #475569 !important;
 }
 
-/* Password Toggle Button */
 .password-toggle-btn {
   color: #64748b !important;
   transition: all 0.3s ease !important;
@@ -604,7 +593,98 @@ async function handleLogin() {
   align-items: center !important;
 }
 
-/* Quick Info */
+/* ═══════════════════════════════════════════
+   RECORDAR SESIÓN
+   ═══════════════════════════════════════════ */
+.remember-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  padding: 0 0.25rem;
+}
+
+.remember-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: inherit;
+  transition: opacity 0.2s;
+}
+
+.remember-toggle:hover {
+  opacity: 0.85;
+}
+
+.remember-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid rgba(139, 92, 246, 0.35);
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.22s ease;
+  flex-shrink: 0;
+}
+
+/* Estado activo del checkbox */
+.remember-toggle.checked .remember-box {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.8), rgba(34, 211, 238, 0.6));
+  border-color: #a78bfa;
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
+}
+
+.remember-check {
+  font-size: 0.625rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+}
+
+.remember-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.2px;
+  user-select: none;
+}
+
+/* Badge "se guardará" */
+.remember-active {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.ra-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #22d3ee;
+  box-shadow: 0 0 5px #22d3ee;
+  animation: blink 1.8s ease-in-out infinite;
+}
+
+.ra-text {
+  color: #4ade80;
+  font-size: 0.6rem;
+}
+
+/* ─────────────────────────────────────────── */
+
 .quick-info {
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), rgba(34, 211, 238, 0.05));
   border: 1px solid rgba(139, 92, 246, 0.2);
@@ -631,7 +711,6 @@ async function handleLogin() {
   font-size: 0.9rem;
 }
 
-/* Error Alert */
 .error-alert {
   display: flex;
   align-items: center;
@@ -645,9 +724,19 @@ async function handleLogin() {
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-10px); }
-  75% { transform: translateX(10px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-10px);
+  }
+
+  75% {
+    transform: translateX(10px);
+  }
 }
 
 .error-icon {
@@ -659,7 +748,6 @@ async function handleLogin() {
   font-size: 0.9rem;
 }
 
-/* Submit Button */
 .submit-btn {
   background: linear-gradient(135deg, #8b5cf6, #22d3ee) !important;
   color: white !important;
@@ -699,7 +787,6 @@ async function handleLogin() {
   gap: 0.75rem;
 }
 
-/* Separator */
 .separator {
   display: flex;
   align-items: center;
@@ -720,7 +807,6 @@ async function handleLogin() {
   letter-spacing: 1.5px;
 }
 
-/* Register Section */
 .register-section {
   text-align: center;
 }
@@ -770,9 +856,19 @@ async function handleLogin() {
 }
 
 @keyframes wave {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(20deg); }
-  75% { transform: rotate(-20deg); }
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(20deg);
+  }
+
+  75% {
+    transform: rotate(-20deg);
+  }
 }
 
 .welcome-title {
@@ -800,11 +896,6 @@ async function handleLogin() {
   transform: translateY(-3px);
   border-color: rgba(139, 92, 246, 0.3);
   background: rgba(15, 15, 30, 0.6);
-}
-
-.info-icon {
-  font-size: 2rem;
-  margin-bottom: 0.75rem;
 }
 
 .info-title {
@@ -869,7 +960,7 @@ async function handleLogin() {
   font-weight: 600;
 }
 
-/* Snackbar Content */
+/* Snackbar */
 .snackbar-content {
   display: flex;
   align-items: center;
@@ -912,10 +1003,6 @@ async function handleLogin() {
     font-size: 2rem;
   }
 
-  .welcome-card {
-    padding: 1.5rem;
-  }
-
   .welcome-icon {
     font-size: 2.5rem;
   }
@@ -952,6 +1039,11 @@ async function handleLogin() {
 
   .progress-items {
     grid-template-columns: 1fr;
+  }
+
+  .remember-row {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 </style>

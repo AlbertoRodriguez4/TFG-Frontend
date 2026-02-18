@@ -35,7 +35,8 @@ export const useUserStore = defineStore('user', () => {
         strength: d.strength,
         endurance: d.endurance,
         gold: d.gold,
-        experience: d.experience // --- NUEVO CAMPO ---
+        experience: d.experience,
+        avatarUrl: d.avatarUrl // --- NUEVO CAMPO MAPEADO ---
       }));
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -62,7 +63,6 @@ export const useUserStore = defineStore('user', () => {
 
   function initializeSession() {
     const token = localStorage.getItem('token');
-    console.log('Token recuperado:', token);
 
     if (!token) {
       console.warn('No se encontró ningún token en localStorage');
@@ -83,12 +83,13 @@ export const useUserStore = defineStore('user', () => {
         consistencystreak: Number(decoded.consistencystreak),
         consistencyStreak: Number(decoded.consistencystreak),
         gold: Number(decoded.gold),
-        // --- NUEVOS CAMPOS DE XP ---
         experience: Number(decoded.experience),
         xpRequired: Number(decoded.xpRequired),
         xpRemaining: Number(decoded.xpRemaining),
-        equippedStrengthItemId: decoded.equippedStrengthItemId !== null ? Number(decoded.equippedStrengthItemId) : null,
-        equippedEnduranceItemId: decoded.equippedEnduranceItemId !== null ? Number(decoded.equippedEnduranceItemId) : null
+        equippedStrengthItemId: decoded.equippedStrengthItemId !== "" ? Number(decoded.equippedStrengthItemId) : null,
+        equippedEnduranceItemId: decoded.equippedEnduranceItemId !== "" ? Number(decoded.equippedEnduranceItemId) : null,
+        // --- NUEVO CAMPO: Extraemos el avatarUrl del JWT ---
+        avatarUrl: decoded.avatarUrl && decoded.avatarUrl !== "" ? decoded.avatarUrl : null
       };
     } catch (error) {
       console.error('Error al decodificar el token JWT:', error);
@@ -121,18 +122,19 @@ export const useUserStore = defineStore('user', () => {
         email: decoded.email,
         passwordhash: decoded.passwordhash,
         role: decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
-        level: decoded.level,
-        strength: decoded.strength,
-        endurance: decoded.endurance,
+        level: Number(decoded.level), // Aseguramos que sea número
+        strength: Number(decoded.strength),
+        endurance: Number(decoded.endurance),
         consistencystreak: Number(decoded.consistencystreak),
         consistencyStreak: Number(decoded.consistencystreak),
-        gold: decoded.gold,
-        // --- NUEVOS CAMPOS DE XP ---
+        gold: Number(decoded.gold),
         experience: Number(decoded.experience),
         xpRequired: Number(decoded.xpRequired),
         xpRemaining: Number(decoded.xpRemaining),
-        equippedStrengthItemId: decoded.equippedStrengthItemId !== null ? Number(decoded.equippedStrengthItemId) : null,
-        equippedEnduranceItemId: decoded.equippedEnduranceItemId !== null ? Number(decoded.equippedEnduranceItemId) : null
+        equippedStrengthItemId: decoded.equippedStrengthItemId !== "" ? Number(decoded.equippedStrengthItemId) : null,
+        equippedEnduranceItemId: decoded.equippedEnduranceItemId !== "" ? Number(decoded.equippedEnduranceItemId) : null,
+        // --- NUEVO CAMPO ---
+        avatarUrl: decoded.avatarUrl && decoded.avatarUrl !== "" ? decoded.avatarUrl : null
       };
 
       return true;
@@ -173,18 +175,19 @@ export const useUserStore = defineStore('user', () => {
         email: decoded.email,
         passwordhash: decoded.passwordhash,
         role: decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
-        level: decoded.level,
-        strength: decoded.strength,
-        endurance: decoded.endurance,
+        level: Number(decoded.level),
+        strength: Number(decoded.strength),
+        endurance: Number(decoded.endurance),
         consistencystreak: Number(decoded.consistencystreak),
         consistencyStreak: Number(decoded.consistencystreak),
-        gold: decoded.gold,
-        // --- NUEVOS CAMPOS DE XP ---
+        gold: Number(decoded.gold),
         experience: Number(decoded.experience),
         xpRequired: Number(decoded.xpRequired),
         xpRemaining: Number(decoded.xpRemaining),
-        equippedStrengthItemId: decoded.equippedStrengthItemId !== null ? Number(decoded.equippedStrengthItemId) : null,
-        equippedEnduranceItemId: decoded.equippedEnduranceItemId !== null ? Number(decoded.equippedEnduranceItemId) : null
+        equippedStrengthItemId: decoded.equippedStrengthItemId !== "" ? Number(decoded.equippedStrengthItemId) : null,
+        equippedEnduranceItemId: decoded.equippedEnduranceItemId !== "" ? Number(decoded.equippedEnduranceItemId) : null,
+        // --- NUEVO CAMPO ---
+        avatarUrl: decoded.avatarUrl && decoded.avatarUrl !== "" ? decoded.avatarUrl : null
       };
     } catch (error) {
       console.error('Error al hacer login para renovar el token:', error);
@@ -209,10 +212,13 @@ export const useUserStore = defineStore('user', () => {
 
       loggedUser.value = {
         ...loggedUser.value,
-        ...updatedUser
+        ...updatedUser,
+        // Nos aseguramos de mantener el mapping correcto
+        equippedStrengthItemId: updatedUser.equippedStrengthId,
+        equippedEnduranceItemId: updatedUser.equippedEnduranceId,
+        avatarUrl: updatedUser.avatarUrl // Aseguramos que se actualiza si viene del backend
       };
 
-      console.log('Usuario actualizado:', loggedUser.value);
     } catch (error) {
       console.error("Error actualizando el usuario:", error);
     }
@@ -257,7 +263,8 @@ export const useUserStore = defineStore('user', () => {
         strength: d.strength,
         endurance: d.endurance,
         equippedStrengthItem: d.equippedStrengthItem,
-        equippedEnduranceItem: d.equippedEnduranceItem
+        equippedEnduranceItem: d.equippedEnduranceItem,
+        avatarUrl: d.avatarUrl // --- NUEVO CAMPO ---
       }));
     } catch (error) {
       console.error('Error en getTopThreeUsers:', error);
@@ -265,8 +272,6 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  // --- FUNCIÓN ACTUALIZADA ---
-  // Ya no requiere email/password, usa el token y el endpoint seguro
   async function getItems() {
     try {
       const response = await fetch(`${BASE_URL}/api/Purchase/my-purchases`, {
@@ -303,6 +308,9 @@ export const useUserStore = defineStore('user', () => {
           ...loggedUser.value,
           ...user
         };
+        // Para asegurar que los claims del token también se actualizan (incluyendo el avatar),
+        // refrescamos el token
+        await refreshTokenByLogin();
       }
 
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
@@ -361,16 +369,11 @@ export const useUserStore = defineStore('user', () => {
       console.error('Error deleting user:', error);
     }
   }
-  // --- NUEVAS FUNCIONES DE EQUIPAMIENTO ---
-
-  // --- NUEVAS FUNCIONES DE EQUIPAMIENTO (MODIFICADAS) ---
 
   async function equipItem(itemId: number) {
     if (!loggedUser.value) return;
 
     try {
-      // 1. Guardamos el tipo de item antes de enviar (necesitamos saber si es Fuerza o Resistencia)
-      // Buscamos el item en la lista de comprados para saber su tipo
       const itemToEquip = purchasedItems.value.find(i => i.itemId === itemId);
       
       if (!itemToEquip) {
@@ -391,8 +394,6 @@ export const useUserStore = defineStore('user', () => {
         throw new Error(errorText || "Error al equipar objeto");
       }
 
-      // 2. ACTUALIZACIÓN INMEDIATA (Optimistic Update)
-      // Actualizamos el estado local sin esperar a recargar todo el usuario
       const typeLower = itemToEquip.itemType.toLowerCase();
 
       if (typeLower === 'strength' || typeLower === 'fuerza') {
@@ -401,11 +402,8 @@ export const useUserStore = defineStore('user', () => {
         loggedUser.value.equippedEnduranceItemId = itemId;
       }
 
-      // Opcional: Si quieres asegurar consistencia total, puedes llamar a refreshLoggedUser()
-      // pero con la asignación de arriba la UI cambiará al instante.
       await refreshLoggedUser(); 
       
-      console.log("Objeto equipado con éxito");
     } catch (error) {
       console.error("Error equipando objeto:", error);
     }
@@ -425,13 +423,12 @@ export const useUserStore = defineStore('user', () => {
 
       if (!response.ok) throw new Error("Error al desequipar");
 
-      // 2. ACTUALIZACIÓN INMEDIATA
       const typeLower = type.toLowerCase();
       
       if (typeLower === 'strength' || typeLower === 'fuerza') {
-        loggedUser.value.equippedStrengthItemId = null; // Ponemos null
+        loggedUser.value.equippedStrengthItemId = null;
       } else if (typeLower === 'endurance' || typeLower === 'resistencia') {
-        loggedUser.value.equippedEnduranceItemId = null; // Ponemos null
+        loggedUser.value.equippedEnduranceItemId = null;
       }
 
       await refreshLoggedUser();

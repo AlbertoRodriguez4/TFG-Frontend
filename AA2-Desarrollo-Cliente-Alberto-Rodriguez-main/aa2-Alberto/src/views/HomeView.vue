@@ -158,30 +158,487 @@ function changePage(page: number) {
 <template>
   <v-app>
     <v-main class="main-container">
-      <!-- ... todo el contenido del template se mantiene exactamente igual ... -->
-      
-      <!-- Snackbar para notificaciones -->
-      <v-snackbar
-        v-model="snackbar"
-        :color="snackbarColor"
-        :timeout="4000"
-        location="top"
-        multi-line
-      >
+      <v-container v-if="!showMap" fluid class="hero-section pa-0">
+        <!-- Fondo animado con partículas -->
+        <div class="hero-background">
+          <div class="gradient-overlay"></div>
+          <div class="particles">
+            <div class="particle" v-for="n in 20" :key="n"></div>
+          </div>
+          <div class="grid-overlay"></div>
+        </div>
+
+        <v-container class="hero-content">
+          <v-row align="center" justify="center">
+            <!-- Contenido Principal -->
+            <v-col cols="12" lg="6" class="hero-left">
+              <!-- Super Badge -->
+              <div class="super-badge mb-6">
+                <div class="badge-glow"></div>
+                <v-icon color="amber" size="24" class="mr-2">mdi-trophy-variant</v-icon>
+                <span class="badge-text">Plataforma de Fitness Gamificada #1</span>
+                <v-icon color="amber" size="20" class="ml-2">mdi-fire</v-icon>
+              </div>
+
+              <!-- Título épico -->
+              <h1 class="epic-title mb-4">
+                <span class="title-line-1">Transforma Tu</span>
+                <span class="title-line-2">
+                  <span class="gradient-text">Entrenamiento</span>
+                </span>
+                <span class="title-line-3">En Una Aventura</span>
+              </h1>
+
+              <!-- Subtítulo mejorado -->
+              <p class="epic-subtitle mb-8">
+                Únete a <strong>TheTrainingHub</strong>, la primera plataforma que combina
+                <span class="highlight">fitness social</span>,
+                <span class="highlight">gamificación</span> y
+                <span class="highlight">recompensas épicas</span>.
+                Entrena con amigos, conquista retos y sube de nivel como nunca antes.
+              </p>
+
+              <!-- Features destacados -->
+              <div class="features-grid mb-8">
+                <div class="feature-item">
+                  <div class="feature-icon">
+                    <v-icon size="32" color="white">mdi-account-group</v-icon>
+                  </div>
+                  <div class="feature-content">
+                    <div class="feature-title">Salas Sociales</div>
+                    <div class="feature-desc">Entrena en grupo</div>
+                  </div>
+                </div>
+
+                <div class="feature-item">
+                  <div class="feature-icon gradient-warning">
+                    <v-icon size="32" color="white">mdi-target</v-icon>
+                  </div>
+                  <div class="feature-content">
+                    <div class="feature-title">Retos Épicos</div>
+                    <div class="feature-desc">Compite y gana</div>
+                  </div>
+                </div>
+
+                <div class="feature-item">
+                  <div class="feature-icon gradient-success">
+                    <v-icon size="32" color="white">mdi-star-circle</v-icon>
+                  </div>
+                  <div class="feature-content">
+                    <div class="feature-title">Sistema XP</div>
+                    <div class="feature-desc">Sube de nivel</div>
+                  </div>
+                </div>
+
+                <div class="feature-item">
+                  <div class="feature-icon gradient-info">
+                    <v-icon size="32" color="white">mdi-cash-multiple</v-icon>
+                  </div>
+                  <div class="feature-content">
+                    <div class="feature-title">Economía Virtual</div>
+                    <div class="feature-desc">Gana recompensas</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Botones de acción épicos -->
+              <div class="action-buttons mb-8">
+                <RouterLink to="/register" class="no-decoration">
+                  <v-btn class="epic-btn primary" size="x-large" elevation="0">
+                    <div class="btn-content">
+                      <v-icon size="28" class="mr-3">mdi-rocket-launch</v-icon>
+                      <div>
+                        <div class="btn-main-text">Comenzar Aventura</div>
+                        <div class="btn-sub-text">Gratis • Sin tarjeta</div>
+                      </div>
+                    </div>
+                  </v-btn>
+                </RouterLink>
+
+                <v-btn class="epic-btn secondary ml-4" size="x-large" elevation="0" @click="toggleMapView">
+                  <div class="btn-content">
+                    <v-icon size="28" class="mr-3">mdi-map-marker-radius</v-icon>
+                    <div>
+                      <div class="btn-main-text">Buscar Gimnasio</div>
+                      <div class="btn-sub-text">Cerca de ti</div>
+                    </div>
+                  </div>
+                </v-btn>
+              </div>
+
+              <!-- Stats en tiempo real -->
+              <div class="live-stats">
+                <div class="stat-card">
+                  <div class="stat-value">1,247</div>
+                  <div class="stat-label">
+                    <v-icon size="16" color="success">mdi-circle</v-icon>
+                    Usuarios activos ahora
+                  </div>
+                </div>
+                <div class="stat-separator"></div>
+                <div class="stat-card">
+                  <div class="stat-value">89.4K</div>
+                  <div class="stat-label">
+                    <v-icon size="16" color="amber">mdi-fire</v-icon>
+                    Retos completados
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <!-- Visual Section -->
+            <v-col cols="12" lg="6" class="hero-right">
+              <div class="visual-container-epic">
+                <!-- Anillos orbitales de fondo -->
+                <div class="orbital-rings">
+                  <div class="ring ring-1"></div>
+                  <div class="ring ring-2"></div>
+                  <div class="ring ring-3"></div>
+                </div>
+
+                <!-- Centro: Mockup principal con efecto 3D -->
+                <div class="main-visual-hub">
+                  <div class="hub-glow-massive"></div>
+                  <div class="phone-mockup-3d">
+                    <div class="phone-frame">
+                      <div class="phone-notch"></div>
+                      <div class="phone-screen">
+                        <v-img src="../assets/imgs/People.png" alt="TheTrainingHub App" class="phone-content" cover />
+                        <!-- Overlay con brillo dinámico -->
+                        <div class="screen-shine"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Cards flotantes rediseñadas con nuevo estilo -->
+                <div class="floating-metrics">
+                  <!-- Métrica XP Superior Derecha -->
+                  <div class="metric-card metric-xp">
+                    <div class="metric-glow metric-glow-yellow"></div>
+                    <div class="metric-icon-container">
+                      <div class="icon-pulse"></div>
+                      <v-icon size="32" color="white">mdi-lightning-bolt</v-icon>
+                    </div>
+                    <div class="metric-data">
+                      <div class="metric-value">+150</div>
+                      <div class="metric-label">XP Ganado</div>
+                      <div class="metric-badge">¡ÉPICO!</div>
+                    </div>
+                  </div>
+
+                  <!-- Métrica de Nivel Izquierda Superior -->
+                  <div class="metric-card metric-level">
+                    <div class="metric-glow metric-glow-purple"></div>
+                    <div class="level-display">
+                      <div class="level-crown">
+                        <v-icon size="40" color="white">mdi-crown</v-icon>
+                      </div>
+                      <div class="level-number">12</div>
+                    </div>
+                    <div class="level-progress-bar">
+                      <div class="level-progress-fill" style="width: 73%">
+                        <span class="progress-percentage">73%</span>
+                      </div>
+                    </div>
+                    <div class="metric-label">Nivel Actual</div>
+                  </div>
+
+                  <!-- Sala Social Izquierda Inferior -->
+                  <div class="metric-card metric-room">
+                    <div class="metric-glow metric-glow-blue"></div>
+                    <div class="room-status">
+                      <div class="live-indicator"></div>
+                      <span class="live-text">EN VIVO</span>
+                    </div>
+                    <div class="room-title">
+                      <v-icon size="24" color="white">mdi-account-group</v-icon>
+                      <span>Sala Entrenamiento</span>
+                    </div>
+                    <div class="room-members">
+                      <div class="member-avatars">
+                        <div class="member-avatar" v-for="n in 3" :key="n" :style="{ zIndex: 10 - n }">
+                          <v-icon size="20" color="white">mdi-account</v-icon>
+                        </div>
+                      </div>
+                      <div class="member-count">+12 entrenando</div>
+                    </div>
+                  </div>
+
+                  <!-- Racha de Fuego Derecha Inferior -->
+                  <div class="metric-card metric-streak">
+                    <div class="metric-glow metric-glow-orange"></div>
+                    <div class="streak-fire">
+                      <v-icon size="56" class="fire-icon">mdi-fire</v-icon>
+                      <div class="fire-particles">
+                        <div class="particle" v-for="n in 8" :key="n"></div>
+                      </div>
+                    </div>
+                    <div class="streak-count">7 DÍAS</div>
+                    <div class="metric-label">Racha Activa</div>
+                  </div>
+
+                  <!-- Monedas Derecha Centro -->
+                  <div class="metric-card metric-coins">
+                    <div class="metric-glow metric-glow-gold"></div>
+                    <div class="coins-animation">
+                      <v-icon size="48" color="#FFD700">mdi-bitcoin</v-icon>
+                      <div class="coin-sparkles">
+                        <div class="sparkle" v-for="n in 6" :key="n"></div>
+                      </div>
+                    </div>
+                    <div class="coins-earned">+50</div>
+                    <div class="metric-label">Monedas</div>
+                  </div>
+
+                  <!-- Estadística Circular Superior Izquierda -->
+                  <div class="metric-card metric-circular">
+                    <div class="metric-glow metric-glow-green"></div>
+                    <svg class="progress-ring" viewBox="0 0 120 120">
+                      <circle class="progress-ring-bg" cx="60" cy="60" r="52" />
+                      <circle class="progress-ring-fill" cx="60" cy="60" r="52" stroke-dasharray="327"
+                        stroke-dashoffset="82" />
+                    </svg>
+                    <div class="circular-content">
+                      <v-icon size="32" color="white">mdi-target</v-icon>
+                      <div class="circular-percentage">75%</div>
+                    </div>
+                    <div class="metric-label-small">Objetivo</div>
+                  </div>
+                </div>
+
+                <!-- Partículas ambientales -->
+                <div class="ambient-particles">
+                  <div class="ambient-particle" v-for="n in 15" :key="n"></div>
+                </div>
+              </div>
+            </v-col>
+          </v-row>
+
+          <!-- Sección de confianza -->
+          <v-row class="trust-section mt-16">
+            <v-col cols="12" class="text-center">
+              <p class="trust-text mb-6">Únete a la comunidad de fitness gamificado más grande</p>
+              <div class="stats-row">
+                <div class="mega-stat">
+                  <div class="mega-stat-icon">
+                    <v-icon size="48" color="amber">mdi-account-multiple</v-icon>
+                  </div>
+                  <div class="mega-stat-value">10K+</div>
+                  <div class="mega-stat-label">Usuarios Activos</div>
+                </div>
+
+                <div class="mega-stat">
+                  <div class="mega-stat-icon gradient-success">
+                    <v-icon size="48" color="white">mdi-dumbbell</v-icon>
+                  </div>
+                  <div class="mega-stat-value">250K+</div>
+                  <div class="mega-stat-label">Entrenamientos</div>
+                </div>
+
+                <div class="mega-stat">
+                  <div class="mega-stat-icon gradient-warning">
+                    <v-icon size="48" color="white">mdi-trophy</v-icon>
+                  </div>
+                  <div class="mega-stat-value">500+</div>
+                  <div class="mega-stat-label">Retos Disponibles</div>
+                </div>
+
+                <div class="mega-stat">
+                  <div class="mega-stat-icon gradient-info">
+                    <v-icon size="48" color="white">mdi-star</v-icon>
+                  </div>
+                  <div class="mega-stat-value">4.9</div>
+                  <div class="mega-stat-label">Valoración Media</div>
+                </div>
+              </div>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-container>
+
+      <!-- Map Section Mejorada -->
+      <v-container v-else fluid class="map-section-epic pa-0">
+        <!-- Header del mapa -->
+        <div class="map-header-epic">
+          <v-btn class="back-btn-epic" icon size="large" @click="toggleMapView">
+            <v-icon>mdi-arrow-left</v-icon>
+          </v-btn>
+
+          <div class="map-title-container">
+            <h2 class="map-main-title">
+              <v-icon size="40" color="amber" class="mr-3">mdi-map-marker-star</v-icon>
+              Encuentra Tu Gimnasio Perfecto
+            </h2>
+            <p class="map-main-subtitle">
+              Descubre los mejores gimnasios cerca de ti y comienza tu aventura
+            </p>
+          </div>
+        </div>
+
+        <v-container class="map-content-container py-8">
+          <!-- Búsqueda mejorada -->
+          <v-row>
+            <v-col cols="12">
+              <div class="search-box-epic">
+                <div class="search-box-header">
+                  <v-icon color="purple" size="28" class="mr-3">mdi-magnify</v-icon>
+                  <div>
+                    <div class="search-box-title">Buscar por ubicación</div>
+                    <div class="search-box-subtitle">Encuentra gimnasios cerca de ti</div>
+                  </div>
+                </div>
+
+                <v-row align="center" class="mt-4">
+                  <v-col cols="12" md="8">
+                    <v-text-field v-model="searchAddress" placeholder="Ej: Calle Mayor 10, Zaragoza" variant="solo"
+                      density="comfortable" hide-details class="search-input-epic" @keyup.enter="searchByAddress">
+                      <template v-slot:prepend-inner>
+                        <v-icon color="grey">mdi-map-search</v-icon>
+                      </template>
+                    </v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-btn block size="x-large" class="search-btn-epic" :loading="loading" @click="searchByAddress">
+                      <v-icon left size="24">mdi-radar</v-icon>
+                      Buscar Gimnasios
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </div>
+            </v-col>
+          </v-row>
+
+          <!-- Mapa -->
+          <v-row class="mt-6">
+            <v-col cols="12">
+              <div class="map-wrapper-epic">
+                <div id="map" class="map-element-epic"></div>
+                <div class="map-controls">
+                  <v-btn icon size="small" class="map-control-btn" title="Centrar mapa">
+                    <v-icon>mdi-crosshairs-gps</v-icon>
+                  </v-btn>
+                </div>
+              </div>
+            </v-col>
+          </v-row>
+
+          <!-- Resultados mejorados -->
+          <v-row v-if="gymsFound.length > 0" class="mt-6">
+            <v-col cols="12">
+              <div class="results-header-epic">
+                <div class="results-title-content">
+                  <v-icon color="success" size="32" class="mr-3">mdi-check-circle</v-icon>
+                  <div>
+                    <h3 class="results-main-title">{{ gymsFound.length }} Gimnasios Encontrados</h3>
+                    <p class="results-main-subtitle">
+                      Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} -
+                      {{ Math.min(currentPage * itemsPerPage, gymsFound.length) }} de {{ gymsFound.length }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="gyms-grid-epic">
+                <div v-for="(gym, index) in paginatedGyms" :key="index" class="gym-card-epic"
+                  :class="{ 'selected': selectedGym === gym }" @click="selectedGym = gym">
+                  <div class="gym-card-header">
+                    <div class="gym-icon-wrapper">
+                      <v-icon color="white" size="32">mdi-dumbbell</v-icon>
+                    </div>
+                    <v-chip small color="success" class="gym-badge">
+                      <v-icon x-small left>mdi-check-circle</v-icon>
+                      Verificado
+                    </v-chip>
+                  </div>
+
+                  <div class="gym-card-body">
+                    <h4 class="gym-name-epic">
+                      {{ gym.nombre || 'Centro Deportivo' }}
+                    </h4>
+                    <p class="gym-address-epic">
+                      <v-icon small color="grey">mdi-map-marker</v-icon>
+                      {{ gym.direccion || 'Dirección no disponible' }}
+                    </p>
+                  </div>
+
+                  <div class="gym-card-footer">
+                    <div class="gym-distance">
+                      <v-icon small color="blue">mdi-walk</v-icon>
+                      <span>~ 1.2 km</span>
+                    </div>
+                    <v-btn size="small" color="primary" variant="text" class="gym-action-btn">
+                      Ver más
+                      <v-icon right small>mdi-arrow-right</v-icon>
+                    </v-btn>
+                  </div>
+
+                  <div class="gym-card-glow"></div>
+                </div>
+              </div>
+
+              <!-- Paginador Épico -->
+              <div v-if="totalPages > 1" class="pagination-container-epic">
+                <div class="pagination-info">
+                  <v-icon color="primary" class="mr-2">mdi-information-outline</v-icon>
+                  <span>Página {{ currentPage }} de {{ totalPages }}</span>
+                </div>
+
+                <div class="pagination-controls">
+                  <!-- Botón Primera Página -->
+                  <v-btn icon variant="text" :disabled="currentPage === 1" @click="changePage(1)"
+                    class="pagination-btn">
+                    <v-icon>mdi-page-first</v-icon>
+                  </v-btn>
+
+                  <!-- Botón Anterior -->
+                  <v-btn icon variant="text" :disabled="currentPage === 1" @click="changePage(currentPage - 1)"
+                    class="pagination-btn">
+                    <v-icon>mdi-chevron-left</v-icon>
+                  </v-btn>
+
+                  <!-- Números de Página -->
+                  <div class="page-numbers">
+                    <v-btn v-for="page in totalPages" :key="page"
+                      :class="['page-number-btn', { 'active': page === currentPage }]"
+                      :variant="page === currentPage ? 'flat' : 'text'"
+                      :color="page === currentPage ? 'primary' : 'default'" @click="changePage(page)" size="small">
+                      {{ page }}
+                    </v-btn>
+                  </div>
+
+                  <!-- Botón Siguiente -->
+                  <v-btn icon variant="text" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)"
+                    class="pagination-btn">
+                    <v-icon>mdi-chevron-right</v-icon>
+                  </v-btn>
+
+                  <!-- Botón Última Página -->
+                  <v-btn icon variant="text" :disabled="currentPage === totalPages" @click="changePage(totalPages)"
+                    class="pagination-btn">
+                    <v-icon>mdi-page-last</v-icon>
+                  </v-btn>
+                </div>
+
+                <div class="pagination-jump">
+                  <span class="jump-label">Ir a página:</span>
+                  <v-select v-model="currentPage" :items="Array.from({ length: totalPages }, (_, i) => i + 1)"
+                    variant="outlined" density="compact" hide-details class="page-select"
+                    @update:model-value="changePage"></v-select>
+                </div>
+              </div>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-container>
+      <v-snackbar v-model="snackbar" :color="snackbarColor" :timeout="4000" location="top" multi-line>
         <div class="d-flex align-center">
-          <v-icon 
-            :icon="snackbarColor === 'success' ? 'mdi-check-circle' : 'mdi-alert-circle'" 
-            class="mr-3"
-          ></v-icon>
+          <v-icon :icon="snackbarColor === 'success' ? 'mdi-check-circle' : 'mdi-alert-circle'" class="mr-3"></v-icon>
           <span>{{ snackbarMessage }}</span>
         </div>
-        
+
         <template v-slot:actions>
-          <v-btn
-            variant="text"
-            @click="snackbar = false"
-            icon="mdi-close"
-          ></v-btn>
+          <v-btn variant="text" @click="snackbar = false" icon="mdi-close"></v-btn>
         </template>
       </v-snackbar>
     </v-main>

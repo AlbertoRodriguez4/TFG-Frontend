@@ -95,7 +95,6 @@ export const useRoutineStore = defineStore('routine', () => {
             const userStore = useUserStore();
             await userStore.refreshLoggedUser();
             
-            console.log('Tarea completada y usuario actualizado');
         } catch (error) {
             console.error('Error completing task:', error);
         }

@@ -15,4 +15,5 @@ export interface User {
   xpRemaining: number;
   equippedStrengthItemId: number | null;
   equippedEnduranceItemId: number | null;
+  avatarUrl: string;
 }

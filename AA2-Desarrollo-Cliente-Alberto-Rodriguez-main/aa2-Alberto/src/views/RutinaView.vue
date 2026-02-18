@@ -240,20 +240,16 @@ const getRoutineForDay = (day: number): Routines | null => {
  * Maneja el click en un día del calendario
  */
 const handleDayClick = (day: number): void => {
-  console.log('🖱️ Click en día:', day);
   const routine = getRoutineForDay(day);
-  console.log('📋 Rutina encontrada:', routine);
 
   if (routine) {
     // Si hay rutina, mostrar el modal de detalle
     selectedRoutine.value = routine;
     showDetailModal.value = true;
-    console.log('✅ Abriendo modal de detalle');
   } else {
     // Si no hay rutina, abrir modal de crear
     selectedDay.value = day;
     showCreateModal.value = true;
-    console.log('➕ Abriendo modal de crear');
   }
 };
 
@@ -270,11 +266,9 @@ const openCreateModal = (): void => {
  */
 const handleCreateRoutine = async (routine: Routines): Promise<void> => {
   try {
-    console.log('📝 Creando rutina:', routine);
 
     await routineStore.createRoutine(routine);
 
-    console.log('✅ Rutina creada exitosamente');
 
     closeModal();
 
@@ -284,7 +278,6 @@ const handleCreateRoutine = async (routine: Routines): Promise<void> => {
 
     if (userStore.loggedUser?.id) {
       await routineStore.getRoutineByUserId(userStore.loggedUser.id);
-      console.log('🔄 Rutinas recargadas');
     }
 
   } catch (error) {
@@ -320,12 +313,10 @@ const handleCompleteFromDetail = async (routineId: number): Promise<void> => {
       return;
     }
 
-    console.log(`📋 Completando rutina ${routineId}...`);
 
     // 🎯 Llamar a la API para marcar como completada
     await routineStore.completeTask(routineId);
 
-    console.log('✅ Rutina marcada como completada en la API');
 
     // 🎯 ACTUALIZAR STATS DEL USUARIO EN EL BACKEND
     const updatedUser = {
@@ -343,13 +334,11 @@ const handleCompleteFromDetail = async (routineId: number): Promise<void> => {
       updatedUser.level = (userStore.loggedUser.level || 1) + 1;
       updatedUser.strength = newXP - currentXpToNextLevel; // XP sobrante
       showLevelUp.value = true;
-      console.log(`🎊 ¡Subiste al nivel ${updatedUser.level}!`);
     }
 
     // 🎯 Actualizar usuario en la API
     await userStore.editUser(userStore.loggedUser.id, updatedUser);
 
-    console.log('✅ Usuario actualizado en la API');
 
     // Refrescar el usuario logueado para obtener los datos actualizados
     await userStore.refreshLoggedUser();
@@ -364,7 +353,6 @@ const handleCompleteFromDetail = async (routineId: number): Promise<void> => {
     snackbar.color = 'success';
     snackbar.show = true;
 
-    console.log('✅ Rutina completada exitosamente');
 
     // Recargar rutinas
     if (userStore.loggedUser?.id) {
@@ -415,18 +403,11 @@ const closeDetailModal = (): void => {
 const loadUserData = async (): Promise<void> => {
   try {
     if (userStore.loggedUser?.id) {
-      console.log('🔄 Cargando datos del usuario:', userStore.loggedUser.id);
-      console.log('👤 Usuario logueado:', {
-        level: userStore.loggedUser.level,
-        strength: userStore.loggedUser.strength,
-        gold: userStore.loggedUser.gold,
-        streak: userStore.loggedUser.consistencyStreak || userStore.loggedUser.consistencystreak
-      });
+
 
       // Cargar rutinas del usuario
       await routineStore.getRoutineByUserId(userStore.loggedUser.id);
 
-      console.log('✅ Rutinas cargadas:', routineStore.routines.length);
 
     } else {
       console.warn('⚠️ No hay usuario logueado');
@@ -441,11 +422,9 @@ const loadUserData = async (): Promise<void> => {
 
 onMounted(() => {
   loadUserData();
-  console.log('✅ RutinaView montada correctamente');
 });
 
 onBeforeUnmount(() => {
-  console.log('👋 RutinaView desmontada');
 });
 </script>
 

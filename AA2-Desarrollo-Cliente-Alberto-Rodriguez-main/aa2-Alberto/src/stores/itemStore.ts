@@ -103,7 +103,6 @@ export const useItemStore = defineStore('item', () => {
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             await fetchItems();
         } catch (error) {
-            console.log(JSON.stringify(item));
             console.error('Error editing item:', error);
         }
     }

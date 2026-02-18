@@ -400,6 +400,7 @@ async function createRoom() {
     0 20px 60px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(255, 255, 255, 0.1) inset;
   animation: fadeIn 0.3s ease-out;
+  
 }
 
 /* Header */
@@ -479,6 +480,7 @@ async function createRoom() {
 /* Content */
 .card-content {
   padding: clamp(1.25rem, 4vw, 2rem) !important;
+  overflow-x: hidden;
 }
 
 /* Error Alert */
@@ -806,7 +808,7 @@ async function createRoom() {
 
   .v-dialog--fullscreen .card-content {
     flex: 1;
-    overflow-y: auto;
+    overflow-y: hidden;
   }
 
   .v-dialog--fullscreen .card-actions {
@@ -841,6 +843,7 @@ async function createRoom() {
 
   .card-content {
     padding: 1rem !important;
+    overflow-y: hidden;
   }
 
   .form-field {

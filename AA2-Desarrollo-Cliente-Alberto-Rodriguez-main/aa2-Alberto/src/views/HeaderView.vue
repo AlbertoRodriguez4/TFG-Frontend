@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/userStore'
 import { computed, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { useRouter, RouterLink } from 'vue-router' // <-- AÑADE useRouter AQUÍ
 import { useI18n } from 'vue-i18n'
 
 const store = useUserStore()
+const router = useRouter() // <-- INSTANCIA EL ROUTER AQUÍ
+
 const isLogged = computed(() => !!store.loggedUser?.email)
 const homeLink = computed(() =>
   isLogged.value ? { name: 'homeLogged' } : { name: 'home' }
@@ -19,6 +21,13 @@ const changeLanguage = (event: Event) => {
 const mobileMenuOpen = ref(false)
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value
+}
+
+// --- NUEVA FUNCIÓN PARA EL LOGOUT ---
+const handleLogout = () => {
+  store.logoutUser()             // 1. Borra el token y los datos del store
+  router.push({ name: 'home' })  // 2. Redirige a la página pública
+  mobileMenuOpen.value = false   // 3. Cierra el menú móvil por si estaba abierto
 }
 </script>
 
@@ -91,8 +100,7 @@ const toggleMobileMenu = () => {
             </select>
           </div>
 
-          <button class="logout-btn" @click="store.logoutUser" v-if="isLogged">
-            <span class="logout-icon">⚡</span>
+          <button class="logout-btn" @click="handleLogout" v-if="isLogged"> <span class="logout-icon">⚡</span>
             <span class="logout-text">{{ $t('logout') }}</span>
           </button>
 
@@ -107,11 +115,11 @@ const toggleMobileMenu = () => {
       <Transition name="slide">
         <nav class="nav-mobile" v-if="mobileMenuOpen">
           <div class="mobile-user-summary" v-if="isLogged && store.loggedUser">
-             <span class="mobile-level">LVL {{ store.loggedUser.level || 1 }}</span>
-             <div class="mobile-stats">
-                <span>⚡ {{ store.loggedUser.strength || 0 }}</span>
-                <span>🪙 {{ store.loggedUser.gold || 0 }}</span>
-             </div>
+            <span class="mobile-level">LVL {{ store.loggedUser.level || 1 }}</span>
+            <div class="mobile-stats">
+              <span>⚡ {{ store.loggedUser.strength || 0 }}</span>
+              <span>🪙 {{ store.loggedUser.gold || 0 }}</span>
+            </div>
           </div>
 
           <RouterLink :to="homeLink" class="nav-link-mobile" @click="toggleMobileMenu">
@@ -134,7 +142,7 @@ const toggleMobileMenu = () => {
             <i class="nav-icon">👥</i>
             <span>{{ $t('users') }}</span>
           </RouterLink>
-           <RouterLink to="/rutina" class="nav-link-mobile" :class="{ disabled: !isLogged }" @click="toggleMobileMenu">
+          <RouterLink to="/rutina" class="nav-link-mobile" :class="{ disabled: !isLogged }" @click="toggleMobileMenu">
             <i class="nav-icon">📅</i>
             <span>{{ $t('routines') }}</span>
           </RouterLink>
@@ -150,7 +158,6 @@ const toggleMobileMenu = () => {
 </template>
 
 <style scoped>
-/* Reset básico para evitar desbordes */
 * {
   box-sizing: border-box;
 }
@@ -160,10 +167,9 @@ const toggleMobileMenu = () => {
   top: 0;
   width: 100%;
   z-index: 1000;
-  background: linear-gradient(180deg, 
-    rgba(0, 0, 0, 0.95) 0%, 
-    rgba(10, 10, 10, 0.9) 100%
-  );
+  background: linear-gradient(180deg,
+      rgba(0, 0, 0, 0.95) 0%,
+      rgba(10, 10, 10, 0.9) 100%);
   backdrop-filter: blur(10px);
   border-bottom: 2px solid rgba(255, 204, 0, 0.3);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
@@ -173,11 +179,15 @@ const toggleMobileMenu = () => {
 .navbar {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Distribuye espacio */
-  padding: 0.8rem 1.5rem; /* Reducido un poco para laptops */
-  max-width: 1920px; /* Permitir más ancho en pantallas grandes */
+  justify-content: space-between;
+  /* Distribuye espacio */
+  padding: 0.8rem 1.5rem;
+  /* Reducido un poco para laptops */
+  max-width: 1920px;
+  /* Permitir más ancho en pantallas grandes */
   margin: 0 auto;
-  gap: 1rem; /* Gap reducido para evitar cortes */
+  gap: 1rem;
+  /* Gap reducido para evitar cortes */
   height: 80px;
 }
 
@@ -199,7 +209,8 @@ const toggleMobileMenu = () => {
 }
 
 .logo-badge {
-  width: 45px; /* Ligeramente más pequeño */
+  width: 45px;
+  /* Ligeramente más pequeño */
   height: 45px;
   border-radius: 12px;
   background: linear-gradient(135deg, #ffcc00 0%, #ff9900 100%);
@@ -222,8 +233,13 @@ const toggleMobileMenu = () => {
 }
 
 @keyframes shine {
-  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
 }
 
 .logo-icon {
@@ -245,7 +261,8 @@ const toggleMobileMenu = () => {
   color: #ffcc00;
   letter-spacing: -0.5px;
   text-shadow: 0 2px 10px rgba(255, 204, 0, 0.5);
-  white-space: nowrap; /* Evita que el texto salte de línea */
+  white-space: nowrap;
+  /* Evita que el texto salte de línea */
 }
 
 .brand-tagline {
@@ -260,18 +277,21 @@ const toggleMobileMenu = () => {
 /* Desktop Navigation */
 .nav-desktop {
   display: flex;
-  gap: 0.3rem; /* Menos espacio entre items */
+  gap: 0.3rem;
+  /* Menos espacio entre items */
   align-items: center;
   flex-grow: 1;
   justify-content: center;
-  flex-wrap: nowrap; /* Fuerza una línea */
+  flex-wrap: nowrap;
+  /* Fuerza una línea */
 }
 
 .nav-link {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.6rem 0.8rem; /* Padding más ajustado */
+  padding: 0.6rem 0.8rem;
+  /* Padding más ajustado */
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   font-weight: 700;
@@ -328,7 +348,8 @@ const toggleMobileMenu = () => {
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  flex-shrink: 0; /* Evita que esta sección se aplaste */
+  flex-shrink: 0;
+  /* Evita que esta sección se aplaste */
 }
 
 /* User Info */
@@ -423,7 +444,8 @@ const toggleMobileMenu = () => {
 
 /* Mobile Menu Button */
 .mobile-menu-btn {
-  display: none; /* Oculto por defecto en pantallas grandes */
+  display: none;
+  /* Oculto por defecto en pantallas grandes */
   flex-direction: column;
   gap: 0.3rem;
   background: transparent;
@@ -454,7 +476,8 @@ const toggleMobileMenu = () => {
 
 /* Mobile Navigation */
 .nav-mobile {
-  display: flex; /* Flex para poder ocultarlo con v-if */
+  display: flex;
+  /* Flex para poder ocultarlo con v-if */
   flex-direction: column;
   background: rgba(0, 0, 0, 0.98);
   border-top: 1px solid rgba(255, 204, 0, 0.3);
@@ -501,7 +524,8 @@ const toggleMobileMenu = () => {
   border-left: 3px solid transparent;
 }
 
-.nav-link-mobile:hover, .nav-link-mobile.router-link-active {
+.nav-link-mobile:hover,
+.nav-link-mobile.router-link-active {
   color: #ffcc00;
   background: rgba(255, 204, 0, 0.1);
   border-left-color: #ffcc00;
@@ -509,7 +533,8 @@ const toggleMobileMenu = () => {
 
 /* Status Bar */
 .status-bar {
-  position: fixed; /* Fixed para no afectar el flujo del header */
+  position: fixed;
+  /* Fixed para no afectar el flujo del header */
   top: 90px;
   right: 20px;
   display: flex;
@@ -531,8 +556,15 @@ const toggleMobileMenu = () => {
 }
 
 @keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
-  50% { box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(74, 222, 128, 0);
+  }
 }
 
 .status-text {
@@ -542,28 +574,38 @@ const toggleMobileMenu = () => {
   letter-spacing: 1px;
 }
 
-.slide-enter-active, .slide-leave-active { transition: all 0.3s ease; }
-.slide-enter-from, .slide-leave-to { opacity: 0; transform: translateY(-20px); }
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
 
 /* --- RESPONSIVE LOGIC --- */
 
 /* Laptops pequeños y Tablets Horizontales (Menos de 1280px) */
 @media (max-width: 1280px) {
+
   /* Ocultar elementos decorativos para ahorrar espacio */
   .brand-tagline {
     display: none;
   }
-  
+
   .logout-text {
-    display: none; /* Dejar solo el icono de rayo */
+    display: none;
+    /* Dejar solo el icono de rayo */
   }
 
   /* Reducir paddings drásticamente */
   .nav-link {
-    padding: 0.5rem 0.5rem; 
+    padding: 0.5rem 0.5rem;
     font-size: 0.85rem;
   }
-  
+
   .navbar {
     padding: 0.8rem 1rem;
     gap: 0.5rem;
@@ -574,21 +616,24 @@ const toggleMobileMenu = () => {
 /* AQUÍ ACTIVAMOS EL MODO MÓVIL ANTES QUE EN TU VERSIÓN ORIGINAL */
 @media (max-width: 1024px) {
   .nav-desktop {
-    display: none; /* Ocultar menú escritorio */
+    display: none;
+    /* Ocultar menú escritorio */
   }
-  
+
   .user-info {
-    display: none; /* Las stats pasan al menú móvil */
+    display: none;
+    /* Las stats pasan al menú móvil */
   }
 
   .mobile-menu-btn {
-    display: flex; /* Mostrar hamburguesa */
+    display: flex;
+    /* Mostrar hamburguesa */
   }
 
   .status-bar {
     display: none;
   }
-  
+
   /* Asegurar que el logo no sea enorme */
   .brand-name {
     font-size: 1.1rem;
@@ -597,9 +642,10 @@ const toggleMobileMenu = () => {
 
 @media (max-width: 480px) {
   .brand-text {
-    display: none; /* En móviles muy pequeños, solo logo icono */
+    display: none;
+    /* En móviles muy pequeños, solo logo icono */
   }
-  
+
   .language-selector {
     display: none;
   }

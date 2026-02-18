@@ -1,13 +1,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import defaultAvatar from '@/assets/imgs/usuario.png'
 
 const store = useUserStore()
 const topThreeUsers = ref([])
 
 onMounted(async () => {
   topThreeUsers.value = await store.getTopThreeUsers()
-  console.log(topThreeUsers.value)
 })
 
 const getMedalIcon = (index) => {
@@ -15,14 +15,16 @@ const getMedalIcon = (index) => {
   if (index === 1) return 'mdi-medal'
   return 'mdi-medal-outline'
 }
+
+const getAvatar = (user) => user?.avatarUrl || defaultAvatar
 </script>
 
 <template>
   <section class="ranking-section">
     <!-- Particles background effect -->
     <div class="particles-bg">
-      <div class="particle" v-for="i in 20" :key="i" :style="{ 
-        left: Math.random() * 100 + '%', 
+      <div class="particle" v-for="i in 20" :key="i" :style="{
+        left: Math.random() * 100 + '%',
         animationDelay: Math.random() * 5 + 's',
         animationDuration: (3 + Math.random() * 4) + 's'
       }"></div>
@@ -54,7 +56,7 @@ const getMedalIcon = (index) => {
     <!-- Podium -->
     <div class="podium-arena">
       <div class="arena-floor"></div>
-      
+
       <!-- Segunda posición -->
       <div v-if="topThreeUsers[1]" class="champion-slot slot-second">
         <div class="spotlight spotlight-silver"></div>
@@ -64,13 +66,14 @@ const getMedalIcon = (index) => {
             <span class="rank-number">2</span>
             <v-icon class="rank-icon">{{ getMedalIcon(1) }}</v-icon>
           </div>
-          
+
           <div class="avatar-container">
             <div class="avatar-ring ring-silver">
               <div class="ring-glow"></div>
             </div>
             <div class="avatar-image">
-              <v-icon size="64">mdi-account-circle</v-icon>
+              <img :src="getAvatar(topThreeUsers[1])" :alt="topThreeUsers[1].name" class="avatar-img avatar-img-silver"
+                @error="(e) => e.target.src = defaultAvatar" />
             </div>
             <div class="level-indicator level-silver">
               <v-icon size="16" class="level-icon">mdi-shield-star</v-icon>
@@ -79,7 +82,7 @@ const getMedalIcon = (index) => {
           </div>
 
           <h3 class="champion-name">{{ topThreeUsers[1].name }}</h3>
-          
+
           <div class="stats-grid">
             <div class="stat-box stat-strength">
               <div class="stat-header">
@@ -87,8 +90,8 @@ const getMedalIcon = (index) => {
                 <span class="stat-title">{{ $t('FUERZA') }}</span>
               </div>
               <div class="stat-bar">
-                <div class="stat-progress progress-strength" 
-                     :style="{ width: Math.min(topThreeUsers[1].strength, 100) + '%' }">
+                <div class="stat-progress progress-strength"
+                  :style="{ width: Math.min(topThreeUsers[1].strength, 100) + '%' }">
                   <span class="stat-value">{{ topThreeUsers[1].strength }}</span>
                 </div>
               </div>
@@ -100,15 +103,14 @@ const getMedalIcon = (index) => {
                 <span class="stat-title">{{ $t('RESISTENCIA') }}</span>
               </div>
               <div class="stat-bar">
-                <div class="stat-progress progress-endurance" 
-                     :style="{ width: Math.min(topThreeUsers[1].endurance, 100) + '%' }">
+                <div class="stat-progress progress-endurance"
+                  :style="{ width: Math.min(topThreeUsers[1].endurance, 100) + '%' }">
                   <span class="stat-value">{{ topThreeUsers[1].endurance }}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Equipped Items Section -->
           <div class="equipped-items">
             <div class="equipped-title">
               <v-icon size="16">mdi-sword-cross</v-icon>
@@ -133,7 +135,7 @@ const getMedalIcon = (index) => {
             <span class="footer-text">{{ $t('Plata') }}</span>
           </div>
         </div>
-        
+
         <div class="pedestal pedestal-silver">
           <div class="pedestal-top">
             <span class="pedestal-rank">2</span>
@@ -148,25 +150,26 @@ const getMedalIcon = (index) => {
         <div class="crown-float">
           <v-icon class="crown-icon">mdi-crown</v-icon>
         </div>
-        
+
         <div class="champion-card card-gold">
           <div class="card-shine gold-shine"></div>
           <div class="card-sparkles">
             <div class="sparkle" v-for="i in 6" :key="i"></div>
           </div>
-          
+
           <div class="rank-badge badge-first">
             <span class="rank-number">1</span>
             <v-icon class="rank-icon">{{ getMedalIcon(0) }}</v-icon>
           </div>
-          
+
           <div class="avatar-container">
             <div class="avatar-ring ring-gold">
               <div class="ring-glow gold-glow"></div>
               <div class="ring-pulse"></div>
             </div>
             <div class="avatar-image">
-              <v-icon size="80">mdi-account-circle</v-icon>
+              <img :src="getAvatar(topThreeUsers[0])" :alt="topThreeUsers[0].name" class="avatar-img avatar-img-gold"
+                @error="(e) => e.target.src = defaultAvatar" />
             </div>
             <div class="level-indicator level-gold">
               <v-icon size="18" class="level-icon">mdi-shield-star</v-icon>
@@ -176,7 +179,7 @@ const getMedalIcon = (index) => {
 
           <h3 class="champion-name name-gold">{{ topThreeUsers[0].name }}</h3>
           <div class="champion-title">{{ $t('CAMPEÓN SUPREMO') }}</div>
-          
+
           <div class="stats-grid">
             <div class="stat-box stat-strength">
               <div class="stat-header">
@@ -184,8 +187,8 @@ const getMedalIcon = (index) => {
                 <span class="stat-title">{{ $t('FUERZA') }}</span>
               </div>
               <div class="stat-bar">
-                <div class="stat-progress progress-strength" 
-                     :style="{ width: Math.min(topThreeUsers[0].strength, 100) + '%' }">
+                <div class="stat-progress progress-strength"
+                  :style="{ width: Math.min(topThreeUsers[0].strength, 100) + '%' }">
                   <span class="stat-value">{{ topThreeUsers[0].strength }}</span>
                 </div>
               </div>
@@ -197,15 +200,14 @@ const getMedalIcon = (index) => {
                 <span class="stat-title">{{ $t('RESISTENCIA') }}</span>
               </div>
               <div class="stat-bar">
-                <div class="stat-progress progress-endurance" 
-                     :style="{ width: Math.min(topThreeUsers[0].endurance, 100) + '%' }">
+                <div class="stat-progress progress-endurance"
+                  :style="{ width: Math.min(topThreeUsers[0].endurance, 100) + '%' }">
                   <span class="stat-value">{{ topThreeUsers[0].endurance }}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Equipped Items Section -->
           <div class="equipped-items equipped-gold">
             <div class="equipped-title">
               <v-icon size="18">mdi-sword-cross</v-icon>
@@ -230,7 +232,7 @@ const getMedalIcon = (index) => {
             <span class="footer-text">{{ $t('Oro') }}</span>
           </div>
         </div>
-        
+
         <div class="pedestal pedestal-gold">
           <div class="pedestal-top">
             <span class="pedestal-rank">1</span>
@@ -248,13 +250,14 @@ const getMedalIcon = (index) => {
             <span class="rank-number">3</span>
             <v-icon class="rank-icon">{{ getMedalIcon(2) }}</v-icon>
           </div>
-          
+
           <div class="avatar-container">
             <div class="avatar-ring ring-bronze">
               <div class="ring-glow"></div>
             </div>
             <div class="avatar-image">
-              <v-icon size="56">mdi-account-circle</v-icon>
+              <img :src="getAvatar(topThreeUsers[2])" :alt="topThreeUsers[2].name" class="avatar-img avatar-img-bronze"
+                @error="(e) => e.target.src = defaultAvatar" />
             </div>
             <div class="level-indicator level-bronze">
               <v-icon size="14" class="level-icon">mdi-shield-star</v-icon>
@@ -263,7 +266,7 @@ const getMedalIcon = (index) => {
           </div>
 
           <h3 class="champion-name">{{ topThreeUsers[2].name }}</h3>
-          
+
           <div class="stats-grid">
             <div class="stat-box stat-strength">
               <div class="stat-header">
@@ -271,8 +274,8 @@ const getMedalIcon = (index) => {
                 <span class="stat-title">{{ $t('FUERZA') }}</span>
               </div>
               <div class="stat-bar">
-                <div class="stat-progress progress-strength" 
-                     :style="{ width: Math.min(topThreeUsers[2].strength, 100) + '%' }">
+                <div class="stat-progress progress-strength"
+                  :style="{ width: Math.min(topThreeUsers[2].strength, 100) + '%' }">
                   <span class="stat-value">{{ topThreeUsers[2].strength }}</span>
                 </div>
               </div>
@@ -284,15 +287,14 @@ const getMedalIcon = (index) => {
                 <span class="stat-title">{{ $t('RESISTENCIA') }}</span>
               </div>
               <div class="stat-bar">
-                <div class="stat-progress progress-endurance" 
-                     :style="{ width: Math.min(topThreeUsers[2].endurance, 100) + '%' }">
+                <div class="stat-progress progress-endurance"
+                  :style="{ width: Math.min(topThreeUsers[2].endurance, 100) + '%' }">
                   <span class="stat-value">{{ topThreeUsers[2].endurance }}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Equipped Items Section -->
           <div class="equipped-items">
             <div class="equipped-title">
               <v-icon size="16">mdi-sword-cross</v-icon>
@@ -317,7 +319,7 @@ const getMedalIcon = (index) => {
             <span class="footer-text">{{ $t('Bronce') }}</span>
           </div>
         </div>
-        
+
         <div class="pedestal pedestal-bronze">
           <div class="pedestal-top">
             <span class="pedestal-rank">3</span>
@@ -330,13 +332,15 @@ const getMedalIcon = (index) => {
 </template>
 
 <style scoped>
+/* ── Todo el CSS original sin cambios ── */
+
 .ranking-section {
   position: relative;
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
   padding: 3rem 2rem 4rem;
-  background: 
+  background:
     radial-gradient(ellipse at top, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
     radial-gradient(ellipse at bottom, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
     linear-gradient(180deg, #0a0e1a 0%, #0f1419 50%, #0a0e1a 100%);
@@ -344,7 +348,6 @@ const getMedalIcon = (index) => {
   overflow: hidden;
 }
 
-/* Particles Background */
 .particles-bg {
   position: absolute;
   top: 0;
@@ -369,19 +372,21 @@ const getMedalIcon = (index) => {
     transform: translateY(100vh) scale(0);
     opacity: 0;
   }
+
   10% {
     opacity: 1;
   }
+
   90% {
     opacity: 1;
   }
+
   100% {
     transform: translateY(-100px) scale(1);
     opacity: 0;
   }
 }
 
-/* Hero Header */
 .hero-header {
   position: relative;
   text-align: center;
@@ -414,10 +419,13 @@ const getMedalIcon = (index) => {
 }
 
 @keyframes trophy-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.6));
   }
+
   50% {
     transform: scale(1.1);
     filter: drop-shadow(0 0 50px rgba(255, 215, 0, 0.8));
@@ -467,6 +475,7 @@ const getMedalIcon = (index) => {
     height: 80px;
     opacity: 1;
   }
+
   100% {
     width: 200px;
     height: 200px;
@@ -500,13 +509,15 @@ const getMedalIcon = (index) => {
   letter-spacing: 4px;
   text-transform: uppercase;
   animation: gradient-shift 3s ease infinite;
-  text-shadow: 0 0 60px rgba(255, 215, 0, 0.5);
 }
 
 @keyframes gradient-shift {
-  0%, 100% {
+
+  0%,
+  100% {
     background-position: 0% center;
   }
+
   50% {
     background-position: 100% center;
   }
@@ -541,17 +552,19 @@ const getMedalIcon = (index) => {
 }
 
 @keyframes fire-flicker {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.8;
     transform: scale(1.1);
   }
 }
 
-/* Podium Arena */
 .podium-arena {
   position: relative;
   display: flex;
@@ -568,13 +581,12 @@ const getMedalIcon = (index) => {
   left: 0;
   width: 100%;
   height: 4px;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(255, 215, 0, 0.3) 20%,
-    rgba(255, 215, 0, 0.5) 50%,
-    rgba(255, 215, 0, 0.3) 80%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 215, 0, 0.3) 20%,
+      rgba(255, 215, 0, 0.5) 50%,
+      rgba(255, 215, 0, 0.3) 80%,
+      transparent 100%);
   box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
 }
 
@@ -591,6 +603,7 @@ const getMedalIcon = (index) => {
     opacity: 0;
     transform: translateY(100px) scale(0.8);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -612,7 +625,6 @@ const getMedalIcon = (index) => {
   z-index: 10;
 }
 
-/* Spotlight Effect */
 .spotlight {
   position: absolute;
   top: -100px;
@@ -639,7 +651,6 @@ const getMedalIcon = (index) => {
   filter: blur(25px);
 }
 
-/* Crown Float */
 .crown-float {
   position: absolute;
   top: -40px;
@@ -650,9 +661,12 @@ const getMedalIcon = (index) => {
 }
 
 @keyframes crown-bounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateX(-50%) translateY(0) rotate(-5deg);
   }
+
   50% {
     transform: translateX(-50%) translateY(-15px) rotate(5deg);
   }
@@ -664,11 +678,9 @@ const getMedalIcon = (index) => {
   filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
 }
 
-/* Champion Cards */
 .champion-card {
   position: relative;
-  background: 
-    linear-gradient(135deg, rgba(20, 30, 48, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%);
+  background: linear-gradient(135deg, rgba(20, 30, 48, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%);
   backdrop-filter: blur(20px);
   border-radius: 24px;
   padding: 2rem 1.5rem;
@@ -688,12 +700,7 @@ const getMedalIcon = (index) => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   transition: left 0.6s;
 }
 
@@ -702,12 +709,7 @@ const getMedalIcon = (index) => {
 }
 
 .gold-shine {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 215, 0, 0.2),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
 }
 
 .card-sparkles {
@@ -728,18 +730,50 @@ const getMedalIcon = (index) => {
   animation: sparkle-twinkle 2s ease-in-out infinite;
 }
 
-.sparkle:nth-child(1) { top: 20%; left: 15%; animation-delay: 0s; }
-.sparkle:nth-child(2) { top: 30%; right: 20%; animation-delay: 0.3s; }
-.sparkle:nth-child(3) { top: 50%; left: 10%; animation-delay: 0.6s; }
-.sparkle:nth-child(4) { top: 60%; right: 15%; animation-delay: 0.9s; }
-.sparkle:nth-child(5) { top: 75%; left: 20%; animation-delay: 1.2s; }
-.sparkle:nth-child(6) { top: 85%; right: 25%; animation-delay: 1.5s; }
+.sparkle:nth-child(1) {
+  top: 20%;
+  left: 15%;
+  animation-delay: 0s;
+}
+
+.sparkle:nth-child(2) {
+  top: 30%;
+  right: 20%;
+  animation-delay: 0.3s;
+}
+
+.sparkle:nth-child(3) {
+  top: 50%;
+  left: 10%;
+  animation-delay: 0.6s;
+}
+
+.sparkle:nth-child(4) {
+  top: 60%;
+  right: 15%;
+  animation-delay: 0.9s;
+}
+
+.sparkle:nth-child(5) {
+  top: 75%;
+  left: 20%;
+  animation-delay: 1.2s;
+}
+
+.sparkle:nth-child(6) {
+  top: 85%;
+  right: 25%;
+  animation-delay: 1.5s;
+}
 
 @keyframes sparkle-twinkle {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0;
     transform: scale(0);
   }
+
   50% {
     opacity: 1;
     transform: scale(1);
@@ -750,7 +784,7 @@ const getMedalIcon = (index) => {
   border-color: #FFD700;
   width: 340px;
   padding: 2.5rem 2rem;
-  box-shadow: 
+  box-shadow:
     0 20px 60px rgba(255, 215, 0, 0.3),
     0 0 80px rgba(255, 215, 0, 0.2),
     inset 0 1px 0 rgba(255, 215, 0, 0.3);
@@ -758,7 +792,7 @@ const getMedalIcon = (index) => {
 
 .card-silver {
   border-color: #C0C0C0;
-  box-shadow: 
+  box-shadow:
     0 15px 50px rgba(192, 192, 192, 0.2),
     0 0 60px rgba(192, 192, 192, 0.15),
     inset 0 1px 0 rgba(192, 192, 192, 0.2);
@@ -766,13 +800,12 @@ const getMedalIcon = (index) => {
 
 .card-bronze {
   border-color: #CD7F32;
-  box-shadow: 
+  box-shadow:
     0 15px 50px rgba(205, 127, 50, 0.2),
     0 0 60px rgba(205, 127, 50, 0.15),
     inset 0 1px 0 rgba(205, 127, 50, 0.2);
 }
 
-/* Rank Badge */
 .rank-badge {
   position: absolute;
   top: -15px;
@@ -796,9 +829,12 @@ const getMedalIcon = (index) => {
 }
 
 @keyframes badge-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5);
   }
+
   50% {
     box-shadow: 0 4px 30px rgba(255, 215, 0, 0.8);
   }
@@ -826,7 +862,7 @@ const getMedalIcon = (index) => {
   font-size: 2rem !important;
 }
 
-/* Avatar Container */
+/* ── Avatar: nuevo estilo con <img> ── */
 .avatar-container {
   position: relative;
   display: flex;
@@ -857,6 +893,7 @@ const getMedalIcon = (index) => {
   0% {
     transform: translate(-50%, -50%) rotate(0deg);
   }
+
   100% {
     transform: translate(-50%, -50%) rotate(360deg);
   }
@@ -887,10 +924,13 @@ const getMedalIcon = (index) => {
 }
 
 @keyframes glow-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.5;
     filter: blur(10px);
   }
+
   50% {
     opacity: 0.8;
     filter: blur(15px);
@@ -915,6 +955,7 @@ const getMedalIcon = (index) => {
     height: 100%;
     opacity: 1;
   }
+
   100% {
     width: 150%;
     height: 150%;
@@ -930,13 +971,35 @@ const getMedalIcon = (index) => {
   justify-content: center;
 }
 
-.avatar-image .v-icon {
-  color: rgba(255, 255, 255, 0.9);
+/* Imágenes reales de usuario */
+.avatar-img {
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  background-color: #0f1419;
 }
 
-.card-gold .avatar-image .v-icon {
-  color: #FFD700;
-  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
+.avatar-img-gold {
+  width: 90px;
+  height: 90px;
+  border: 4px solid #FFD700;
+  box-shadow:
+    0 0 20px rgba(255, 215, 0, 0.6),
+    0 0 40px rgba(255, 215, 0, 0.3);
+}
+
+.avatar-img-silver {
+  width: 74px;
+  height: 74px;
+  border: 3px solid #C0C0C0;
+  box-shadow: 0 0 15px rgba(192, 192, 192, 0.4);
+}
+
+.avatar-img-bronze {
+  width: 64px;
+  height: 64px;
+  border: 3px solid #CD7F32;
+  box-shadow: 0 0 15px rgba(205, 127, 50, 0.4);
 }
 
 .level-indicator {
@@ -984,7 +1047,6 @@ const getMedalIcon = (index) => {
   color: #000;
 }
 
-/* Champion Name */
 .champion-name {
   font-size: 1.5rem;
   font-weight: 800;
@@ -1015,7 +1077,6 @@ const getMedalIcon = (index) => {
   margin-bottom: 1.5rem;
 }
 
-/* Stats Grid */
 .stats-grid {
   display: flex;
   flex-direction: column;
@@ -1080,12 +1141,7 @@ const getMedalIcon = (index) => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   animation: shimmer 2s infinite;
 }
 
@@ -1093,6 +1149,7 @@ const getMedalIcon = (index) => {
   0% {
     transform: translateX(-100%);
   }
+
   100% {
     transform: translateX(100%);
   }
@@ -1112,18 +1169,14 @@ const getMedalIcon = (index) => {
 .progress-strength {
   background: linear-gradient(90deg, #FF4757 0%, #FF6348 50%, #FF4757 100%);
   background-size: 200% auto;
-  box-shadow: 
-    0 0 20px rgba(255, 71, 87, 0.4),
-    inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 20px rgba(255, 71, 87, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2);
   animation: gradient-shift 3s ease infinite;
 }
 
 .progress-endurance {
   background: linear-gradient(90deg, #00D2FF 0%, #3A7BD5 50%, #00D2FF 100%);
   background-size: 200% auto;
-  box-shadow: 
-    0 0 20px rgba(0, 210, 255, 0.4),
-    inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 210, 255, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2);
   animation: gradient-shift 3s ease infinite;
 }
 
@@ -1133,13 +1186,10 @@ const getMedalIcon = (index) => {
   font-size: 0.85rem;
   font-weight: 900;
   color: white;
-  text-shadow: 
-    1px 1px 2px rgba(0, 0, 0, 0.8),
-    0 0 10px rgba(0, 0, 0, 0.5);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5);
   letter-spacing: 0.5px;
 }
 
-/* Equipped Items Section */
 .equipped-items {
   margin-top: 1.5rem;
   padding: 1rem;
@@ -1241,7 +1291,6 @@ const getMedalIcon = (index) => {
   letter-spacing: 0.5px;
 }
 
-/* Card Footer */
 .card-footer {
   display: flex;
   align-items: center;
@@ -1268,7 +1317,6 @@ const getMedalIcon = (index) => {
   color: rgba(255, 215, 0, 0.7);
 }
 
-/* Pedestal */
 .pedestal {
   display: flex;
   flex-direction: column;
@@ -1362,16 +1410,16 @@ const getMedalIcon = (index) => {
   z-index: 1;
 }
 
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 1200px) {
   .podium-arena {
     gap: 1.5rem;
   }
-  
+
   .champion-card {
     width: 260px;
   }
-  
+
   .card-gold {
     width: 300px;
   }
@@ -1385,32 +1433,32 @@ const getMedalIcon = (index) => {
   .title-bottom {
     font-size: 2.8rem;
   }
-  
+
   .podium-arena {
     flex-direction: column;
     align-items: center;
     gap: 3rem;
   }
-  
+
   .champion-slot {
     width: 100%;
     max-width: 400px;
   }
-  
+
   .champion-card,
   .card-gold {
     width: 100%;
     max-width: 400px;
   }
-  
+
   .pedestal-gold .pedestal-top {
     height: 80px;
   }
-  
+
   .pedestal-silver .pedestal-top {
     height: 70px;
   }
-  
+
   .pedestal-bronze .pedestal-top {
     height: 60px;
   }
@@ -1430,17 +1478,17 @@ const getMedalIcon = (index) => {
   .trophy-main {
     font-size: 3rem !important;
   }
-  
+
   .title-top {
     font-size: 1.3rem;
     letter-spacing: 4px;
   }
-  
+
   .title-bottom {
     font-size: 2rem;
     letter-spacing: 2px;
   }
-  
+
   .hero-subtitle {
     font-size: 0.95rem;
   }
@@ -1452,17 +1500,13 @@ const getMedalIcon = (index) => {
   .card-gold {
     padding: 2rem 1.5rem;
   }
-  
+
   .champion-name {
     font-size: 1.3rem;
   }
-  
+
   .name-gold {
     font-size: 1.5rem;
-  }
-
-  .stat-header .v-icon {
-    font-size: 16px !important;
   }
 
   .stat-title {
@@ -1485,6 +1529,21 @@ const getMedalIcon = (index) => {
   .pedestal-rank {
     font-size: 2.5rem;
   }
+
+  .avatar-img-gold {
+    width: 75px;
+    height: 75px;
+  }
+
+  .avatar-img-silver {
+    width: 62px;
+    height: 62px;
+  }
+
+  .avatar-img-bronze {
+    width: 52px;
+    height: 52px;
+  }
 }
 
 @media (max-width: 400px) {
@@ -1502,12 +1561,19 @@ const getMedalIcon = (index) => {
     height: 100px !important;
   }
 
-  .avatar-image .v-icon {
-    font-size: 48px !important;
+  .avatar-img-gold {
+    width: 65px;
+    height: 65px;
   }
 
-  .card-gold .avatar-image .v-icon {
-    font-size: 64px !important;
+  .avatar-img-silver {
+    width: 52px;
+    height: 52px;
+  }
+
+  .avatar-img-bronze {
+    width: 44px;
+    height: 44px;
   }
 
   .equipped-items {
