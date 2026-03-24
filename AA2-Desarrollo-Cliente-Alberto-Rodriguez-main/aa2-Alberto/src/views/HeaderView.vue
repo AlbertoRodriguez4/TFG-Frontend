@@ -1,653 +1,913 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/userStore'
 import { computed, ref } from 'vue'
-import { useRouter, RouterLink } from 'vue-router' // <-- AÑADE useRouter AQUÍ
+import { useRouter, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 const store = useUserStore()
-const router = useRouter() // <-- INSTANCIA EL ROUTER AQUÍ
+const router = useRouter()
 
 const isLogged = computed(() => !!store.loggedUser?.email)
-const homeLink = computed(() =>
-  isLogged.value ? { name: 'homeLogged' } : { name: 'home' }
-)
-
 const { locale } = useI18n()
-const changeLanguage = (event: Event) => {
-  const target = event.target as HTMLSelectElement
-  locale.value = target.value
-}
 
 const mobileMenuOpen = ref(false)
+const userDropdownOpen = ref(false)
+
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value
+  userDropdownOpen.value = false
 }
 
-// --- NUEVA FUNCIÓN PARA EL LOGOUT ---
-const handleLogout = () => {
-  store.logoutUser()             // 1. Borra el token y los datos del store
-  router.push({ name: 'home' })  // 2. Redirige a la página pública
-  mobileMenuOpen.value = false   // 3. Cierra el menú móvil por si estaba abierto
+const toggleUserDropdown = () => {
+  userDropdownOpen.value = !userDropdownOpen.value
+  mobileMenuOpen.value = false
 }
+
+const handleLogout = () => {
+  store.logoutUser()
+  router.push({ name: 'home' })
+  userDropdownOpen.value = false
+  mobileMenuOpen.value = false
+}
+
+const handleNavClick = () => {
+  mobileMenuOpen.value = false
+}
+
+const languages = [
+  { code: 'en', label: 'English 🇬🇧' },
+  { code: 'es', label: 'Español 🇪🇸' },
+  { code: 'fr', label: 'Français 🇫🇷' }
+]
+
+const currentLanguage = computed(() => {
+  return languages.find(l => l.code === locale.value)?.label || 'Language'
+})
 </script>
 
 <template>
   <div class="header-wrapper">
-    <div class="header-container">
-      <header class="navbar">
-        <div class="logo-section">
-          <RouterLink :to="homeLink" class="logo-link">
-            <div class="logo-badge">
-              <img src="../assets/imgs/Logo.png" alt="TTH" class="logo-icon" />
-            </div>
-            <div class="brand-text">
-              <span class="brand-name">TheTrainingHub</span>
-              <span class="brand-tagline">Level Up Your Gains</span>
-            </div>
-          </RouterLink>
-        </div>
+    <!-- Main Header -->
+    <header class="header-main">
+      <div class="header-container">
 
+        <!-- Logo -->
+        <RouterLink to="/" class="logo-section">
+          <div class="logo-badge">💪</div>
+          <div class="brand">
+            <span class="brand-name">TheTrainingHub</span>
+            <span class="brand-tagline">Training Platform</span>
+          </div>
+        </RouterLink>
+
+        <!-- Desktop Navigation -->
         <nav class="nav-desktop">
-          <RouterLink :to="homeLink" class="nav-link">
-            <i class="nav-icon">🏠</i>
-            <span class="nav-text">Home</span>
-          </RouterLink>
-          <RouterLink to="/room" class="nav-link" :class="{ disabled: !isLogged }">
-            <i class="nav-icon">🚪</i>
-            <span class="nav-text">{{ $t('rooms') }}</span>
-          </RouterLink>
-          <RouterLink to="/plan" class="nav-link" :class="{ disabled: !isLogged }">
-            <i class="nav-icon">📋</i>
-            <span class="nav-text">{{ $t('plans') }}</span>
-          </RouterLink>
-          <RouterLink to="/purchase" class="nav-link" :class="{ disabled: !isLogged }">
-            <i class="nav-icon">🛒</i>
-            <span class="nav-text">{{ $t('shop') }}</span>
-          </RouterLink>
-          <RouterLink to="/user" class="nav-link" :class="{ disabled: !isLogged }">
-            <i class="nav-icon">👥</i>
-            <span class="nav-text">{{ $t('users') }}</span>
-          </RouterLink>
-          <RouterLink to="/rutina" class="nav-link" :class="{ disabled: !isLogged }">
-            <v-icon class="nav-icon">mdi-calendar</v-icon>
-            <span class="nav-text">{{ $t('routines') }}</span>
-          </RouterLink>
+          <RouterLink to="/" class="nav-btn">🏠 Home</RouterLink>
+          <RouterLink to="/room" class="nav-btn" :class="{ disabled: !isLogged }">🚪 Rooms</RouterLink>
+          <RouterLink to="/plan" class="nav-btn" :class="{ disabled: !isLogged }">📋 Plans</RouterLink>
+          <RouterLink to="/rutina" class="nav-btn" :class="{ disabled: !isLogged }">📅 Routines</RouterLink>
+          <RouterLink to="/purchase" class="nav-btn" :class="{ disabled: !isLogged }">🛒 Shop</RouterLink>
         </nav>
 
+        <!-- Right Actions -->
         <div class="header-actions">
-          <div class="user-info" v-if="isLogged && store.loggedUser">
-            <div class="user-stats">
-              <div class="stat-item" title="Strength">
-                <span class="stat-icon">⚡</span>
-                <span class="stat-value">{{ store.loggedUser.strength || 0 }}</span>
-              </div>
-              <div class="stat-divider"></div>
-              <div class="stat-item" title="Gold">
-                <span class="stat-icon">🪙</span>
-                <span class="stat-value">{{ store.loggedUser.gold || 0 }}</span>
-              </div>
+
+          <!-- User Dropdown Button -->
+          <div v-if="isLogged" class="user-dropdown-trigger" @click="toggleUserDropdown">
+            <div class="user-avatar">
+              {{ store.loggedUser?.email?.charAt(0).toUpperCase() }}
             </div>
-            <div class="user-level">
-              <span class="level-badge">LVL {{ store.loggedUser.level || 1 }}</span>
+            <span class="strength-badge">⚡ {{ store.loggedUser?.strength || 0 }}</span>
+            <span class="dropdown-arrow" :class="{ open: userDropdownOpen }">▼</span>
+          </div>
+
+          <!-- Hamburger Menu (Mobile) -->
+          <button class="mobile-menu-btn" @click="toggleMobileMenu" aria-label="Menu">
+            <span :class="{ active: mobileMenuOpen }"></span>
+            <span :class="{ active: mobileMenuOpen }"></span>
+            <span :class="{ active: mobileMenuOpen }"></span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- User Dropdown Menu -->
+    <Transition name="fade">
+      <div v-if="userDropdownOpen && isLogged" class="user-dropdown" @click.self="userDropdownOpen = false">
+        <div class="dropdown-content">
+
+          <!-- User Profile Header -->
+          <div class="dropdown-header">
+            <div class="user-avatar-large">
+              {{ store.loggedUser?.email?.charAt(0).toUpperCase() }}
+            </div>
+            <div>
+              <p class="user-level">Level {{ store.loggedUser?.level || 1 }}</p>
+              <p class="user-email">{{ store.loggedUser?.email }}</p>
             </div>
           </div>
 
-          <div class="language-selector">
-            <select class="language-select" @change="changeLanguage" :value="locale">
-              <option value="en">🇬🇧</option>
-              <option value="es">🇪🇸</option>
-              <option value="fr">🇫🇷</option>
+          <!-- Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-label">Strength</span>
+              <span class="stat-value">⚡ {{ store.loggedUser?.strength || 0 }}</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Gold</span>
+              <span class="stat-value">🪙 {{ store.loggedUser?.gold || 0 }}</span>
+            </div>
+          </div>
+
+          <!-- Premium Card -->
+          <div class="premium-card">
+            <span class="premium-icon">⭐</span>
+            <div>
+              <p class="premium-title">Unlock Premium</p>
+              <p class="premium-desc">CoachAI, Calories, Advanced Analytics & more</p>
+            </div>
+          </div>
+
+          <!-- Menu Items -->
+          <div class="dropdown-divider"></div>
+
+          <RouterLink to="/profile" class="dropdown-item" @click="userDropdownOpen = false">
+            ⚙️ Profile Settings
+          </RouterLink>
+
+          <div class="dropdown-item language-selector">
+            <span>🌍</span>
+            <select v-model="locale" @change="handleNavClick">
+              <option v-for="lang in languages" :key="lang.code" :value="lang.code">
+                {{ lang.label }}
+              </option>
             </select>
           </div>
 
-          <button class="logout-btn" @click="handleLogout" v-if="isLogged"> <span class="logout-icon">⚡</span>
-            <span class="logout-text">{{ $t('logout') }}</span>
-          </button>
+          <RouterLink to="/user" class="dropdown-item" @click="userDropdownOpen = false">
+            👥 Community
+          </RouterLink>
 
-          <button class="mobile-menu-btn" @click="toggleMobileMenu">
-            <span class="hamburger-line" :class="{ active: mobileMenuOpen }"></span>
-            <span class="hamburger-line" :class="{ active: mobileMenuOpen }"></span>
-            <span class="hamburger-line" :class="{ active: mobileMenuOpen }"></span>
+          <!-- Logout Button -->
+          <button class="logout-btn" @click="handleLogout">
+            ⚡ Logout
           </button>
         </div>
-      </header>
-
-      <Transition name="slide">
-        <nav class="nav-mobile" v-if="mobileMenuOpen">
-          <div class="mobile-user-summary" v-if="isLogged && store.loggedUser">
-            <span class="mobile-level">LVL {{ store.loggedUser.level || 1 }}</span>
-            <div class="mobile-stats">
-              <span>⚡ {{ store.loggedUser.strength || 0 }}</span>
-              <span>🪙 {{ store.loggedUser.gold || 0 }}</span>
-            </div>
-          </div>
-
-          <RouterLink :to="homeLink" class="nav-link-mobile" @click="toggleMobileMenu">
-            <i class="nav-icon">🏠</i>
-            <span>Home</span>
-          </RouterLink>
-          <RouterLink to="/room" class="nav-link-mobile" :class="{ disabled: !isLogged }" @click="toggleMobileMenu">
-            <i class="nav-icon">🚪</i>
-            <span>{{ $t('rooms') }}</span>
-          </RouterLink>
-          <RouterLink to="/plan" class="nav-link-mobile" :class="{ disabled: !isLogged }" @click="toggleMobileMenu">
-            <i class="nav-icon">📋</i>
-            <span>{{ $t('plans') }}</span>
-          </RouterLink>
-          <RouterLink to="/purchase" class="nav-link-mobile" :class="{ disabled: !isLogged }" @click="toggleMobileMenu">
-            <i class="nav-icon">🛒</i>
-            <span>{{ $t('shop') }}</span>
-          </RouterLink>
-          <RouterLink to="/user" class="nav-link-mobile" :class="{ disabled: !isLogged }" @click="toggleMobileMenu">
-            <i class="nav-icon">👥</i>
-            <span>{{ $t('users') }}</span>
-          </RouterLink>
-          <RouterLink to="/rutina" class="nav-link-mobile" :class="{ disabled: !isLogged }" @click="toggleMobileMenu">
-            <i class="nav-icon">📅</i>
-            <span>{{ $t('routines') }}</span>
-          </RouterLink>
-        </nav>
-      </Transition>
-
-      <div class="status-bar" v-if="isLogged">
-        <div class="status-pulse"></div>
-        <span class="status-text">ONLINE</span>
       </div>
-    </div>
+    </Transition>
+
+    <!-- Mobile Menu -->
+    <Transition name="slide">
+      <nav v-if="mobileMenuOpen" class="nav-mobile">
+
+        <!-- User Summary (Mobile) -->
+        <div v-if="isLogged && store.loggedUser" class="mobile-user-summary">
+          <div>
+            <p class="mobile-level">LV {{ store.loggedUser.level || 1 }}</p>
+            <p class="mobile-stats">⚡ {{ store.loggedUser.strength || 0 }} • 🪙 {{ store.loggedUser.gold || 0 }}</p>
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <RouterLink to="/" class="mobile-nav-item" @click="handleNavClick">🏠 Home</RouterLink>
+        <RouterLink to="/room" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">🚪 Rooms
+        </RouterLink>
+        <RouterLink to="/plan" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">📋 Plans
+        </RouterLink>
+        <RouterLink to="/rutina" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">📅
+          Routines</RouterLink>
+        <RouterLink to="/purchase" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">🛒
+          Shop</RouterLink>
+
+        <div class="mobile-divider"></div>
+
+        <RouterLink to="/profile" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">⚙️
+          Settings</RouterLink>
+        <RouterLink to="/user" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">👥
+          Community</RouterLink>
+
+        <!-- Language Selector (Mobile) -->
+        <div class="mobile-language">
+          <span>🌍 Language</span>
+          <select v-model="locale" @change="handleNavClick">
+            <option v-for="lang in languages" :key="lang.code" :value="lang.code">
+              {{ lang.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Premium Card (Mobile) -->
+        <div class="mobile-premium-card">
+          <p>⭐ Unlock Premium for exclusive features</p>
+        </div>
+
+        <!-- Logout (Mobile) -->
+        <button class="mobile-logout-btn" @click="handleLogout">⚡ Logout</button>
+      </nav>
+    </Transition>
+
+    <!-- Overlay for dropdowns -->
+    <Transition name="fade">
+      <div v-if="userDropdownOpen || mobileMenuOpen" class="overlay"
+        @click="userDropdownOpen = false; mobileMenuOpen = false"></div>
+    </Transition>
   </div>
 </template>
 
 <style scoped>
+/* ═══════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════ */
 * {
   box-sizing: border-box;
 }
 
-.header-container {
+.header-wrapper {
+  position: relative;
+}
+
+/* ═══════════════════════════════════════
+   MAIN HEADER
+═══════════════════════════════════════ */
+.header-main {
   position: sticky;
   top: 0;
-  width: 100%;
   z-index: 1000;
-  background: linear-gradient(180deg,
-      rgba(0, 0, 0, 0.95) 0%,
-      rgba(10, 10, 10, 0.9) 100%);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.97) 0%, rgba(10, 10, 10, 0.93) 100%);
+  backdrop-filter: blur(12px);
   border-bottom: 2px solid rgba(255, 204, 0, 0.3);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
 }
 
-/* Navbar Principal */
-.navbar {
+.header-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* Distribuye espacio */
-  padding: 0.8rem 1.5rem;
-  /* Reducido un poco para laptops */
+  padding: 0.75rem 1.5rem;
   max-width: 1920px;
-  /* Permitir más ancho en pantallas grandes */
   margin: 0 auto;
   gap: 1rem;
-  /* Gap reducido para evitar cortes */
-  height: 80px;
+  min-height: 68px;
 }
 
-/* Logo Section */
+/* ═══════════════════════════════════════
+   LOGO
+═══════════════════════════════════════ */
 .logo-section {
-  flex-shrink: 0;
-}
-
-.logo-link {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.7rem;
   text-decoration: none;
+  flex-shrink: 0;
   transition: transform 0.3s ease;
 }
 
-.logo-link:hover {
-  transform: scale(1.05);
+.logo-section:hover {
+  transform: scale(1.04);
 }
 
 .logo-badge {
-  width: 45px;
-  /* Ligeramente más pequeño */
-  height: 45px;
-  border-radius: 12px;
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
   background: linear-gradient(135deg, #ffcc00 0%, #ff9900 100%);
-  padding: 3px;
-  box-shadow: 0 4px 20px rgba(255, 204, 0, 0.4);
-  position: relative;
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  box-shadow: 0 4px 18px rgba(255, 204, 0, 0.45);
   flex-shrink: 0;
 }
 
-.logo-badge::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  animation: shine 3s infinite;
-}
-
-@keyframes shine {
-  0% {
-    transform: translateX(-100%) translateY(-100%) rotate(45deg);
-  }
-
-  100% {
-    transform: translateX(100%) translateY(100%) rotate(45deg);
-  }
-}
-
-.logo-icon {
-  width: 100%;
-  height: 100%;
-  border-radius: 10px;
-  object-fit: cover;
-}
-
-.brand-text {
+.brand {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  gap: 0.05rem;
 }
 
 .brand-name {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: 900;
   color: #ffcc00;
   letter-spacing: -0.5px;
   text-shadow: 0 2px 10px rgba(255, 204, 0, 0.5);
   white-space: nowrap;
-  /* Evita que el texto salte de línea */
 }
 
 .brand-tagline {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.55);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
   white-space: nowrap;
 }
 
-/* Desktop Navigation */
+/* ═══════════════════════════════════════
+   NAVIGATION (Desktop)
+═══════════════════════════════════════ */
 .nav-desktop {
   display: flex;
-  gap: 0.3rem;
-  /* Menos espacio entre items */
   align-items: center;
-  flex-grow: 1;
+  gap: 0.2rem;
+  flex: 1;
   justify-content: center;
-  flex-wrap: nowrap;
-  /* Fuerza una línea */
+  min-width: 0;
 }
 
-.nav-link {
+.nav-btn {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.6rem 0.8rem;
-  /* Padding más ajustado */
-  color: rgba(255, 255, 255, 0.8);
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  color: rgba(255, 255, 255, 0.78);
   text-decoration: none;
   font-weight: 700;
-  font-size: 0.9rem;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
+  font-size: 0.85rem;
+  border-radius: 9px;
+  transition: all 0.25s;
   white-space: nowrap;
+  border: 1px solid transparent;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
-.nav-link::before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: #ffcc00;
-  transform: scaleX(0);
-  transition: transform 0.3s ease;
-}
-
-.nav-link:hover {
+.nav-btn:hover {
   color: #ffcc00;
-  background: rgba(255, 204, 0, 0.1);
+  background: rgba(255, 204, 0, 0.09);
+  border-color: rgba(255, 204, 0, 0.2);
 }
 
-.nav-link:hover::before {
-  transform: scaleX(1);
-}
-
-.nav-link.router-link-active {
+.nav-btn.router-link-active {
   color: #ffcc00;
   background: rgba(255, 204, 0, 0.15);
-  box-shadow: 0 0 20px rgba(255, 204, 0, 0.2);
+  border-color: rgba(255, 204, 0, 0.4);
+  box-shadow: 0 0 18px rgba(255, 204, 0, 0.15);
 }
 
-.nav-link.router-link-active::before {
-  transform: scaleX(1);
-}
-
-.nav-link.disabled {
+.nav-btn.disabled {
   pointer-events: none;
-  opacity: 0.3;
+  opacity: 0.28;
 }
 
-.nav-icon {
-  font-size: 1.1rem;
-}
-
-/* Header Actions */
+/* ═══════════════════════════════════════
+   HEADER ACTIONS
+═══════════════════════════════════════ */
 .header-actions {
   display: flex;
   align-items: center;
   gap: 0.8rem;
   flex-shrink: 0;
-  /* Evita que esta sección se aplaste */
 }
 
-/* User Info */
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  background: rgba(255, 204, 0, 0.1);
-  border: 1px solid rgba(255, 204, 0, 0.3);
-  border-radius: 12px;
-  padding: 0.4rem 0.8rem;
-}
-
-.user-stats {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.stat-value {
-  font-weight: 800;
-  color: #ffcc00;
-  font-size: 0.9rem;
-}
-
-.stat-divider {
-  width: 1px;
-  height: 16px;
-  background: rgba(255, 204, 0, 0.3);
-}
-
-.user-level {
-  background: linear-gradient(135deg, #ffcc00, #ff9900);
-  padding: 0.2rem 0.6rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(255, 204, 0, 0.3);
-}
-
-.level-badge {
-  font-weight: 900;
-  color: #000;
-  font-size: 0.8rem;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-}
-
-/* Language Selector */
-.language-selector {
-  position: relative;
-}
-
-.language-select {
-  background: rgba(40, 40, 40, 0.8);
-  border: 1px solid rgba(255, 204, 0, 0.3);
-  color: #fff;
-  padding: 0.5rem;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  appearance: none;
-}
-
-/* Logout Button */
-.logout-btn {
+/* User Dropdown Trigger */
+.user-dropdown-trigger {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #ff4444, #cc0000);
-  border: none;
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.85rem;
-  padding: 0.6rem 1rem;
+  background: rgba(255, 204, 0, 0.09);
+  border: 1px solid rgba(255, 204, 0, 0.28);
   border-radius: 10px;
+  padding: 0.35rem 0.9rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
+  transition: all 0.2s;
   white-space: nowrap;
 }
 
-.logout-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 68, 68, 0.5);
+.user-dropdown-trigger:hover {
+  background: rgba(255, 204, 0, 0.13);
+  border-color: rgba(255, 204, 0, 0.45);
+}
+
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffcc00, #ff9900);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  color: #000;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.strength-badge {
+  color: #ffcc00;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.dropdown-arrow {
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.6);
+  transition: transform 0.2s;
+}
+
+.dropdown-arrow.open {
+  transform: rotate(180deg);
 }
 
 /* Mobile Menu Button */
 .mobile-menu-btn {
   display: none;
-  /* Oculto por defecto en pantallas grandes */
   flex-direction: column;
   gap: 0.3rem;
-  background: transparent;
+  background: none;
   border: none;
   cursor: pointer;
   padding: 0.5rem;
+  flex-shrink: 0;
 }
 
-.hamburger-line {
-  width: 25px;
-  height: 3px;
+.mobile-menu-btn span {
+  width: 22px;
+  height: 2.5px;
   background: #ffcc00;
   border-radius: 2px;
   transition: all 0.3s ease;
+  display: block;
 }
 
-.hamburger-line.active:nth-child(1) {
-  transform: rotate(45deg) translateY(10px);
+.mobile-menu-btn span.active:nth-child(1) {
+  transform: rotate(45deg) translateY(9px);
 }
 
-.hamburger-line.active:nth-child(2) {
+.mobile-menu-btn span.active:nth-child(2) {
   opacity: 0;
 }
 
-.hamburger-line.active:nth-child(3) {
-  transform: rotate(-45deg) translateY(-10px);
+.mobile-menu-btn span.active:nth-child(3) {
+  transform: rotate(-45deg) translateY(-9px);
 }
 
-/* Mobile Navigation */
-.nav-mobile {
-  display: flex;
-  /* Flex para poder ocultarlo con v-if */
-  flex-direction: column;
-  background: rgba(0, 0, 0, 0.98);
-  border-top: 1px solid rgba(255, 204, 0, 0.3);
-  padding: 1rem 0;
-  max-height: calc(100vh - 80px);
+/* ═══════════════════════════════════════
+   USER DROPDOWN MENU
+═══════════════════════════════════════ */
+.user-dropdown {
+  position: fixed;
+  top: 68px;
+  right: 20px;
+  z-index: 2000;
+  width: 300px;
+  max-height: calc(100vh - 88px);
   overflow-y: auto;
-  position: absolute;
-  width: 100%;
-  left: 0;
 }
 
-.mobile-user-summary {
+.dropdown-content {
+  background: rgba(5, 5, 5, 0.99);
+  border: 1px solid rgba(255, 204, 0, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  padding: 1rem;
+}
+
+.dropdown-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 1rem 2rem;
-  background: rgba(255, 204, 0, 0.1);
+  gap: 0.8rem;
+  padding-bottom: 0.8rem;
   border-bottom: 1px solid rgba(255, 204, 0, 0.2);
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
 }
 
-.mobile-level {
+.user-avatar-large {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffcc00, #ff9900);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  color: #000;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.user-level {
+  margin: 0;
+  font-weight: 700;
+  color: #ffcc00;
+  font-size: 0.9rem;
+}
+
+.user-email {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(255, 204, 0, 0.2);
+}
+
+.stat-card {
+  background: rgba(255, 204, 0, 0.05);
+  border: 1px solid rgba(255, 204, 0, 0.15);
+  border-radius: 8px;
+  padding: 0.6rem;
+  text-align: center;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.3rem;
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.1rem;
   font-weight: 900;
   color: #ffcc00;
 }
 
-.mobile-stats {
+/* Premium Card */
+.premium-card {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: 8px;
+  padding: 0.7rem;
+  margin-bottom: 0.8rem;
   display: flex;
-  gap: 1rem;
-  color: white;
-  font-weight: bold;
+  gap: 0.7rem;
+  align-items: flex-start;
 }
 
-.nav-link-mobile {
+.premium-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.premium-title {
+  margin: 0;
+  font-weight: 700;
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.premium-desc {
+  margin: 0;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.4;
+}
+
+/* Dropdown Divider */
+.dropdown-divider {
+  height: 1px;
+  background: rgba(255, 204, 0, 0.15);
+  margin: 0.6rem 0;
+}
+
+/* Dropdown Items */
+.dropdown-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem 2rem;
+  gap: 0.7rem;
+  padding: 0.7rem 0.8rem;
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.2s;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 204, 0, 0.08);
+  color: #ffcc00;
+}
+
+.language-selector {
+  justify-content: space-between;
+}
+
+.language-selector select {
+  background: rgba(35, 35, 35, 0.85);
+  border: 1px solid rgba(255, 204, 0, 0.28);
+  color: #fff;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  appearance: none;
+}
+
+.language-selector select:hover {
+  border-color: rgba(255, 204, 0, 0.6);
+}
+
+/* Logout Button */
+.logout-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+  border: none;
+  color: #fff;
   font-weight: 700;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  padding: 0.7rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.4rem;
+  font-family: inherit;
+}
+
+.logout-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 18px rgba(255, 68, 68, 0.5);
+}
+
+/* ═══════════════════════════════════════
+   MOBILE MENU
+═══════════════════════════════════════ */
+.nav-mobile {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(5, 5, 5, 0.99);
+  border-top: 1px solid rgba(255, 204, 0, 0.25);
+  padding: 0.5rem 0 1.5rem;
+  max-height: calc(100vh - 68px);
+  overflow-y: auto;
+  z-index: 999;
+}
+
+.mobile-user-summary {
+  padding: 1rem 1.5rem;
+  background: rgba(255, 204, 0, 0.08);
+  border-bottom: 1px solid rgba(255, 204, 0, 0.18);
+  margin-bottom: 0.5rem;
+}
+
+.mobile-level {
+  margin: 0;
+  font-weight: 900;
+  color: #ffcc00;
+  font-size: 1rem;
+}
+
+.mobile-stats {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.mobile-nav-item {
+  display: block;
+  padding: 0.85rem 1.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s;
   border-left: 3px solid transparent;
 }
 
-.nav-link-mobile:hover,
-.nav-link-mobile.router-link-active {
+.mobile-nav-item:hover,
+.mobile-nav-item.router-link-active {
   color: #ffcc00;
-  background: rgba(255, 204, 0, 0.1);
+  background: rgba(255, 204, 0, 0.09);
   border-left-color: #ffcc00;
 }
 
-/* Status Bar */
-.status-bar {
-  position: fixed;
-  /* Fixed para no afectar el flujo del header */
-  top: 90px;
-  right: 20px;
+.mobile-nav-item.disabled {
+  pointer-events: none;
+  opacity: 0.25;
+}
+
+.mobile-divider {
+  height: 1px;
+  background: rgba(255, 204, 0, 0.15);
+  margin: 0.5rem 0;
+}
+
+.mobile-language {
+  padding: 0.85rem 1.5rem;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  background: rgba(74, 222, 128, 0.2);
-  border: 1px solid rgba(74, 222, 128, 0.4);
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  z-index: 900;
+  justify-content: space-between;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
 }
 
-.status-pulse {
-  width: 8px;
-  height: 8px;
-  background: #4ade80;
-  border-radius: 50%;
-  animation: pulse 2s infinite;
+.mobile-language select {
+  background: rgba(35, 35, 35, 0.85);
+  border: 1px solid rgba(255, 204, 0, 0.28);
+  color: #fff;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
 }
 
-@keyframes pulse {
-
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
-  }
-
-  50% {
-    box-shadow: 0 0 0 8px rgba(74, 222, 128, 0);
-  }
+.mobile-premium-card {
+  margin: 1rem 1.5rem;
+  padding: 0.8rem;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: 8px;
+  text-align: center;
 }
 
-.status-text {
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: #4ade80;
-  letter-spacing: 1px;
+.mobile-premium-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.mobile-logout-btn {
+  display: block;
+  width: calc(100% - 3rem);
+  margin: 0.5rem 1.5rem;
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.65rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ═══════════════════════════════════════
+   OVERLAY
+═══════════════════════════════════════ */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  background: transparent;
+}
+
+/* ═══════════════════════════════════════
+   TRANSITIONS
+═══════════════════════════════════════ */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 .slide-enter-active,
 .slide-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.28s ease;
 }
 
 .slide-enter-from,
 .slide-leave-to {
   opacity: 0;
-  transform: translateY(-20px);
+  transform: translateY(-12px);
 }
 
-/* --- RESPONSIVE LOGIC --- */
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
 
-/* Laptops pequeños y Tablets Horizontales (Menos de 1280px) */
-@media (max-width: 1280px) {
-
-  /* Ocultar elementos decorativos para ahorrar espacio */
+/* Tablet: 1200px and below */
+@media (max-width: 1200px) {
   .brand-tagline {
     display: none;
   }
 
-  .logout-text {
+  .nav-btn {
+    padding: 0.45rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .strength-badge {
     display: none;
-    /* Dejar solo el icono de rayo */
   }
 
-  /* Reducir paddings drásticamente */
-  .nav-link {
-    padding: 0.5rem 0.5rem;
-    font-size: 0.85rem;
-  }
-
-  .navbar {
-    padding: 0.8rem 1rem;
-    gap: 0.5rem;
+  .user-dropdown-trigger {
+    padding: 0.35rem 0.6rem;
   }
 }
 
-/* Tablets Verticales y Laptops con mucho zoom (Menos de 1024px) */
-/* AQUÍ ACTIVAMOS EL MODO MÓVIL ANTES QUE EN TU VERSIÓN ORIGINAL */
+/* Tablet: 1024px and below */
 @media (max-width: 1024px) {
   .nav-desktop {
-    display: none;
-    /* Ocultar menú escritorio */
+    gap: 0;
   }
 
-  .user-info {
+  .nav-btn {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .brand-name {
+    font-size: 0.95rem;
+  }
+
+  .logo-badge {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .user-dropdown {
+    width: 280px;
+  }
+}
+
+/* Mobile: 900px and below */
+@media (max-width: 900px) {
+  .nav-desktop {
     display: none;
-    /* Las stats pasan al menú móvil */
   }
 
   .mobile-menu-btn {
     display: flex;
-    /* Mostrar hamburguesa */
   }
 
-  .status-bar {
+  .nav-mobile {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header-container {
+    padding: 0.6rem 1rem;
+    min-height: 62px;
+  }
+
+  .user-dropdown {
+    right: 15px;
+    width: 280px;
+  }
+
+  .strength-badge {
     display: none;
   }
 
-  /* Asegurar que el logo no sea enorme */
-  .brand-name {
-    font-size: 1.1rem;
+  .user-avatar {
+    width: 26px;
+    height: 26px;
+    font-size: 0.7rem;
+  }
+
+  .user-dropdown-trigger {
+    padding: 0.3rem 0.5rem;
   }
 }
 
+/* Small Mobile: 480px and below */
 @media (max-width: 480px) {
   .brand-text {
     display: none;
-    /* En móviles muy pequeños, solo logo icono */
   }
 
-  .language-selector {
-    display: none;
+  .header-container {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .user-dropdown {
+    width: calc(100vw - 30px);
+    max-width: 300px;
+  }
+}
+
+/* Extra Small: 360px and below */
+@media (max-width: 360px) {
+  .logo-badge {
+    width: 32px;
+    height: 32px;
+    font-size: 0.95rem;
+  }
+
+  .header-container {
+    padding: 0.5rem 0.5rem;
   }
 }
 </style>

@@ -36,29 +36,15 @@ function scrollToTop() {
     <v-main class="main-wrapper">
       <!-- Background Effects -->
       <div class="background-overlay"></div>
-      <div class="grid-pattern"></div>
-      <div class="gradient-orb orb-1"></div>
-      <div class="gradient-orb orb-2"></div>
-      <div class="gradient-orb orb-3"></div>
 
-      <!-- Animated particles -->
-      <div class="particles">
-        <div class="particle" v-for="i in 20" :key="i" :style="{
-          left: `${Math.random() * 100}%`,
-          animationDelay: `${Math.random() * 5}s`,
-          animationDuration: `${15 + Math.random() * 10}s`
-        }"></div>
-      </div>
-
-      <v-container class="content-container">
-        <!-- Welcome Banner -->
+      <v-container fluid class="content-container">
         <div class="welcome-banner" v-if="loggedUser">
           <div class="banner-glow"></div>
           <div class="banner-content">
             <div class="welcome-icon">💪</div>
             <div class="welcome-text">
               <h1 class="welcome-title">{{ $t('bienvenido') || 'Bienvenido' }}, <span class="username">{{
-                  loggedUser.name }}</span></h1>
+                loggedUser.name }}</span></h1>
               <p class="welcome-subtitle">{{ $t('listo_entrenar') || '¿Listo para superar tus límites?' }}</p>
             </div>
           </div>
@@ -70,7 +56,7 @@ function scrollToTop() {
         </div>
 
         <!-- Stats Section -->
-        <section class="panel-section"  v-if="loggedUser?.role !== 'userMaster'">
+        <section class="panel-section" v-if="loggedUser?.role !== 'userMaster'">
           <div class="section-header">
             <div class="section-icon">📊</div>
             <h2 class="section-title">{{ $t('estadisticas') || 'Tus Estadísticas' }}</h2>
@@ -82,7 +68,7 @@ function scrollToTop() {
         </section>
 
         <!-- Inventory Section -->
-        <section class="panel-section"  v-if="loggedUser?.role !== 'userMaster'">
+        <section class="panel-section" v-if="loggedUser?.role !== 'userMaster'">
           <div class="section-header">
             <div class="section-icon">🎒</div>
             <h2 class="section-title">{{ $t('inventario') || 'Tu Inventario' }}</h2>
@@ -128,6 +114,7 @@ function scrollToTop() {
 .main-wrapper {
   position: relative;
   min-height: 100vh;
+  width: 100%;
   background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 50%, #16213e 100%);
   overflow-x: hidden;
   overflow-y: auto;
@@ -265,11 +252,9 @@ function scrollToTop() {
 
 /* Content Container */
 .content-container {
-  position: relative;
-  z-index: 2;
-  max-width: 1600px;
+  width: 100% !important;
+  max-width: 100% !important;
   padding: 2rem 1rem;
-  margin: 0 auto;
 }
 
 /* Welcome Banner */
@@ -550,25 +535,7 @@ function scrollToTop() {
   }
 }
 
-/* Scrollbar */
-.main-wrapper::-webkit-scrollbar {
-  width: 12px;
-}
 
-.main-wrapper::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-}
-
-.main-wrapper::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #0D6EFD, #0a58ca);
-  border-radius: 10px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-}
-
-.main-wrapper::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #0a58ca, #0D6EFD);
-}
 
 /* Responsive */
 @media (max-width: 768px) {

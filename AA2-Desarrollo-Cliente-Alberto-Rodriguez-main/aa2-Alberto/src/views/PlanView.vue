@@ -1,193 +1,187 @@
 <script setup lang="ts">
-import HeaderView from './HeaderView.vue'
-import FooterView from './FooterView.vue'
 import PlanRender from '@/components/Renders/PlanRender.vue'
 </script>
 
 <template>
-  <v-app>
-    <v-main class="main">
-      <!-- Particles Background -->
-      <div class="particles-bg">
-        <div class="particle" v-for="i in 35" :key="i" :style="{ 
-          left: Math.random() * 100 + '%', 
-          animationDelay: Math.random() * 10 + 's',
-          animationDuration: (5 + Math.random() * 8) + 's'
-        }"></div>
+  <div class="main">
+    <!-- Particles Background -->
+    <div class="particles-bg">
+      <div class="particle" v-for="i in 35" :key="i" :style="{
+        left: Math.random() * 100 + '%',
+        animationDelay: Math.random() * 10 + 's',
+        animationDuration: (5 + Math.random() * 8) + 's'
+      }"></div>
+    </div>
+
+    <v-container fluid class="main-container">
+      <!-- Hero Section -->
+      <div class="hero-section">
+        <div class="hero-glow"></div>
+
+        <!-- Trophy Icon -->
+        <div class="trophy-container">
+          <div class="trophy-rings">
+            <div class="ring ring-1"></div>
+            <div class="ring ring-2"></div>
+            <div class="ring ring-3"></div>
+          </div>
+          <v-icon class="trophy-icon">mdi-trophy-variant</v-icon>
+        </div>
+
+        <!-- Title Section -->
+        <div class="hero-title-section">
+          <h1 class="hero-title">
+            <span class="title-top">DESBLOQUEA TU</span>
+            <span class="title-main">POTENCIAL</span>
+          </h1>
+          <p class="hero-subtitle">Elige el plan perfecto para alcanzar tus objetivos de fitness</p>
+        </div>
+
+        <!-- Divider -->
+        <div class="hero-divider">
+          <div class="divider-line"></div>
+          <v-icon class="divider-icon">mdi-fire</v-icon>
+          <div class="divider-line"></div>
+        </div>
+
+        <!-- Benefits Pills -->
+        <div class="benefits-grid">
+          <div class="benefit-card benefit-1">
+            <div class="benefit-icon-wrapper">
+              <v-icon size="32" color="#00ff88">mdi-lightning-bolt</v-icon>
+            </div>
+            <div class="benefit-content">
+              <div class="benefit-title">Activación Inmediata</div>
+              <div class="benefit-text">Acceso instantáneo al contenido</div>
+            </div>
+          </div>
+
+          <div class="benefit-card benefit-2">
+            <div class="benefit-icon-wrapper">
+              <v-icon size="32" color="#00D2FF">mdi-account-group</v-icon>
+            </div>
+            <div class="benefit-content">
+              <div class="benefit-title">Comunidad Élite</div>
+              <div class="benefit-text">Entrena con los mejores</div>
+            </div>
+          </div>
+
+          <div class="benefit-card benefit-3">
+            <div class="benefit-icon-wrapper">
+              <v-icon size="32" color="#A855F7">mdi-chart-line-variant</v-icon>
+            </div>
+            <div class="benefit-content">
+              <div class="benefit-title">Progreso Detallado</div>
+              <div class="benefit-text">Analytics y estadísticas avanzadas</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Banner -->
+        <div class="stats-banner">
+          <div class="stat-item">
+            <div class="stat-value">10K+</div>
+            <div class="stat-label">Atletas Activos</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-value">98%</div>
+            <div class="stat-label">Satisfacción</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-value">24/7</div>
+            <div class="stat-label">Soporte Premium</div>
+          </div>
+        </div>
       </div>
 
-      <v-container fluid class="main-container">
-        <!-- Hero Section -->
-        <div class="hero-section">
-          <div class="hero-glow"></div>
-          
-          <!-- Trophy Icon -->
-          <div class="trophy-container">
-            <div class="trophy-rings">
-              <div class="ring ring-1"></div>
-              <div class="ring ring-2"></div>
-              <div class="ring ring-3"></div>
-            </div>
-            <v-icon class="trophy-icon">mdi-trophy-variant</v-icon>
+      <!-- Plans Section -->
+      <div class="plans-section">
+        <div class="section-header">
+          <h2 class="section-title">NUESTROS PLANES</h2>
+          <p class="section-subtitle">Selecciona el que mejor se adapte a ti</p>
+        </div>
+        <PlanRender />
+      </div>
+
+      <!-- FAQ/Help Section -->
+      <div class="help-section">
+        <div class="help-card">
+          <div class="help-icon">
+            <v-icon size="48" color="#FFD700">mdi-chat-question</v-icon>
           </div>
+          <h3 class="help-title">¿Necesitas ayuda para decidir?</h3>
+          <p class="help-text">Nuestro equipo de expertos está listo para asesorarte y ayudarte a encontrar el plan
+            perfecto según tus objetivos</p>
+          <v-btn size="large" class="help-btn">
+            <v-icon class="mr-2">mdi-headset</v-icon>
+            CONTACTAR ASESOR
+          </v-btn>
+        </div>
+      </div>
 
-          <!-- Title Section -->
-          <div class="hero-title-section">
-            <h1 class="hero-title">
-              <span class="title-top">DESBLOQUEA TU</span>
-              <span class="title-main">POTENCIAL</span>
-            </h1>
-            <p class="hero-subtitle">Elige el plan perfecto para alcanzar tus objetivos de fitness</p>
+      <!-- Trust Badges -->
+      <div class="trust-section">
+        <div class="trust-badge badge-1">
+          <div class="badge-icon">
+            <v-icon size="36" color="#00ff88">mdi-shield-check</v-icon>
           </div>
-
-          <!-- Divider -->
-          <div class="hero-divider">
-            <div class="divider-line"></div>
-            <v-icon class="divider-icon">mdi-fire</v-icon>
-            <div class="divider-line"></div>
-          </div>
-
-          <!-- Benefits Pills -->
-          <div class="benefits-grid">
-            <div class="benefit-card benefit-1">
-              <div class="benefit-icon-wrapper">
-                <v-icon size="32" color="#00ff88">mdi-lightning-bolt</v-icon>
-              </div>
-              <div class="benefit-content">
-                <div class="benefit-title">Activación Inmediata</div>
-                <div class="benefit-text">Acceso instantáneo al contenido</div>
-              </div>
-            </div>
-
-            <div class="benefit-card benefit-2">
-              <div class="benefit-icon-wrapper">
-                <v-icon size="32" color="#00D2FF">mdi-account-group</v-icon>
-              </div>
-              <div class="benefit-content">
-                <div class="benefit-title">Comunidad Élite</div>
-                <div class="benefit-text">Entrena con los mejores</div>
-              </div>
-            </div>
-
-            <div class="benefit-card benefit-3">
-              <div class="benefit-icon-wrapper">
-                <v-icon size="32" color="#A855F7">mdi-chart-line-variant</v-icon>
-              </div>
-              <div class="benefit-content">
-                <div class="benefit-title">Progreso Detallado</div>
-                <div class="benefit-text">Analytics y estadísticas avanzadas</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Stats Banner -->
-          <div class="stats-banner">
-            <div class="stat-item">
-              <div class="stat-value">10K+</div>
-              <div class="stat-label">Atletas Activos</div>
-            </div>
-            <div class="stat-divider"></div>
-            <div class="stat-item">
-              <div class="stat-value">98%</div>
-              <div class="stat-label">Satisfacción</div>
-            </div>
-            <div class="stat-divider"></div>
-            <div class="stat-item">
-              <div class="stat-value">24/7</div>
-              <div class="stat-label">Soporte Premium</div>
-            </div>
+          <div class="badge-text">
+            <div class="badge-title">Pago 100% Seguro</div>
+            <div class="badge-subtitle">Encriptación SSL</div>
           </div>
         </div>
 
-        <!-- Plans Section -->
-        <div class="plans-section">
-          <div class="section-header">
-            <h2 class="section-title">NUESTROS PLANES</h2>
-            <p class="section-subtitle">Selecciona el que mejor se adapte a ti</p>
+        <div class="trust-badge badge-2">
+          <div class="badge-icon">
+            <v-icon size="36" color="#00D2FF">mdi-lock-check</v-icon>
           </div>
-          <PlanRender />
-        </div>
-
-        <!-- FAQ/Help Section -->
-        <div class="help-section">
-          <div class="help-card">
-            <div class="help-icon">
-              <v-icon size="48" color="#FFD700">mdi-chat-question</v-icon>
-            </div>
-            <h3 class="help-title">¿Necesitas ayuda para decidir?</h3>
-            <p class="help-text">Nuestro equipo de expertos está listo para asesorarte y ayudarte a encontrar el plan perfecto según tus objetivos</p>
-            <v-btn
-              size="large"
-              class="help-btn"
-            >
-              <v-icon class="mr-2">mdi-headset</v-icon>
-              CONTACTAR ASESOR
-            </v-btn>
+          <div class="badge-text">
+            <div class="badge-title">Datos Protegidos</div>
+            <div class="badge-subtitle">Privacidad garantizada</div>
           </div>
         </div>
 
-        <!-- Trust Badges -->
-        <div class="trust-section">
-          <div class="trust-badge badge-1">
-            <div class="badge-icon">
-              <v-icon size="36" color="#00ff88">mdi-shield-check</v-icon>
-            </div>
-            <div class="badge-text">
-              <div class="badge-title">Pago 100% Seguro</div>
-              <div class="badge-subtitle">Encriptación SSL</div>
-            </div>
+        <div class="trust-badge badge-3">
+          <div class="badge-icon">
+            <v-icon size="36" color="#FFD700">mdi-flash</v-icon>
           </div>
-
-          <div class="trust-badge badge-2">
-            <div class="badge-icon">
-              <v-icon size="36" color="#00D2FF">mdi-lock-check</v-icon>
-            </div>
-            <div class="badge-text">
-              <div class="badge-title">Datos Protegidos</div>
-              <div class="badge-subtitle">Privacidad garantizada</div>
-            </div>
-          </div>
-
-          <div class="trust-badge badge-3">
-            <div class="badge-icon">
-              <v-icon size="36" color="#FFD700">mdi-flash</v-icon>
-            </div>
-            <div class="badge-text">
-              <div class="badge-title">Acceso Instantáneo</div>
-              <div class="badge-subtitle">Sin esperas</div>
-            </div>
-          </div>
-
-          <div class="trust-badge badge-4">
-            <div class="badge-icon">
-              <v-icon size="36" color="#FF6B9D">mdi-calendar-remove</v-icon>
-            </div>
-            <div class="badge-text">
-              <div class="badge-title">Cancela Cuando Quieras</div>
-              <div class="badge-subtitle">Sin compromisos</div>
-            </div>
+          <div class="badge-text">
+            <div class="badge-title">Acceso Instantáneo</div>
+            <div class="badge-subtitle">Sin esperas</div>
           </div>
         </div>
 
-        <!-- Money Back Guarantee -->
-        <div class="guarantee-section">
-          <div class="guarantee-badge">
-            <v-icon size="64" color="#FFD700">mdi-shield-star</v-icon>
+        <div class="trust-badge badge-4">
+          <div class="badge-icon">
+            <v-icon size="36" color="#FF6B9D">mdi-calendar-remove</v-icon>
           </div>
-          <h3 class="guarantee-title">Garantía de 30 Días</h3>
-          <p class="guarantee-text">Si no estás completamente satisfecho, te devolvemos tu dinero. Sin preguntas.</p>
+          <div class="badge-text">
+            <div class="badge-title">Cancela Cuando Quieras</div>
+            <div class="badge-subtitle">Sin compromisos</div>
+          </div>
         </div>
-      </v-container>
-    </v-main>
-  </v-app>
+      </div>
+
+      <!-- Money Back Guarantee -->
+      <div class="guarantee-section">
+        <div class="guarantee-badge">
+          <v-icon size="64" color="#FFD700">mdi-shield-star</v-icon>
+        </div>
+        <h3 class="guarantee-title">Garantía de 30 Días</h3>
+        <p class="guarantee-text">Si no estás completamente satisfecho, te devolvemos tu dinero. Sin preguntas.</p>
+      </div>
+    </v-container>
+  </div>
 </template>
 
 <style scoped>
-/* Main Container */
 .main {
   position: relative;
+  width: 100%;
   min-height: 100vh;
-  background: 
+  background:
     radial-gradient(ellipse at top, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
     radial-gradient(ellipse at bottom, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
     linear-gradient(180deg, #0a0e1a 0%, #0f1419 50%, #0a0e1a 100%);
@@ -220,12 +214,15 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
     transform: translateY(100vh) scale(0);
     opacity: 0;
   }
+
   10% {
     opacity: 1;
   }
+
   90% {
     opacity: 1;
   }
+
   100% {
     transform: translateY(-100px) scale(1);
     opacity: 0;
@@ -307,6 +304,7 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
     height: 100px;
     opacity: 1;
   }
+
   100% {
     width: 280px;
     height: 280px;
@@ -322,10 +320,13 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
 }
 
 @keyframes trophy-float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0) rotate(-5deg);
     filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.8));
   }
+
   50% {
     transform: translateY(-15px) rotate(5deg);
     filter: drop-shadow(0 0 60px rgba(255, 215, 0, 1));
@@ -366,9 +367,12 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
 }
 
 @keyframes gradient-shift {
-  0%, 100% {
+
+  0%,
+  100% {
     background-position: 0% center;
   }
+
   50% {
     background-position: 100% center;
   }
@@ -406,10 +410,13 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
 }
 
 @keyframes fire-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.8;
     transform: scale(1.2);
@@ -458,6 +465,7 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
     opacity: 0;
     transform: translateY(30px) scale(0.9);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -534,6 +542,7 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
     opacity: 0;
     transform: translateY(20px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -623,22 +632,18 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
   box-shadow: 0 20px 60px rgba(255, 215, 0, 0.3);
 }
 
-.help-icon {
-  margin-bottom: 1.5rem;
-}
-
 .help-title {
   font-size: 1.8rem;
   font-weight: 900;
   color: white;
-  margin: 0 0 1rem;
+  margin: 0;
 }
 
 .help-text {
   font-size: 1.05rem;
   color: rgba(255, 255, 255, 0.7);
   line-height: 1.6;
-  margin: 0 0 2rem;
+  margin: 0;
 }
 
 .help-btn {
@@ -650,9 +655,6 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
   border-radius: 50px !important;
   box-shadow: 0 8px 30px rgba(255, 215, 0, 0.4);
   transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .help-btn:hover {
@@ -683,16 +685,28 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
   animation: badge-entrance 0.6s ease-out backwards;
 }
 
-.badge-1 { animation-delay: 0.1s; }
-.badge-2 { animation-delay: 0.2s; }
-.badge-3 { animation-delay: 0.3s; }
-.badge-4 { animation-delay: 0.4s; }
+.badge-1 {
+  animation-delay: 0.1s;
+}
+
+.badge-2 {
+  animation-delay: 0.2s;
+}
+
+.badge-3 {
+  animation-delay: 0.3s;
+}
+
+.badge-4 {
+  animation-delay: 0.4s;
+}
 
 @keyframes badge-entrance {
   0% {
     opacity: 0;
     transform: translateY(30px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -714,10 +728,6 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
   justify-content: center;
   background: rgba(0, 0, 0, 0.3);
   flex-shrink: 0;
-}
-
-.badge-text {
-  flex: 1;
 }
 
 .badge-title {
@@ -745,15 +755,11 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
   box-shadow: 0 10px 40px rgba(255, 215, 0, 0.2);
 }
 
-.guarantee-badge {
-  margin-bottom: 1.5rem;
-}
-
 .guarantee-title {
   font-size: 1.8rem;
   font-weight: 900;
   color: #FFD700;
-  margin: 0 0 1rem;
+  margin: 1rem 0;
   text-transform: uppercase;
   letter-spacing: 2px;
 }
@@ -765,14 +771,7 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
   margin: 0;
 }
 
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .benefits-grid {
-    grid-template-columns: 1fr;
-    max-width: 600px;
-  }
-}
-
+/* Responsive */
 @media (max-width: 960px) {
   .main-container {
     padding: 2rem 1.5rem;
@@ -787,16 +786,6 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
     font-size: 4rem !important;
   }
 
-  .title-top {
-    font-size: 1.1rem;
-    letter-spacing: 6px;
-  }
-
-  .title-main {
-    font-size: 2.5rem;
-    letter-spacing: 2px;
-  }
-
   .stats-banner {
     flex-direction: column;
     gap: 1.5rem;
@@ -809,11 +798,6 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
     height: 2px;
     background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent);
   }
-
-  .trust-section {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-  }
 }
 
 @media (max-width: 600px) {
@@ -823,15 +807,6 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
 
   .trophy-icon {
     font-size: 3.5rem !important;
-  }
-
-  .title-top {
-    font-size: 1rem;
-    letter-spacing: 4px;
-  }
-
-  .title-main {
-    font-size: 2rem;
   }
 
   .hero-subtitle {
@@ -846,10 +821,6 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
 
   .benefit-content {
     text-align: center;
-  }
-
-  .stats-banner {
-    padding: 1.5rem;
   }
 
   .stat-value {
@@ -896,16 +867,6 @@ import PlanRender from '@/components/Renders/PlanRender.vue'
 
   .guarantee-text {
     font-size: 0.95rem;
-  }
-}
-
-@media (max-width: 400px) {
-  .title-main {
-    font-size: 1.8rem;
-  }
-
-  .section-title {
-    font-size: 1.6rem;
   }
 }
 </style>

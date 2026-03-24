@@ -12,6 +12,9 @@ import RegisterView from '@/views/RegisterView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RutinaView from '@/views/RutinaView.vue'
 import JoinRoomView from '@/views/JoinRoomView.vue'
+import ProfileSettingsView from '@/views/ProfileSettingsView.vue'
+import HealthCalculatorView from '@/views/HealthCalculatorView.vue'
+import ChatView from '@/views/ChatView.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -72,6 +75,22 @@ const routes: RouteRecordRaw[] = [
     name: 'sala',
     component: JoinRoomView,
     meta: { requiresAuth: true },
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: ProfileSettingsView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/calculator',
+    name: 'calculator',
+    component: HealthCalculatorView,
+  }, 
+  {
+    path: '/CoachAi',
+    name: 'coachAi',
+    component: ChatView,
   }
 ]
 

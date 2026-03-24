@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { ref } from 'vue'
 import router from '@/router'
@@ -162,7 +161,13 @@ const register = async () => {
     consistencystreak: 0,
     consistencyStreak: 0,
     gold: 0,
-    role: 'userNormal'
+    role: 'userNormal',
+    experience: 0,
+    xpRequired: 100,
+    xpRemaining: 100,
+    equippedStrengthItemId: 0,
+    equippedEnduranceItemId: 0,
+    avatarUrl: ''
   }
 
   try {
@@ -202,7 +207,7 @@ const register = async () => {
     <!-- Gradient orbs - efecto futurista sutil -->
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
-    
+
     <!-- Grid lines futuristas -->
     <div class="grid-lines"></div>
 
@@ -238,59 +243,33 @@ const register = async () => {
                 <!-- Nombre -->
                 <div class="input-wrapper">
                   <label class="input-label">USUARIO</label>
-                  <v-text-field
-                    v-model="name"
-                    :placeholder="$t('username_placeholder')"
-                    variant="solo-filled"
-                    density="comfortable"
-                    color="purple-lighten-2"
-                    class="custom-input"
-                    hide-details="auto"
-                    maxlength="50"
-                    counter
-                  ></v-text-field>
+                  <v-text-field v-model="name" :placeholder="$t('username_placeholder')" variant="solo-filled"
+                    density="comfortable" color="purple-lighten-2" class="custom-input" hide-details="auto"
+                    maxlength="50" counter></v-text-field>
                 </div>
 
                 <!-- Email -->
                 <div class="input-wrapper">
                   <label class="input-label">EMAIL</label>
-                  <v-text-field
-                    v-model="email"
-                    type="email"
-                    :placeholder="$t('email_placeholder')"
-                    variant="solo-filled"
-                    density="comfortable"
-                    color="purple-lighten-2"
-                    class="custom-input"
-                    hide-details="auto"
-                  ></v-text-field>
+                  <v-text-field v-model="email" type="email" :placeholder="$t('email_placeholder')"
+                    variant="solo-filled" density="comfortable" color="purple-lighten-2" class="custom-input"
+                    hide-details="auto"></v-text-field>
                 </div>
 
                 <!-- Contraseña -->
                 <div class="input-wrapper">
                   <label class="input-label">CONTRASEÑA</label>
-                  <v-text-field
-                    v-model="password"
-                    type="password"
-                    :placeholder="$t('password_placeholder')"
-                    variant="solo-filled"
-                    density="comfortable"
-                    color="purple-lighten-2"
-                    class="custom-input"
-                    hide-details="auto"
-                    @input="updatePasswordStrength"
-                  ></v-text-field>
-                  
+                  <v-text-field v-model="password" type="password" :placeholder="$t('password_placeholder')"
+                    variant="solo-filled" density="comfortable" color="purple-lighten-2" class="custom-input"
+                    hide-details="auto" @input="updatePasswordStrength"></v-text-field>
+
                   <!-- Password Strength Indicator -->
                   <div v-if="password" class="password-strength">
                     <div class="strength-bar">
-                      <div 
-                        class="strength-fill"
-                        :style="{ 
-                          width: `${(passwordStrength.strength / 5) * 100}%`,
-                          background: getStrengthColor(passwordStrength.strength)
-                        }"
-                      ></div>
+                      <div class="strength-fill" :style="{
+                        width: `${(passwordStrength.strength / 5) * 100}%`,
+                        background: getStrengthColor(passwordStrength.strength)
+                      }"></div>
                     </div>
                     <div class="strength-label" :style="{ color: getStrengthColor(passwordStrength.strength) }">
                       {{ getStrengthLabel(passwordStrength.strength) }}
@@ -304,16 +283,9 @@ const register = async () => {
                 <!-- Confirmar -->
                 <div class="input-wrapper">
                   <label class="input-label">CONFIRMAR</label>
-                  <v-text-field
-                    v-model="confirmPassword"
-                    type="password"
-                    :placeholder="$t('confirm_password_placeholder')"
-                    variant="solo-filled"
-                    density="comfortable"
-                    color="purple-lighten-2"
-                    class="custom-input"
-                    hide-details="auto"
-                  ></v-text-field>
+                  <v-text-field v-model="confirmPassword" type="password"
+                    :placeholder="$t('confirm_password_placeholder')" variant="solo-filled" density="comfortable"
+                    color="purple-lighten-2" class="custom-input" hide-details="auto"></v-text-field>
                 </div>
               </div>
 
@@ -351,25 +323,13 @@ const register = async () => {
               </div>
 
               <!-- Submit Button -->
-              <v-btn
-                type="submit"
-                size="x-large"
-                class="submit-btn"
-                :loading="isLoading"
-                :disabled="isLoading"
-                block
-              >
+              <v-btn type="submit" size="x-large" class="submit-btn" :loading="isLoading" :disabled="isLoading" block>
                 <span v-if="!isLoading" class="btn-text">
                   <span>{{ $t('register_button') }}</span>
                   <span class="btn-arrow">→</span>
                 </span>
                 <span v-else class="btn-loading">
-                  <v-progress-circular
-                    indeterminate
-                    size="20"
-                    width="2"
-                    color="white"
-                  ></v-progress-circular>
+                  <v-progress-circular indeterminate size="20" width="2" color="white"></v-progress-circular>
                   <span>Iniciando sistema...</span>
                 </span>
               </v-btn>
@@ -384,13 +344,7 @@ const register = async () => {
               <!-- Login Link -->
               <div class="login-section">
                 <p class="login-text">{{ $t('already_have_account') }}</p>
-                <v-btn
-                  variant="outlined"
-                  size="large"
-                  class="login-btn"
-                  to="/login"
-                  block
-                >
+                <v-btn variant="outlined" size="large" class="login-btn" to="/login" block>
                   {{ $t('login_button') }}
                 </v-btn>
               </div>
@@ -422,13 +376,7 @@ const register = async () => {
     </div>
 
     <!-- Snackbar -->
-    <v-snackbar
-      v-model="snackbar"
-      :color="snackbarColor"
-      :timeout="4000"
-      location="top"
-      rounded="pill"
-    >
+    <v-snackbar v-model="snackbar" :color="snackbarColor" :timeout="4000" location="top" rounded="pill">
       <div class="snackbar-content">
         <span class="snackbar-icon">
           {{ snackbarColor === 'success' ? '✓' : snackbarColor === 'warning' ? '⚠' : '✕' }}
@@ -436,11 +384,7 @@ const register = async () => {
         <span>{{ snackbarMessage }}</span>
       </div>
       <template v-slot:actions>
-        <v-btn
-          variant="text"
-          @click="snackbar = false"
-          size="small"
-        >
+        <v-btn variant="text" @click="snackbar = false" size="small">
           Cerrar
         </v-btn>
       </template>
@@ -490,10 +434,13 @@ const register = async () => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.5;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.8;
     transform: scale(1.1);
@@ -504,7 +451,7 @@ const register = async () => {
 .grid-lines {
   position: fixed;
   inset: 0;
-  background-image: 
+  background-image:
     linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
   background-size: 50px 50px;
@@ -532,6 +479,7 @@ const register = async () => {
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -592,6 +540,7 @@ const register = async () => {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -632,8 +581,15 @@ const register = async () => {
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
 }
 
 .badge-text {
@@ -816,9 +772,19 @@ const register = async () => {
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-10px); }
-  75% { transform: translateX(10px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-10px);
+  }
+
+  75% {
+    transform: translateX(10px);
+  }
 }
 
 .error-icon {
