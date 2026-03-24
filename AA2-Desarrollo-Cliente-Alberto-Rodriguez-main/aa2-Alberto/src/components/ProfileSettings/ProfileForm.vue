@@ -12,41 +12,22 @@
         <!-- Name -->
         <div class="form-group">
           <label class="form-label">Nombre Completo</label>
-          <v-text-field
-            v-model="formData.name"
-            placeholder="Ingresa tu nombre completo"
-            variant="outlined"
-            density="comfortable"
-            class="form-input"
-            :rules="[rules.required, rules.minLength]"
-          />
+          <v-text-field v-model="formData.name" placeholder="Ingresa tu nombre completo" variant="outlined"
+            density="comfortable" class="form-input" :rules="[rules.required, rules.minLength]" />
         </div>
 
         <!-- Email -->
         <div class="form-group">
           <label class="form-label">Correo Electrónico</label>
-          <v-text-field
-            v-model="formData.email"
-            placeholder="tu@email.com"
-            type="email"
-            variant="outlined"
-            density="comfortable"
-            class="form-input"
-            disabled
-            hint="Contacta con soporte para cambiar tu correo"
-          />
+          <v-text-field v-model="formData.email" placeholder="tu@email.com" type="email" variant="outlined"
+            density="comfortable" class="form-input" disabled hint="Contacta con soporte para cambiar tu correo" />
         </div>
 
         <!-- Role Info -->
         <div class="form-group" v-if="store.loggedUser?.role != 'userNormal'">
           <label class="form-label">Rol</label>
-          <v-text-field
-            :model-value="store.loggedUser?.role || 'User'"
-            variant="outlined"
-            density="comfortable"
-            class="form-input"
-            disabled
-          />
+          <v-text-field :model-value="store.loggedUser?.role || 'User'" variant="outlined" density="comfortable"
+            class="form-input" disabled />
         </div>
 
         <!-- Stats Info (Read Only) -->
@@ -57,7 +38,8 @@
           </div>
           <div class="info-group">
             <label class="form-label">Experiencia</label>
-            <p class="info-value">{{ store.loggedUser?.experience || 0 }} / {{ store.loggedUser?.xpRequired || 100 }} XP</p>
+            <p class="info-value">{{ store.loggedUser?.experience || 0 }} / {{ store.loggedUser?.xpRequired || 100 }} XP
+            </p>
           </div>
           <div class="info-group">
             <label class="form-label">Racha de Consistencia</label>
@@ -67,30 +49,31 @@
 
         <!-- Action Buttons -->
         <div class="form-actions">
-          <v-btn
-            color="#ffcc00"
-            text-color="#000"
-            variant="flat"
-            size="large"
-            @click="saveChanges"
-            class="save-btn"
-            :loading="saving"
-          >
+          <v-btn color="#ffcc00" text-color="#000" variant="flat" size="large" @click="saveChanges" class="save-btn"
+            :loading="saving">
             <v-icon start>mdi-check</v-icon>
             Guardar Cambios
           </v-btn>
-          <v-btn
-            variant="outlined"
-            size="large"
-            @click="resetForm"
-            class="cancel-btn"
-          >
+          <v-btn variant="outlined" size="large" @click="resetForm" class="cancel-btn">
             Cancelar
           </v-btn>
         </div>
       </v-form>
     </v-card-text>
   </v-card>
+
+  <!-- Snackbar -->
+  <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="snackbar.timeout" location="bottom right"
+    rounded="lg" elevation="4">
+    <div class="snackbar-content">
+      <v-icon :icon="snackbar.icon" class="mr-2" />
+      {{ snackbar.message }}
+    </div>
+
+    <template #actions>
+      <v-btn variant="text" icon="mdi-close" size="small" @click="snackbar.show = false" />
+    </template>
+  </v-snackbar>
 </template>
 
 <script setup lang="ts">
@@ -107,6 +90,23 @@ const formData = reactive({
   avatarUrl: store.loggedUser?.avatarUrl || '',
 })
 
+// Snackbar state
+const snackbar = reactive({
+  show: false,
+  message: '',
+  color: 'success',
+  icon: 'mdi-check-circle',
+  timeout: 3000,
+})
+
+const showSnackbar = (message: string, type: 'success' | 'error') => {
+  snackbar.message = message
+  snackbar.color = type === 'success' ? '#2e7d32' : '#c62828'
+  snackbar.icon = type === 'success' ? 'mdi-check-circle' : 'mdi-alert-circle'
+  snackbar.timeout = type === 'success' ? 3000 : 5000
+  snackbar.show = true
+}
+
 const rules = {
   required: (value: string) => !!value || 'Este campo es requerido',
   minLength: (value: string) => value?.length >= 2 || 'Mínimo 2 caracteres',
@@ -122,10 +122,10 @@ const saveChanges = async () => {
         name: formData.name,
         avatarUrl: formData.avatarUrl,
       })
-      alert('¡Perfil actualizado exitosamente!')
+      showSnackbar('¡Perfil actualizado exitosamente!', 'success')
     } catch (error) {
       console.error('Error al guardar:', error)
-      alert('Error al guardar los cambios')
+      showSnackbar('Error al guardar los cambios. Inténtalo de nuevo.', 'error')
     } finally {
       saving.value = false
     }
@@ -279,6 +279,14 @@ const resetForm = () => {
   color: rgba(255, 255, 255, 0.7) !important;
   border-color: rgba(255, 204, 0, 0.3) !important;
   font-weight: 600;
+}
+
+/* Snackbar */
+.snackbar-content {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 0.95rem;
 }
 
 /* Responsive */

@@ -1,34 +1,23 @@
 <template>
   <div class="profile-settings">
-    <!-- Hero Section -->
     <profile-header />
 
-    <!-- Main Content -->
     <v-container class="settings-container">
       <v-row class="mt-4">
-        <!-- Sidebar Navigation -->
         <v-col cols="12" md="3">
           <profile-sidebar v-model="activeTab" />
         </v-col>
 
-        <!-- Content Area -->
         <v-col cols="12" md="9">
-          <!-- Personal Information -->
-          <profile-form v-show="activeTab === 'personal'" />
+          <profile-form v-if="activeTab === 'personal'" />
 
-          <!-- Security Settings -->
-          <security-settings v-show="activeTab === 'security'" />
+          <security-settings v-if="activeTab === 'security'" />
 
-          <!-- Notification Preferences -->
-          <notification-settings v-show="activeTab === 'notifications'" />
+          <notification-settings v-if="activeTab === 'notifications'" />
 
-          <!-- Subscription & Billing -->
-          <subscription-card v-show="activeTab === 'subscription'" />
+          <subscription-card v-if="activeTab === 'subscription'" />
 
-          <!-- Preferences -->
-          <preferences-settings v-show="activeTab === 'preferences'" />
-
-          <!-- Inventory -->
+          <preferences-settings v-if="activeTab === 'preferences'" />
         </v-col>
       </v-row>
     </v-container>

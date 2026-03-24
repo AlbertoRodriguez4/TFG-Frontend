@@ -153,7 +153,7 @@ import { computed, ref } from 'vue'
 const store = useUserStore()
 
 // Cloudinary Configuration
-const CLOUDINARY_CLOUD_NAME = 'dujhkokjo' // Reemplaza con tu cloud name
+const CLOUDINARY_CLOUD_NAME = 'dujhkokjo' // Reemplaza con tu cloud name, esto en el env
 const CLOUDINARY_UPLOAD_PRESET = 'thetraininghub' // Debes crear este preset en Cloudinary
 
 // Refs

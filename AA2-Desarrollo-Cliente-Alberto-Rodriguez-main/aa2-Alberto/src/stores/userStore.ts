@@ -36,14 +36,14 @@ export const useUserStore = defineStore('user', () => {
         endurance: d.endurance,
         gold: d.gold,
         experience: d.experience,
-        avatarUrl: d.avatarUrl // --- NUEVO CAMPO MAPEADO ---
+        avatarUrl: d.avatarUrl
       }));
     } catch (error) {
       console.error("Error fetching users:", error);
     }
   }
-  
-  async function registerUser(newUser: User): Promise<boolean> { 
+
+  async function registerUser(newUser: User): Promise<boolean> {
     try {
       const response = await fetch(`${BASE_URL}/api/auth/register`, {
         method: "POST",
@@ -53,7 +53,7 @@ export const useUserStore = defineStore('user', () => {
       });
 
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-      
+
       return true;
     } catch (error) {
       console.error("Error registering user:", error);
@@ -88,7 +88,6 @@ export const useUserStore = defineStore('user', () => {
         xpRemaining: Number(decoded.xpRemaining),
         equippedStrengthItemId: decoded.equippedStrengthItemId !== "" ? Number(decoded.equippedStrengthItemId) : null,
         equippedEnduranceItemId: decoded.equippedEnduranceItemId !== "" ? Number(decoded.equippedEnduranceItemId) : null,
-        // --- NUEVO CAMPO: Extraemos el avatarUrl del JWT ---
         avatarUrl: decoded.avatarUrl && decoded.avatarUrl !== "" ? decoded.avatarUrl : null
       };
     } catch (error) {
@@ -98,61 +97,10 @@ export const useUserStore = defineStore('user', () => {
   }
 
   initializeSession();
-
-  async function loginUser(email: string, password: string): Promise<boolean> {
-    try {
-      const response = await fetch(`${BASE_URL}/api/auth/login`, {
-        method: "POST",
-        mode: "cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-
-      const data = await response.json();
-      const token = data.token;
-      const decoded = decodeToken(token);
-
-      localStorage.setItem('token', token);
-
-      loggedUser.value = {
-        id: Number(decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]),
-        name: decoded.name,
-        email: decoded.email,
-        passwordhash: decoded.passwordhash,
-        role: decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
-        level: Number(decoded.level), // Aseguramos que sea número
-        strength: Number(decoded.strength),
-        endurance: Number(decoded.endurance),
-        consistencystreak: Number(decoded.consistencystreak),
-        consistencyStreak: Number(decoded.consistencystreak),
-        gold: Number(decoded.gold),
-        experience: Number(decoded.experience),
-        xpRequired: Number(decoded.xpRequired),
-        xpRemaining: Number(decoded.xpRemaining),
-        equippedStrengthItemId: decoded.equippedStrengthItemId !== "" ? Number(decoded.equippedStrengthItemId) : null,
-        equippedEnduranceItemId: decoded.equippedEnduranceItemId !== "" ? Number(decoded.equippedEnduranceItemId) : null,
-        // --- NUEVO CAMPO ---
-        avatarUrl: decoded.avatarUrl && decoded.avatarUrl !== "" ? decoded.avatarUrl : null
-      };
-
-      return true;
-    } catch (error) {
-      console.error("Login failed:", error);
-      return false;
-    }
+  if (loggedUser.value) {
+    refreshLoggedUser();
   }
-
-  async function refreshTokenByLogin() {
-    const email = loggedUser.value?.email;
-    const password = loggedUser.value?.passwordhash;
-
-    if (!email || !password) {
-      console.error('No se encontraron credenciales para hacer el login.');
-      return;
-    }
-
+  async function loginUser(email: string, password: string): Promise<boolean> {
     try {
       const response = await fetch(`${BASE_URL}/api/auth/login`, {
         method: "POST",
@@ -186,17 +134,20 @@ export const useUserStore = defineStore('user', () => {
         xpRemaining: Number(decoded.xpRemaining),
         equippedStrengthItemId: decoded.equippedStrengthItemId !== "" ? Number(decoded.equippedStrengthItemId) : null,
         equippedEnduranceItemId: decoded.equippedEnduranceItemId !== "" ? Number(decoded.equippedEnduranceItemId) : null,
-        // --- NUEVO CAMPO ---
         avatarUrl: decoded.avatarUrl && decoded.avatarUrl !== "" ? decoded.avatarUrl : null
       };
+
+      return true;
     } catch (error) {
-      console.error('Error al hacer login para renovar el token:', error);
+      console.error("Login failed:", error);
+      return false;
     }
   }
 
+
   async function refreshLoggedUser() {
     if (!loggedUser.value) return;
-    
+
     try {
       const response = await fetch(`${BASE_URL}/api/User/${loggedUser.value.id}`, {
         method: 'GET',
@@ -213,10 +164,9 @@ export const useUserStore = defineStore('user', () => {
       loggedUser.value = {
         ...loggedUser.value,
         ...updatedUser,
-        // Nos aseguramos de mantener el mapping correcto
         equippedStrengthItemId: updatedUser.equippedStrengthId,
         equippedEnduranceItemId: updatedUser.equippedEnduranceId,
-        avatarUrl: updatedUser.avatarUrl // Aseguramos que se actualiza si viene del backend
+        avatarUrl: updatedUser.avatarUrl
       };
 
     } catch (error) {
@@ -264,7 +214,7 @@ export const useUserStore = defineStore('user', () => {
         endurance: d.endurance,
         equippedStrengthItem: d.equippedStrengthItem,
         equippedEnduranceItem: d.equippedEnduranceItem,
-        avatarUrl: d.avatarUrl // --- NUEVO CAMPO ---
+        avatarUrl: d.avatarUrl
       }));
     } catch (error) {
       console.error('Error en getTopThreeUsers:', error);
@@ -291,7 +241,7 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  async function editUser(id: number, user: User): Promise<void> {
+  async function editUser(id: number, updatedUserData: User): Promise<void> {
     try {
       const response = await fetch(`${BASE_URL}/api/User/${id}`, {
         method: 'PUT',
@@ -300,24 +250,35 @@ export const useUserStore = defineStore('user', () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify(user)
+        body: JSON.stringify(updatedUserData)
       });
 
-      if (user.id === loggedUser.value?.id) {
-        loggedUser.value = {
-          ...loggedUser.value,
-          ...user
-        };
-        // Para asegurar que los claims del token también se actualizan (incluyendo el avatar),
-        // refrescamos el token
-        await refreshTokenByLogin();
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      if (id === loggedUser.value?.id) {
+        loggedUser.value = {
+          ...loggedUser.value,
+          ...updatedUserData
+        };
+        await refreshLoggedUser();
+      }
+      const userIndex = user.value.findIndex(u => u.id === id);
+      if (userIndex !== -1) {
+        user.value[userIndex] = {
+          ...user.value[userIndex],
+          ...updatedUserData
+        };
+      }
 
-      await fetchUser();
+      if (loggedUser.value?.role === 'userMaster') {
+        await fetchUser();
+      }
+
     } catch (error) {
       console.error('Error editing user:', error);
+      throw error;
     }
   }
 
@@ -375,7 +336,7 @@ export const useUserStore = defineStore('user', () => {
 
     try {
       const itemToEquip = purchasedItems.value.find(i => i.itemId === itemId);
-      
+
       if (!itemToEquip) {
         console.error("Item no encontrado en inventario");
         return;
@@ -402,8 +363,8 @@ export const useUserStore = defineStore('user', () => {
         loggedUser.value.equippedEnduranceItemId = itemId;
       }
 
-      await refreshLoggedUser(); 
-      
+      await refreshLoggedUser();
+
     } catch (error) {
       console.error("Error equipando objeto:", error);
     }
@@ -424,7 +385,7 @@ export const useUserStore = defineStore('user', () => {
       if (!response.ok) throw new Error("Error al desequipar");
 
       const typeLower = type.toLowerCase();
-      
+
       if (typeLower === 'strength' || typeLower === 'fuerza') {
         loggedUser.value.equippedStrengthItemId = null;
       } else if (typeLower === 'endurance' || typeLower === 'resistencia') {
@@ -436,7 +397,34 @@ export const useUserStore = defineStore('user', () => {
       console.error("Error desequipando:", error);
     }
   }
+  async function changePassword(currentPassword: string, newPassword: string): Promise<boolean> {
+    if (!loggedUser.value) return false;
 
+    try {
+      const response = await fetch(`${BASE_URL}/api/User/change-password`, {
+        method: 'POST', // o PUT, según configures tu backend
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        // Enviamos la actual (para verificar) y la nueva
+        body: JSON.stringify({
+          currentPassword: currentPassword,
+          newPassword: newPassword
+        })
+      });
+
+      if (!response.ok) {
+        return false; // Retornamos false si la contraseña actual era incorrecta
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error al cambiar la contraseña:", error);
+      return false;
+    }
+  }
   const userById = (id: number) => user.value.find(user => user.id === id);
 
   return {
@@ -450,13 +438,14 @@ export const useUserStore = defineStore('user', () => {
     getItems,
     purchasedItems,
     refreshLoggedUser,
-    refreshTokenByLogin,
+    // quitamos refreshTokenByLogin de los exports
     editUser,
     logoutUser,
     createUser,
     DeleteUser,
     registerUser,
     equipItem,
-    unequipItem
+    unequipItem,
+    changePassword
   };
-});
+}); 

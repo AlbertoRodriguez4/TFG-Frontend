@@ -14,57 +14,30 @@
           <!-- Current Password -->
           <div class="form-group">
             <label class="form-label">Current Password</label>
-            <v-text-field
-              v-model="passwordData.current"
-              type="password"
-              variant="outlined"
-              density="comfortable"
-              placeholder="Enter current password"
-              class="form-input"
-              :rules="[rules.required]"
-            />
+            <v-text-field v-model="passwordData.current" type="password" variant="outlined" density="comfortable"
+              placeholder="Enter current password" class="form-input" :rules="[rules.required]" />
           </div>
 
           <!-- New Password -->
           <div class="form-group">
             <label class="form-label">New Password</label>
-            <v-text-field
-              v-model="passwordData.new"
-              type="password"
-              variant="outlined"
-              density="comfortable"
-              placeholder="Enter new password"
-              class="form-input"
-              :rules="[rules.required, rules.minLength]"
-              counter
-              maxlength="32"
-            />
+            <v-text-field v-model="passwordData.new" type="password" variant="outlined" density="comfortable"
+              placeholder="Enter new password" class="form-input" :rules="[rules.required, rules.minLength]" counter
+              maxlength="32" />
             <p class="password-hint">At least 8 characters with uppercase, lowercase, and numbers</p>
           </div>
 
           <!-- Confirm Password -->
           <div class="form-group">
             <label class="form-label">Confirm New Password</label>
-            <v-text-field
-              v-model="passwordData.confirm"
-              type="password"
-              variant="outlined"
-              density="comfortable"
-              placeholder="Confirm new password"
-              class="form-input"
-              :rules="[rules.required, rules.passwordMatch]"
-            />
+            <v-text-field v-model="passwordData.confirm" type="password" variant="outlined" density="comfortable"
+              placeholder="Confirm new password" class="form-input" :rules="[rules.required, rules.passwordMatch]" />
           </div>
 
           <!-- Action Buttons -->
           <div class="form-actions">
-            <v-btn
-              color="#ffcc00"
-              text-color="#000"
-              variant="flat"
-              size="large"
-              class="save-btn"
-            >
+            <v-btn color="#ffcc00" text-color="#000" variant="flat" size="large" class="save-btn" :loading="isUpdating"
+              @click="handleUpdatePassword">
               <v-icon start>mdi-check</v-icon>
               Update Password
             </v-btn>
@@ -73,17 +46,39 @@
       </v-card-text>
     </v-card>
 
+    <!-- Snackbar -->
+    <v-snackbar
+      v-model="snackbar.show"
+      :color="snackbar.color"
+      :timeout="snackbar.timeout"
+      location="bottom right"
+      rounded="lg"
+      elevation="4"
+    >
+      <div class="snackbar-content">
+        <v-icon :icon="snackbar.icon" class="mr-2" />
+        {{ snackbar.message }}
+      </div>
 
-
-    <!-- Login History -->
-
+      <template #actions>
+        <v-btn
+          variant="text"
+          icon="mdi-close"
+          size="small"
+          @click="snackbar.show = false"
+        />
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
+import { useUserStore } from '@/stores/userStore'
 
+const userStore = useUserStore()
 const passwordForm = ref()
+const isUpdating = ref(false)
 const twoFAEnabled = ref(false)
 
 const passwordData = reactive({
@@ -92,59 +87,54 @@ const passwordData = reactive({
   confirm: '',
 })
 
+// Snackbar state
+const snackbar = reactive({
+  show: false,
+  message: '',
+  color: 'success',
+  icon: 'mdi-check-circle',
+  timeout: 3000,
+})
+
+const showSnackbar = (message: string, type: 'success' | 'error') => {
+  snackbar.message = message
+  snackbar.color = type === 'success' ? '#2e7d32' : '#c62828'
+  snackbar.icon = type === 'success' ? 'mdi-check-circle' : 'mdi-alert-circle'
+  snackbar.timeout = type === 'success' ? 3000 : 5000
+  snackbar.show = true
+}
+
 const rules = {
   required: (value: string) => !!value || 'This field is required',
   minLength: (value: string) => value?.length >= 8 || 'Password must be at least 8 characters',
   passwordMatch: (value: string) => value === passwordData.new || 'Passwords do not match',
 }
 
-const activeSessions = [
-  {
-    id: 1,
-    icon: 'mdi-monitor',
-    device: 'Chrome on Windows 11',
-    location: 'Zaragoza, Spain',
-    lastActive: '5 minutes ago',
-    current: true,
-  },
-  {
-    id: 2,
-    icon: 'mdi-tablet',
-    device: 'Safari on iPad',
-    location: 'Barcelona, Spain',
-    lastActive: '2 hours ago',
-    current: false,
-  },
-  {
-    id: 3,
-    icon: 'mdi-phone',
-    device: 'Chrome on Android',
-    location: 'Valencia, Spain',
-    lastActive: '1 day ago',
-    current: false,
-  },
-]
+async function handleUpdatePassword() {
+  const { valid } = await passwordForm.value.validate()
+  if (!valid) return
 
-const loginHistory = [
-  {
-    date: 'Today at 10:45 AM',
-    location: 'Zaragoza, Spain',
-    ip: '192.168.1.1',
-    success: true,
-  },
-  {
-    date: 'Yesterday at 8:30 PM',
-    location: 'Barcelona, Spain',
-    ip: '192.168.1.45',
-    success: true,
-  },
-  {
-    date: '2 days ago at 3:15 PM',
-    location: 'Valencia, Spain',
-    ip: '192.168.1.78',
-    success: false,
-  },
-]
+  isUpdating.value = true
+
+  try {
+    const success = await userStore.changePassword(
+      passwordData.current,
+      passwordData.new
+    )
+
+    if (success) {
+      showSnackbar('¡Contraseña actualizada con éxito!', 'success')
+      passwordForm.value.reset()
+    } else {
+      showSnackbar('Error: La contraseña actual no es correcta.', 'error')
+    }
+  } catch (error) {
+    console.error(error)
+    showSnackbar('Ha ocurrido un error inesperado. Inténtalo de nuevo.', 'error')
+  } finally {
+    isUpdating.value = false
+  }
+}
 </script>
 
 <style scoped>
@@ -230,6 +220,14 @@ const loginHistory = [
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+/* Snackbar */
+.snackbar-content {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 0.95rem;
 }
 
 /* Two-Factor Authentication */
