@@ -74,12 +74,12 @@ import { useRoutineStore } from '@/stores/RoutineStore';
 import { useUserStore } from '@/stores/userStore';
 import type { Routines } from '@/components/Models/Routines';
 
-import HeroSection from '../components/Calendar/HeroSection.vue';
-import CalendarSection from '../components/Calendar/CalendarSection.vue';
-import CreateRoutineDialog from '../components/Calendar/CreateRoutineDialog.vue';
-import RoutineDetailDialog from '../components/Calendar/RoutineDetailDialog.vue';
-import LevelUpDialog from '../components/Calendar/LevelUpDialog.vue';
-import SuccessSnackbar from '../components/Calendar/SuccessSnackbar.vue';
+import HeroSection from '../../components/Calendar/HeroSection.vue';
+import CalendarSection from '../../components/Calendar/CalendarSection.vue';
+import CreateRoutineDialog from '../../components/Calendar/CreateRoutineDialog.vue';
+import RoutineDetailDialog from '../../components/Calendar/RoutineDetailDialog.vue';
+import LevelUpDialog from '../../components/Calendar/LevelUpDialog.vue';
+import SuccessSnackbar from '../../components/Calendar/SuccessSnackbar.vue';
 
 // Stores
 const routineStore = useRoutineStore();

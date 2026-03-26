@@ -153,9 +153,8 @@ import { computed, ref } from 'vue'
 const store = useUserStore()
 
 // Cloudinary Configuration
-const CLOUDINARY_CLOUD_NAME = 'dujhkokjo' // Reemplaza con tu cloud name, esto en el env
-const CLOUDINARY_UPLOAD_PRESET = 'thetraininghub' // Debes crear este preset en Cloudinary
-
+const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
 // Refs
 const fileInput = ref<HTMLInputElement>()
 const previewImage = ref<string>('')

@@ -27,7 +27,6 @@ const menuItems = [
   { id: 'personal', label: 'Información Personal', icon: 'mdi-account-circle' },
   { id: 'security', label: 'Seguridad y Contraseña', icon: 'mdi-shield-lock' },
   { id: 'notifications', label: 'Notificaciones', icon: 'mdi-bell' },
-  { id: 'preferences', label: 'Preferencias', icon: 'mdi-palette' },
 ]
 </script>
 

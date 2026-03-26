@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import HeaderView from './HeaderView.vue'
-import FooterView from './FooterView.vue'
-import UserStatsPanel from '../components/Panels/UserStatsPanel.vue'
-import InventoryPanel from '../components/Panels/InventoryPanel.vue'
-import AdminPanel from '../components/Panels/AdminPanel.vue'
+import UserStatsPanel from '../../components/Panels/UserStatsPanel.vue'
+import InventoryPanel from '../../components/Panels/InventoryPanel.vue'
+import AdminPanel from '../../components/Panels/AdminPanel.vue'
 import { useUserStore } from '@/stores/userStore'
 import type { User } from '@/components/Models/User'
 import { computed, onMounted, watch } from 'vue'

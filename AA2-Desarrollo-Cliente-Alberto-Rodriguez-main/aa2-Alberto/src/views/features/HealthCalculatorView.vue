@@ -37,9 +37,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import BmiCalculatorModern from '../components/CalculadorCalorias/BmiCalculatorModern.vue'
-import CaloriesCalculatorModern from '../components/CalculadorCalorias/CaloriesCalculatorModern.vue'
-import HealthHistoryModern from '../components/CalculadorCalorias/HealthHistoryModern.vue'
+import BmiCalculatorModern from '../../components/CalculadorCalorias/BmiCalculatorModern.vue'
+import CaloriesCalculatorModern from '../../components/CalculadorCalorias/CaloriesCalculatorModern.vue'
+import HealthHistoryModern from '../../components/CalculadorCalorias/HealthHistoryModern.vue'
 
 interface HistoryItem {
   type: 'bmi' | 'calories'

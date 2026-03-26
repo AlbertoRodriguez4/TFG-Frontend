@@ -2,19 +2,20 @@ import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
 
-import HomeView from '@/views/HomeView.vue'
-import HomeLoggedView from '@/views/HomeLoggedView.vue'
-import PlanView from '@/views/PlanView.vue'
-import PurchaseView from '@/views/PurchaseView.vue'
-import UserView from '@/views/UserView.vue'
-import RoomView from '@/views/RoomView.vue'
-import RegisterView from '@/views/RegisterView.vue'
-import LoginView from '@/views/LoginView.vue'
-import RutinaView from '@/views/RutinaView.vue'
-import JoinRoomView from '@/views/JoinRoomView.vue'
-import ProfileSettingsView from '@/views/ProfileSettingsView.vue'
-import HealthCalculatorView from '@/views/HealthCalculatorView.vue'
-import ChatView from '@/views/ChatView.vue'
+import HomeView from '@/views/dashboard/HomeView.vue'
+import HomeLoggedView from '@/views/dashboard/HomeLoggedView.vue'
+import PlanView from '@/views/plans/PlanView.vue'
+import PurchaseView from '@/views/features/PurchaseView.vue'
+import UserView from '@/views/dashboard/UserView.vue'
+import RoomView from '@/views/rooms/RoomView.vue'
+import RegisterView from '@/views/auth/RegisterView.vue'
+import LoginView from '@/views/auth/LoginView.vue'
+import RutinaView from '@/views/features/RutinaView.vue'
+import JoinRoomView from '@/views/rooms/JoinRoomView.vue'
+import ProfileSettingsView from '@/views/profile/ProfileSettingsView.vue'
+import HealthCalculatorView from '@/views/features/HealthCalculatorView.vue'
+import ChatView from '@/views/rooms/ChatView.vue'
+import PaymentView from '@/views/plans/PaymentView.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -91,6 +92,12 @@ const routes: RouteRecordRaw[] = [
     path: '/CoachAi',
     name: 'coachAi',
     component: ChatView,
+  },
+  {
+    path: '/payment',
+    name: 'payment',
+    component: PaymentView,
+    meta: { requiresAuth: true },
   }
 ]
 

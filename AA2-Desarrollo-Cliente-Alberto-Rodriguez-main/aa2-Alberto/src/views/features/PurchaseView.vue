@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import HeaderView from './HeaderView.vue';
-import FooterView from './FooterView.vue';
-import ItemRender from '../components/Renders/ItemRender.vue';
+import ItemRender from '../../components/Renders/ItemRender.vue';
 import { useUserStore } from '@/stores/userStore';
 import { ref, watchEffect } from 'vue';
 

@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { useRoomStore } from '@/stores/RoomStore';
-import HeaderView from './HeaderView.vue';
-import FooterView from './FooterView.vue';
-import RoomRender from '../components/Renders/RoomRender.vue';
+import RoomRender from '../../components/Renders/RoomRender.vue';
 const store = useRoomStore()
 store.fetchRoom()
 </script>

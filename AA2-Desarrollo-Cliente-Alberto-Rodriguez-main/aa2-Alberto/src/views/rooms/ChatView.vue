@@ -25,10 +25,10 @@
 
 <script setup>
 import { ref } from 'vue'
-import ChatSidebar from '../components/CoachAI/ChatSidebar.vue'
-import ChatHeader from '../components/CoachAI/ChatHeader.vue'
-import ChatFeed from '../components/CoachAI/ChatFeed.vue'
-import ChatComposer from '../components/CoachAI/ChatComposer.vue'
+import ChatSidebar from '../../components/CoachAI/ChatSidebar.vue'
+import ChatHeader from '../../components/CoachAI/ChatHeader.vue'
+import ChatFeed from '../../components/CoachAI/ChatFeed.vue'
+import ChatComposer from '../../components/CoachAI/ChatComposer.vue'
 
 /* ── State ── */
 const messages = ref([])

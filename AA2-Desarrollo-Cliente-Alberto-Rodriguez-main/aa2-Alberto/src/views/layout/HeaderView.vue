@@ -215,9 +215,7 @@ const currentLanguage = computed(() => {
 </template>
 
 <style scoped>
-/* ═══════════════════════════════════════
-   RESET & BASE
-═══════════════════════════════════════ */
+
 * {
   box-sizing: border-box;
 }

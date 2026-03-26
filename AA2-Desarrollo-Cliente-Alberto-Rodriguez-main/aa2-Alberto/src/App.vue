@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
-import HeaderView from './views/HeaderView.vue';
-import FooterView from './views/FooterView.vue';
+import HeaderView from './views/layout/HeaderView.vue';
+import FooterView from './views/layout/FooterView.vue';
+import { useThemeStore } from '@/stores/useTheme';
+
+// Inicializar el store para aplicar el tema guardado
+useThemeStore();
 </script>
 
 <template>

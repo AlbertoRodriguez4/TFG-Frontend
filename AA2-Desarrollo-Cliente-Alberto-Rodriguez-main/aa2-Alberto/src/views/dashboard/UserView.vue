@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import HeaderView from '../views/HeaderView.vue'
-import FooterView from '../views/FooterView.vue'
-import UserRender from '@/components/Renders/UserRender.vue'
+import UserRender from '../../components/Renders/UserRender.vue'
 
 // Estados y filtros
 const searchQuery = ref('')

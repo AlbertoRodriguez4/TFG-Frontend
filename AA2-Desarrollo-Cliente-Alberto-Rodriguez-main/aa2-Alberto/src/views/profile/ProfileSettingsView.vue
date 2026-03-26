@@ -17,7 +17,6 @@
 
           <subscription-card v-if="activeTab === 'subscription'" />
 
-          <preferences-settings v-if="activeTab === 'preferences'" />
         </v-col>
       </v-row>
     </v-container>
@@ -26,13 +25,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import ProfileHeader from '../components/ProfileSettings/ProfileHeader.vue'
-import ProfileSidebar from '../components/ProfileSettings/ProfileSidebar.vue'
-import ProfileForm from '../components/ProfileSettings/ProfileForm.vue'
-import SecuritySettings from '../components/ProfileSettings/SecuritySettings.vue'
-import NotificationSettings from '../components/ProfileSettings/NotificationSettings.vue'
-import SubscriptionCard from '../components/ProfileSettings/SubscriptionCard.vue'
-import PreferencesSettings from '../components/ProfileSettings/PreferencesSettings.vue'
+import ProfileHeader from '../../components/ProfileSettings/ProfileHeader.vue'
+import ProfileSidebar from '../../components/ProfileSettings/ProfileSidebar.vue'
+import ProfileForm from '../../components/ProfileSettings/ProfileForm.vue'
+import SecuritySettings from '../../components/ProfileSettings/SecuritySettings.vue'
+import NotificationSettings from '../../components/ProfileSettings/NotificationSettings.vue'
+import SubscriptionCard from '../../components/ProfileSettings/SubscriptionCard.vue'
 
 const activeTab = ref('personal')
 </script>

@@ -1,8 +1,16 @@
 <script setup lang="ts">
 import { usePlanStore } from '@/stores/PlanStore'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const store = usePlanStore()
 store.fetchPlan()
+
+const navigateToPayment = () => {
+  router.push('/payment')
+}
+
+
 
 const advantages = ['planCustomization', 'coachTracking', 'premiumAccess']
 
@@ -140,6 +148,7 @@ function getTierStyle(index: number) {
               size="x-large"
               class="cta-button"
               elevation="0"
+              @click="navigateToPayment"
             >
               <v-icon class="mr-2" size="20">mdi-rocket-launch</v-icon>
               <span>EMPEZAR AHORA</span>
