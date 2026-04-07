@@ -564,18 +564,21 @@ const handleCreate = async () => {
 .create-dialog {
   max-height: 95vh;
   overflow: hidden;
-  background: linear-gradient(to bottom, #ffffff 0%, #f5f7fa 100%);
+  background: linear-gradient(135deg, rgba(26, 10, 46, 0.95) 0%, rgba(15, 10, 26, 0.98) 100%);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(139, 92, 246, 0.3);
 }
 
-/* ===== HEADER ÉPICO ===== */
+/* ===== HEADER ÉPICO - Tema Oscuro ===== */
 .dialog-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: linear-gradient(135deg, rgba(10, 10, 26, 0.95) 0%, rgba(26, 10, 46, 0.9) 50%, rgba(15, 10, 26, 0.95) 100%);
   padding: 2.5rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   position: relative;
   overflow: hidden;
+  border-bottom: 2px solid rgba(139, 92, 246, 0.3);
 }
 
 .header-bg-animation {
@@ -718,11 +721,11 @@ const handleCreate = async () => {
   background: rgba(255, 255, 255, 0.25) !important;
 }
 
-/* ===== BODY ===== */
+/* ===== BODY - Tema Oscuro ===== */
 .dialog-body {
   max-height: calc(95vh - 320px);
   overflow-y: auto;
-  background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
+  background: linear-gradient(to bottom, rgba(26, 10, 46, 0.5) 0%, rgba(15, 10, 26, 0.5) 100%);
 }
 
 /* ===== SECCIONES ===== */
@@ -767,37 +770,37 @@ const handleCreate = async () => {
 .section-icon-wrapper {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #a78bfa, #22d3ee);
   border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 16px rgba(167, 139, 250, 0.4);
   flex-shrink: 0;
 }
 
 .gradient-secondary {
-  background: linear-gradient(135deg, #f093fb, #f5576c);
+  background: linear-gradient(135deg, #f472b6, #fb7185);
 }
 
 .gradient-warning {
-  background: linear-gradient(135deg, #ffd89b, #19547b);
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
 }
 
 .gradient-info {
-  background: linear-gradient(135deg, #667eea, #00d4ff);
+  background: linear-gradient(135deg, #a78bfa, #22d3ee);
 }
 
 .section-title {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #1a1a1a;
+  color: #ffffff;
   line-height: 1.2;
 }
 
 .section-subtitle {
   font-size: 0.875rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
   font-weight: 500;
 }
 
@@ -812,23 +815,23 @@ const handleCreate = async () => {
 }
 
 .custom-textfield-epic>>>.v-input__slot {
-  background: white !important;
+  background: rgba(15, 10, 26, 0.6) !important;
   border-radius: 16px !important;
-  border: 3px solid #e8eaf0 !important;
+  border: 2px solid rgba(139, 92, 246, 0.4) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 0.5rem 1rem !important;
 }
 
 .custom-textfield-epic>>>.v-input__slot:hover {
-  border-color: #c5c9d8 !important;
+  border-color: rgba(139, 92, 246, 0.7) !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2);
 }
 
 .custom-textfield-epic.v-input--is-focused>>>.v-input__slot {
-  border-color: #667eea !important;
-  background: white !important;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1), 0 8px 24px rgba(102, 126, 234, 0.15);
+  border-color: rgba(167, 139, 250, 0.9) !important;
+  background: rgba(15, 10, 26, 0.8) !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15), 0 8px 24px rgba(139, 92, 246, 0.25);
   transform: translateY(-2px);
 }
 
@@ -836,11 +839,20 @@ const handleCreate = async () => {
 .custom-textfield-epic>>>textarea {
   font-weight: 600;
   font-size: 1.05rem;
-  color: #1a1a1a;
+  color: #ffffff;
+}
+
+.custom-textfield-epic>>>label {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.custom-textfield-epic>>>input::placeholder,
+.custom-textfield-epic>>>textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .input-icon-wrapper {
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(139, 92, 246, 0.15);
   border-radius: 10px;
   padding: 6px;
   display: flex;
@@ -872,21 +884,21 @@ const handleCreate = async () => {
   bottom: -20px;
   right: 8px;
   font-size: 0.75rem;
-  color: #999;
+  color: rgba(255, 255, 255, 0.5);
   font-weight: 600;
 }
 
 .tips-box {
-  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-  border-left: 4px solid #ffa726;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%);
+  border-left: 3px solid rgba(251, 191, 36, 0.6);
   padding: 0.75rem 1rem;
   border-radius: 12px;
   display: flex;
   align-items: center;
-  color: #e65100;
+  color: rgba(255, 255, 255, 0.9);
 }
 
-/* ===== SELECTOR DE DIFICULTAD ===== */
+/* ===== SELECTOR DE DIFICULTAD - Tema Oscuro ===== */
 .difficulty-selector {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -894,8 +906,8 @@ const handleCreate = async () => {
 }
 
 .difficulty-card {
-  background: white;
-  border: 3px solid #e8eaf0;
+  background: rgba(26, 10, 46, 0.6);
+  border: 2px solid rgba(139, 92, 246, 0.3);
   border-radius: 20px;
   padding: 1.5rem 1rem;
   text-align: center;
@@ -903,6 +915,7 @@ const handleCreate = async () => {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
 }
 
 .difficulty-card::before {
@@ -916,14 +929,15 @@ const handleCreate = async () => {
 
 .difficulty-card:hover {
   transform: translateY(-8px) scale(1.05);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 32px rgba(139, 92, 246, 0.3);
+  border-color: rgba(139, 92, 246, 0.6);
 }
 
 .difficulty-card.active {
   border-color: var(--card-color);
-  background: var(--card-color);
+  background: rgba(26, 10, 46, 0.9);
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .difficulty-card.active::before {
@@ -938,7 +952,7 @@ const handleCreate = async () => {
 .difficulty-icon {
   width: 64px;
   height: 64px;
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -949,13 +963,13 @@ const handleCreate = async () => {
 }
 
 .difficulty-card.active .difficulty-icon {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .difficulty-label {
   font-size: 1rem;
   font-weight: 800;
-  color: #1a1a1a;
+  color: rgba(255, 255, 255, 0.9);
   margin-bottom: 0.5rem;
   position: relative;
   z-index: 1;
@@ -964,26 +978,27 @@ const handleCreate = async () => {
 .difficulty-xp {
   font-size: 0.875rem;
   font-weight: 700;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   position: relative;
   z-index: 1;
 }
 
-/* ===== DURACIÓN ===== */
+/* ===== DURACIÓN - Tema Oscuro ===== */
 .duration-display {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(167, 139, 250, 0.2) 100%);
   border-radius: 20px;
   padding: 1.5rem;
   text-align: center;
   position: relative;
   overflow: hidden;
+  border: 2px solid rgba(139, 92, 246, 0.4);
 }
 
 .duration-display::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+  background: radial-gradient(circle at 30% 50%, rgba(167, 139, 250, 0.15) 0%, transparent 60%);
 }
 
 .duration-value {
@@ -991,7 +1006,7 @@ const handleCreate = async () => {
   font-weight: 900;
   color: white;
   line-height: 1;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 4px 12px rgba(139, 92, 246, 0.5);
   position: relative;
   z-index: 1;
 }
@@ -999,7 +1014,7 @@ const handleCreate = async () => {
 .duration-unit {
   font-size: 1.1rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.8);
   text-transform: uppercase;
   letter-spacing: 1px;
   position: relative;
@@ -1009,19 +1024,23 @@ const handleCreate = async () => {
 .custom-slider-epic>>>.v-slider__thumb {
   width: 28px;
   height: 28px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #a78bfa, #22d3ee);
   border: 4px solid white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(167, 139, 250, 0.5);
 }
 
 .custom-slider-epic>>>.v-slider__track-fill {
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  background: linear-gradient(90deg, #a78bfa, #22d3ee);
+}
+
+.custom-slider-epic>>>.v-slider__track {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .slider-label {
   font-size: 0.875rem;
   font-weight: 700;
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .duration-bonus {
@@ -1031,7 +1050,7 @@ const handleCreate = async () => {
   gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 700;
-  color: #4caf50;
+  color: rgba(52, 211, 153, 0.9);
 }
 
 /* ===== RECOMPENSAS ÉPICAS ===== */
@@ -1296,10 +1315,10 @@ const handleCreate = async () => {
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-/* ===== FOOTER ===== */
+/* ===== FOOTER - Tema Oscuro ===== */
 .dialog-footer {
-  background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
-  border-top: 2px solid #dee2e6;
+  background: linear-gradient(to bottom, rgba(26, 10, 46, 0.8) 0%, rgba(15, 10, 26, 0.9) 100%);
+  border-top: 2px solid rgba(139, 92, 246, 0.3);
 }
 
 .footer-stats {
@@ -1312,7 +1331,7 @@ const handleCreate = async () => {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
   font-weight: 600;
 }
 
@@ -1322,10 +1341,11 @@ const handleCreate = async () => {
   letter-spacing: 0.5px;
   transition: all 0.3s ease;
   border-radius: 12px;
+  color: rgba(255, 255, 255, 0.8) !important;
 }
 
 .cancel-btn:hover {
-  background: rgba(0, 0, 0, 0.05) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
   transform: translateY(-2px);
 }
 
@@ -1333,7 +1353,7 @@ const handleCreate = async () => {
   font-weight: 700;
   text-transform: none;
   letter-spacing: 0.5px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(135deg, #a78bfa 0%, #22d3ee 100%) !important;
   border-radius: 14px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -1355,7 +1375,7 @@ const handleCreate = async () => {
 
 .create-btn-epic:not(:disabled):hover {
   transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5) !important;
+  box-shadow: 0 12px 32px rgba(167, 139, 250, 0.5) !important;
 }
 
 .button-text {
@@ -1368,12 +1388,14 @@ const handleCreate = async () => {
 .main-text {
   font-size: 1.05rem;
   line-height: 1;
+  color: white;
 }
 
 .sub-text {
   font-size: 0.75rem;
   opacity: 0.9;
   font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* ===== SCROLLBAR ===== */
@@ -1397,7 +1419,7 @@ const handleCreate = async () => {
   background: linear-gradient(135deg, #764ba2, #667eea);
 }
 
-/* ===== SELECTOR DE TIPO DE ENTRENAMIENTO ===== */
+/* ===== SELECTOR DE TIPO DE ENTRENAMIENTO - Tema Oscuro ===== */
 .training-type-selector {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1405,8 +1427,8 @@ const handleCreate = async () => {
 }
 
 .training-type-card {
-  background: white;
-  border: 3px solid #e8eaf0;
+  background: rgba(26, 10, 46, 0.6);
+  border: 2px solid rgba(139, 92, 246, 0.3);
   border-radius: 20px;
   padding: 1.5rem 1rem;
   text-align: center;
@@ -1414,6 +1436,7 @@ const handleCreate = async () => {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
 }
 
 .training-type-card::before {
@@ -1427,14 +1450,15 @@ const handleCreate = async () => {
 
 .training-type-card:hover {
   transform: translateY(-8px) scale(1.05);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 32px rgba(139, 92, 246, 0.3);
+  border-color: rgba(139, 92, 246, 0.6);
 }
 
 .training-type-card.active {
   border-color: var(--type-color);
-  background: var(--type-color);
+  background: rgba(26, 10, 46, 0.9);
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .training-type-card.active::before {
@@ -1449,7 +1473,7 @@ const handleCreate = async () => {
 .training-type-icon {
   width: 64px;
   height: 64px;
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -1461,13 +1485,13 @@ const handleCreate = async () => {
 }
 
 .training-type-card.active .training-type-icon {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .training-type-label {
   font-size: 1.1rem;
   font-weight: 800;
-  color: #1a1a1a;
+  color: rgba(255, 255, 255, 0.9);
   margin-bottom: 0.5rem;
   position: relative;
   z-index: 1;
@@ -1476,7 +1500,7 @@ const handleCreate = async () => {
 .training-type-description {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   position: relative;
   z-index: 1;
 }

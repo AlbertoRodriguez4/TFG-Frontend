@@ -127,8 +127,9 @@ const handleClick = () => {
   height: 100%;
   border-radius: 16px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 3px solid #e0e0e0;
-  background: white;
+  border: 3px solid rgba(139, 92, 246, 0.3);
+  background: linear-gradient(135deg, rgba(26, 10, 46, 0.8) 0%, rgba(15, 10, 26, 0.9) 100%);
+  backdrop-filter: blur(10px);
 }
 
 /* Solo aplicar cursor pointer y hover si es clickeable */
@@ -138,52 +139,53 @@ const handleClick = () => {
 
 .day-card.clickable:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 12px 30px rgba(139, 92, 246, 0.3) !important;
+  border-color: rgba(139, 92, 246, 0.6);
 }
 
 /* Las completadas tienen cursor normal y no tienen hover */
 .day-card-completed {
   cursor: default;
-  border-color: #4caf50;
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.08), rgba(139, 195, 74, 0.08));
-  opacity: 0.85;
+  border-color: rgba(52, 211, 153, 0.6);
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(16, 185, 129, 0.1));
+  opacity: 0.9;
 }
 
 .day-card-completed:hover {
   transform: none;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
 }
 
 .day-card-empty {
   border-style: dashed;
-  border-color: #ccc;
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .day-card-empty:hover {
-  border-color: #667eea;
-  background: rgba(102, 126, 234, 0.03);
+  border-color: rgba(167, 139, 250, 0.6);
+  background: rgba(167, 139, 250, 0.1);
 }
 
 .day-card-today {
-  border-color: #667eea;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.25) !important;
+  border-color: rgba(167, 139, 250, 0.8);
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(34, 211, 238, 0.1));
+  box-shadow: 0 8px 25px rgba(167, 139, 250, 0.4) !important;
 }
 
 .day-card-pending {
-  border-color: #ff9800;
-  background: linear-gradient(135deg, rgba(255, 152, 0, 0.08), rgba(255, 193, 7, 0.08));
+  border-color: rgba(251, 191, 36, 0.6);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(245, 158, 11, 0.1));
   animation: pulse-border 2s ease-in-out infinite;
 }
 
 @keyframes pulse-border {
   0%, 100% {
-    border-color: #ff9800;
-    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.2);
+    border-color: rgba(251, 191, 36, 0.6);
+    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
   }
   50% {
-    border-color: #ffb74d;
-    box-shadow: 0 4px 25px rgba(255, 152, 0, 0.4);
+    border-color: rgba(251, 191, 36, 0.9);
+    box-shadow: 0 4px 25px rgba(251, 191, 36, 0.5);
   }
 }
 
@@ -204,7 +206,8 @@ const handleClick = () => {
 .day-num {
   font-size: 1.8rem;
   font-weight: 900;
-  color: #212121;
+  color: #ffffff;
+  text-shadow: 0 0 15px rgba(167, 139, 250, 0.4);
 }
 
 .today-chip {
@@ -230,23 +233,25 @@ const handleClick = () => {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(167, 139, 250, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 0.75rem;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 12px rgba(167, 139, 250, 0.2);
 }
 
 .day-card-pending:hover .workout-icon-container {
   transform: scale(1.1);
-  background: rgba(255, 152, 0, 0.15);
+  background: rgba(251, 191, 36, 0.2);
+  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.4);
 }
 
 .workout-name {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #424242;
+  color: rgba(255, 255, 255, 0.85);
   margin-bottom: 0.75rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -266,7 +271,7 @@ const handleClick = () => {
 
 .click-hint {
   font-size: 0.75rem;
-  color: #757575;
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 600;
   margin: 0;
   opacity: 0;
@@ -311,7 +316,7 @@ const handleClick = () => {
 .add-workout-text {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #9e9e9e;
+  color: rgba(255, 255, 255, 0.5);
   margin: 0;
 }
 

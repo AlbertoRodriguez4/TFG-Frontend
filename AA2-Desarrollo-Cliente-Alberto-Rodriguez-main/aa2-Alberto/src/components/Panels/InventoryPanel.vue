@@ -146,81 +146,53 @@ const handleImageError = (event: Event) => {
             md="3"
             lg="2"
           >
-            <div 
+            <div
               class="item-card"
               :class="[
-                `rarity-${getItemRarity(item.itemBonus)}`, 
+                `rarity-${getItemRarity(item.itemBonus)}`,
                 getItemTypeClass(item.itemType),
                 { 'equipped': isItemEquipped(item.itemId, item.itemType) }
               ]"
               @click="handleItemClick(item)"
             >
-              <!-- Efectos de equipado -->
-              <div v-if="isItemEquipped(item.itemId, item.itemType)" class="equipped-effects">
-                <div class="equipped-border-animation"></div>
-                <div class="equipped-particles">
-                  <span class="particle">✨</span>
-                  <span class="particle">⭐</span>
-                  <span class="particle">✨</span>
-                  <span class="particle">⭐</span>
-                </div>
-              </div>
-              
-              <div class="item-shine"></div>
-              <div class="item-glow"></div>
-              
-              <!-- Badge de equipado renovado -->
+              <!-- Badge de equipado -->
               <div v-if="isItemEquipped(item.itemId, item.itemType)" class="equipped-badge">
-                <div class="badge-glow"></div>
-                <span class="equipped-icon">⚔️</span>
+                <span>⚔️ Equipado</span>
               </div>
-              
-              <!-- Bonus destacado -->
+
+              <!-- Bonus -->
               <div class="bonus-badge">
-                <span class="bonus-sign">+</span>
-                <span class="bonus-number">{{ item.itemBonus }}</span>
+                +{{ item.itemBonus }}
               </div>
-              
+
+              <!-- Imagen/Icono -->
               <div class="item-icon-wrapper">
-                <!-- Imagen del item -->
-                <img 
+                <img
                   v-if="item.imageUrl"
-                  :src="item.imageUrl" 
+                  :src="item.imageUrl"
                   :alt="item.itemName"
                   class="item-image"
                   @error="handleImageError"
                 />
-                <!-- Fallback al icono emoji si la imagen no carga -->
                 <div class="item-icon item-icon-fallback" style="display: none;">
                   {{ getItemIcon(item.itemType) }}
                 </div>
-                <div v-if="isItemEquipped(item.itemId, item.itemType)" class="icon-ring"></div>
-              </div>
-              
-              <div class="item-content">
-                <div class="item-name">{{ item.itemName }}</div>
-                <div class="item-type-badge">
-                  <span class="type-icon">💪</span>
-                  {{ item.itemType }}
-                </div>
               </div>
 
-              <!-- Nuevo sistema de acción -->
-              <div class="equip-action-container">
-                <button 
-                  v-if="isItemEquipped(item.itemId, item.itemType)" 
-                  class="equip-button unequip"
-                >
-                  <span class="button-icon">🔓</span>
-                  <span class="button-text">Desequipar</span>
-                </button>
-                <button 
-                  v-else 
-                  class="equip-button equip"
-                >
-                  <span class="button-icon">⚡</span>
-                  <span class="button-text">Equipar</span>
-                </button>
+              <!-- Nombre y tipo -->
+              <div class="item-content">
+                <div class="item-name">{{ item.itemName }}</div>
+                <div class="item-type">{{ item.itemType }}</div>
+              </div>
+
+              <!-- Botón de acción -->
+              <div class="equip-action">
+                <span v-if="isItemEquipped(item.itemId, item.itemType)" class="action-text unequip">
+                  Desequipar
+                </span>
+                <span v-else class="action-text equip">
+                  Equipar
+                </span>
               </div>
             </div>
           </v-col>
@@ -248,81 +220,53 @@ const handleImageError = (event: Event) => {
             md="3"
             lg="2"
           >
-            <div 
+            <div
               class="item-card"
               :class="[
-                `rarity-${getItemRarity(item.itemBonus)}`, 
+                `rarity-${getItemRarity(item.itemBonus)}`,
                 getItemTypeClass(item.itemType),
                 { 'equipped': isItemEquipped(item.itemId, item.itemType) }
               ]"
               @click="handleItemClick(item)"
             >
-              <!-- Efectos de equipado -->
-              <div v-if="isItemEquipped(item.itemId, item.itemType)" class="equipped-effects">
-                <div class="equipped-border-animation"></div>
-                <div class="equipped-particles">
-                  <span class="particle">✨</span>
-                  <span class="particle">⭐</span>
-                  <span class="particle">✨</span>
-                  <span class="particle">⭐</span>
-                </div>
-              </div>
-              
-              <div class="item-shine"></div>
-              <div class="item-glow"></div>
-              
-              <!-- Badge de equipado renovado -->
+              <!-- Badge de equipado -->
               <div v-if="isItemEquipped(item.itemId, item.itemType)" class="equipped-badge">
-                <div class="badge-glow"></div>
-                <span class="equipped-icon">⚔️</span>
+                <span>⚔️ Equipado</span>
               </div>
-              
-              <!-- Bonus destacado -->
+
+              <!-- Bonus -->
               <div class="bonus-badge">
-                <span class="bonus-sign">+</span>
-                <span class="bonus-number">{{ item.itemBonus }}</span>
+                +{{ item.itemBonus }}
               </div>
-              
+
+              <!-- Imagen/Icono -->
               <div class="item-icon-wrapper">
-                <!-- Imagen del item -->
-                <img 
+                <img
                   v-if="item.imageUrl"
-                  :src="item.imageUrl" 
+                  :src="item.imageUrl"
                   :alt="item.itemName"
                   class="item-image"
                   @error="handleImageError"
                 />
-                <!-- Fallback al icono emoji si la imagen no carga -->
                 <div class="item-icon item-icon-fallback" style="display: none;">
                   {{ getItemIcon(item.itemType) }}
                 </div>
-                <div v-if="isItemEquipped(item.itemId, item.itemType)" class="icon-ring"></div>
-              </div>
-              
-              <div class="item-content">
-                <div class="item-name">{{ item.itemName }}</div>
-                <div class="item-type-badge">
-                  <span class="type-icon">🏃</span>
-                  {{ item.itemType }}
-                </div>
               </div>
 
-              <!-- Nuevo sistema de acción -->
-              <div class="equip-action-container">
-                <button 
-                  v-if="isItemEquipped(item.itemId, item.itemType)" 
-                  class="equip-button unequip"
-                >
-                  <span class="button-icon">🔓</span>
-                  <span class="button-text">Desequipar</span>
-                </button>
-                <button 
-                  v-else 
-                  class="equip-button equip"
-                >
-                  <span class="button-icon">⚡</span>
-                  <span class="button-text">Equipar</span>
-                </button>
+              <!-- Nombre y tipo -->
+              <div class="item-content">
+                <div class="item-name">{{ item.itemName }}</div>
+                <div class="item-type">{{ item.itemType }}</div>
+              </div>
+
+              <!-- Botón de acción -->
+              <div class="equip-action">
+                <span v-if="isItemEquipped(item.itemId, item.itemType)" class="action-text unequip">
+                  Desequipar
+                </span>
+                <span v-else class="action-text equip">
+                  Equipar
+                </span>
               </div>
             </div>
           </v-col>
@@ -353,67 +297,65 @@ const handleImageError = (event: Event) => {
 .header-decoration {
   height: 3px;
   width: 80px;
-  background: linear-gradient(90deg, transparent, #0D6EFD, transparent);
+  background: linear-gradient(90deg, transparent, #fbbf24, transparent);
   border-radius: 2px;
 }
 
 .inventory-title {
   font-size: clamp(1.75rem, 4vw, 2.5rem);
   font-weight: 800;
-  background: linear-gradient(135deg, #0D6EFD 0%, #0a58ca 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #ffffff;
   display: flex;
   align-items: center;
   gap: 0.75rem;
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 2px;
-  text-shadow: 0 2px 10px rgba(13, 110, 253, 0.2);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 .title-icon {
   font-size: 2rem;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 
 .item-count {
-  background: linear-gradient(135deg, #0D6EFD, #0a58ca);
-  color: white;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #0f172a;
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
   font-size: 1rem;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
 }
 
 /* Empty State */
 .empty-inventory {
   text-align: center;
   padding: 4rem 2rem;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   border-radius: 24px;
-  border: 2px dashed #dee2e6;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
 }
 
 .empty-icon {
   font-size: 5rem;
   margin-bottom: 1rem;
-  opacity: 0.5;
+  opacity: 0.7;
   animation: float 3s ease-in-out infinite;
 }
 
 .empty-text {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #495057;
+  color: #ffffff;
   margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .empty-subtext {
   font-size: 1rem;
-  color: #6c757d;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 @keyframes float {
@@ -429,10 +371,11 @@ const handleImageError = (event: Event) => {
 }
 
 .section-container {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   border-radius: 24px;
   padding: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Section Headers */
@@ -446,16 +389,16 @@ const handleImageError = (event: Event) => {
 }
 
 .strength-header {
-  border-bottom-color: #dc3545;
+  border-bottom-color: #f87171;
 }
 
 .endurance-header {
-  border-bottom-color: #0dcaf0;
+  border-bottom-color: #22d3ee;
 }
 
 .section-icon {
   font-size: 2.5rem;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 
 .section-title {
@@ -465,56 +408,44 @@ const handleImageError = (event: Event) => {
   flex: 1;
   text-transform: uppercase;
   letter-spacing: 1px;
-}
-
-.strength-header .section-title {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.endurance-header .section-title {
-  background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .section-count {
-  background: linear-gradient(135deg, #6c757d, #495057);
-  color: white;
+  background: linear-gradient(135deg, #475569, #334155);
+  color: #ffffff;
   padding: 0.5rem 1rem;
   border-radius: 20px;
   font-size: 1.25rem;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   min-width: 50px;
   text-align: center;
 }
 
 .strength-header .section-count {
-  background: linear-gradient(135deg, #dc3545, #c82333);
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  background: linear-gradient(135deg, #f87171, #dc2626);
+  box-shadow: 0 4px 12px rgba(248, 113, 113, 0.4);
 }
 
 .endurance-header .section-count {
-  background: linear-gradient(135deg, #0dcaf0, #0aa2c0);
-  box-shadow: 0 4px 12px rgba(13, 202, 240, 0.3);
+  background: linear-gradient(135deg, #22d3ee, #0891b2);
+  box-shadow: 0 4px 12px rgba(34, 211, 238, 0.4);
 }
 
 /* Empty Section */
 .empty-section {
   text-align: center;
   padding: 3rem 2rem;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   border-radius: 16px;
-  border: 2px dashed #dee2e6;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
 }
 
 .empty-section p {
   font-size: 1.125rem;
-  color: #6c757d;
+  color: rgba(255, 255, 255, 0.7);
   margin: 0;
   font-weight: 600;
 }
@@ -524,18 +455,18 @@ const handleImageError = (event: Event) => {
   gap: 2rem;
 }
 
-/* Item Card - MEJORADO */
+/* Item Card - Minimalista con contraste */
 .item-card {
   position: relative;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   border-radius: 20px;
   padding: 1.5rem;
   padding-bottom: 4rem;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  border: 3px solid #e9ecef;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
   min-height: 380px;
   display: flex;
   flex-direction: column;
@@ -545,115 +476,21 @@ const handleImageError = (event: Event) => {
 
 .item-card:hover {
   transform: translateY(-10px) scale(1.03);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
 }
 
-/* ========== EFECTOS DE EQUIPADO ========== */
-
-/* Estado equipado mejorado */
+/* Estado equipado */
 .item-card.equipped {
-  border: 4px solid transparent;
-  background: 
-    linear-gradient(#fff, #fff) padding-box,
-    linear-gradient(135deg, #ffd700, #ffed4e, #ffd700, #ffb700) border-box;
-  box-shadow: 
-    0 0 30px rgba(255, 215, 0, 0.6),
-    0 8px 24px rgba(255, 215, 0, 0.4),
-    inset 0 0 20px rgba(255, 215, 0, 0.1);
-  animation: equipped-pulse 3s ease-in-out infinite;
+  border: 2px solid #fbbf24;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
 }
 
 .item-card.equipped:hover {
-  box-shadow: 
-    0 0 40px rgba(255, 215, 0, 0.8),
-    0 16px 40px rgba(255, 215, 0, 0.6),
-    inset 0 0 30px rgba(255, 215, 0, 0.15);
+  box-shadow: 0 0 30px rgba(251, 191, 36, 0.6);
   transform: translateY(-12px) scale(1.05);
 }
 
-@keyframes equipped-pulse {
-  0%, 100% {
-    box-shadow: 
-      0 0 30px rgba(255, 215, 0, 0.6),
-      0 8px 24px rgba(255, 215, 0, 0.4),
-      inset 0 0 20px rgba(255, 215, 0, 0.1);
-  }
-  50% {
-    box-shadow: 
-      0 0 45px rgba(255, 215, 0, 0.8),
-      0 12px 32px rgba(255, 215, 0, 0.6),
-      inset 0 0 30px rgba(255, 215, 0, 0.2);
-  }
-}
-
-/* Borde animado para items equipados */
-.equipped-border-animation {
-  position: absolute;
-  inset: -4px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #ffd700, #ffed4e, #ffd700, #ffb700);
-  background-size: 300% 300%;
-  animation: gradient-rotate 4s ease infinite;
-  z-index: -1;
-  opacity: 0.8;
-}
-
-@keyframes gradient-rotate {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-/* Partículas flotantes */
-.equipped-particles {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.particle {
-  position: absolute;
-  font-size: 1.2rem;
-  animation: float-particle 3s ease-in-out infinite;
-  opacity: 0;
-}
-
-.particle:nth-child(1) {
-  top: 20%;
-  left: 10%;
-  animation-delay: 0s;
-}
-
-.particle:nth-child(2) {
-  top: 60%;
-  right: 15%;
-  animation-delay: 0.7s;
-}
-
-.particle:nth-child(3) {
-  bottom: 30%;
-  left: 20%;
-  animation-delay: 1.4s;
-}
-
-.particle:nth-child(4) {
-  top: 40%;
-  right: 20%;
-  animation-delay: 2.1s;
-}
-
-@keyframes float-particle {
-  0%, 100% {
-    opacity: 0;
-    transform: translateY(0) scale(0.5);
-  }
-  50% {
-    opacity: 1;
-    transform: translateY(-20px) scale(1);
-  }
-}
-
-/* Badge de equipado renovado */
+/* Badge de equipado */
 .equipped-badge {
   position: absolute;
   top: 8px;
@@ -661,82 +498,16 @@ const handleImageError = (event: Event) => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
-  color: #8b6914;
-  padding: 0.6rem 1rem;
-  border-radius: 16px;
-  font-size: 0.8rem;
-  font-weight: 900;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #0f172a;
+  padding: 0.5rem 0.875rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  box-shadow: 
-    0 6px 20px rgba(255, 215, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
   z-index: 15;
-  animation: badge-glow 2s ease-in-out infinite;
-  overflow: hidden;
-}
-
-.badge-glow {
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-  animation: badge-shine 3s linear infinite;
-}
-
-@keyframes badge-shine {
-  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-}
-
-@keyframes badge-glow {
-  0%, 100% {
-    box-shadow: 
-      0 6px 20px rgba(255, 215, 0, 0.6),
-      inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  }
-  50% {
-    box-shadow: 
-      0 8px 30px rgba(255, 215, 0, 0.9),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  }
-}
-
-.equipped-icon {
-  font-size: 1.2rem;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-}
-
-.equipped-text {
-  line-height: 1;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Anillo alrededor del icono para items equipados */
-.icon-ring {
-  position: absolute;
-  inset: -15px;
-  border: 3px solid #ffd700;
-  border-radius: 50%;
-  box-shadow: 
-    0 0 20px rgba(255, 215, 0, 0.6),
-    inset 0 0 20px rgba(255, 215, 0, 0.3);
-  animation: ring-pulse 2s ease-in-out infinite;
-}
-
-@keyframes ring-pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 1;
-  }
 }
 
 /* Bonus Badge */
@@ -748,40 +519,28 @@ const handleImageError = (event: Event) => {
   align-items: baseline;
   gap: 0.15rem;
   background: linear-gradient(135deg, #10b981, #059669);
-  color: white;
+  color: #ffffff;
   padding: 0.5rem 0.9rem;
-  border-radius: 16px;
-  box-shadow: 
-    0 4px 12px rgba(16, 185, 129, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
   font-weight: 900;
   z-index: 10;
-  transform: rotate(5deg);
   transition: all 0.3s ease;
 }
 
 .item-card:hover .bonus-badge {
-  transform: rotate(0deg) scale(1.1);
-  box-shadow: 
-    0 6px 20px rgba(16, 185, 129, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
-.bonus-sign {
-  font-size: 1.1rem;
-  opacity: 0.9;
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
 }
 
 .bonus-number {
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   line-height: 1;
   font-family: 'Courier New', monospace;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* ========== SISTEMA DE BOTONES DE EQUIPAR ========== */
-
-.equip-action-container {
+/* Acción de equipar/desequipar */
+.equip-action {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -792,294 +551,111 @@ const handleImageError = (event: Event) => {
   align-items: center;
 }
 
-.equip-button {
+.action-text {
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 12px;
+  display: block;
+  text-align: center;
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
   font-weight: 800;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  position: relative;
-  overflow: hidden;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
 }
 
-.equip-button::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.4s, height 0.4s;
+.action-text.equip {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
-.equip-button:hover::before {
-  width: 300px;
-  height: 300px;
-}
-
-.button-icon {
-  font-size: 1.2rem;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-  transition: transform 0.3s;
-}
-
-.equip-button:hover .button-icon {
-  transform: scale(1.2) rotate(10deg);
-}
-
-.button-text {
-  position: relative;
-  z-index: 1;
-}
-
-/* Botón Equipar */
-.equip-button.equip {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  box-shadow: 
-    0 4px 15px rgba(16, 185, 129, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
-.equip-button.equip:hover {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  box-shadow: 
-    0 6px 25px rgba(16, 185, 129, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+.action-text.equip:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
   transform: translateY(-2px);
 }
 
-.equip-button.equip:active {
-  transform: translateY(0);
-  box-shadow: 
-    0 2px 10px rgba(16, 185, 129, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+.action-text.unequip {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
-/* Botón Desequipar */
-.equip-button.unequip {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
-  box-shadow: 
-    0 4px 15px rgba(239, 68, 68, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  animation: unequip-pulse 2s ease-in-out infinite;
-}
-
-.equip-button.unequip:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  box-shadow: 
-    0 6px 25px rgba(239, 68, 68, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+.action-text.unequip:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
   transform: translateY(-2px);
-  animation: none;
 }
-
-.equip-button.unequip:active {
-  transform: translateY(0);
-  box-shadow: 
-    0 2px 10px rgba(239, 68, 68, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
-@keyframes unequip-pulse {
-  0%, 100% {
-    box-shadow: 
-      0 4px 15px rgba(239, 68, 68, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-  50% {
-    box-shadow: 
-      0 6px 20px rgba(239, 68, 68, 0.6),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-}
-
-/* ========== FIN SISTEMA DE BOTONES ========== */
 
 /* Type-specific Styles */
 .type-strength {
-  border-color: #dc3545 !important;
-  background: linear-gradient(135deg, #ffffff 0%, #ffe5e8 100%) !important;
+  border-color: #f87171 !important;
 }
 
 .type-strength:hover {
-  border-color: #c82333 !important;
-  box-shadow: 0 16px 40px rgba(220, 53, 69, 0.4) !important;
+  border-color: #fca5a5 !important;
+  box-shadow: 0 16px 40px rgba(248, 113, 113, 0.3) !important;
 }
 
 .type-strength.equipped {
-  border-color: #ffd700 !important;
-  background: linear-gradient(135deg, #fffef0 0%, #ffe5e8 100%) !important;
-}
-
-.type-strength .item-type-badge {
-  background: linear-gradient(135deg, #dc3545, #c82333) !important;
-  box-shadow: 0 3px 10px rgba(220, 53, 69, 0.4) !important;
-}
-
-.type-strength .item-glow {
-  background: linear-gradient(135deg, #dc3545, #c82333) !important;
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.4) !important;
 }
 
 .type-endurance {
-  border-color: #0dcaf0 !important;
-  background: linear-gradient(135deg, #ffffff 0%, #e5f8fc 100%) !important;
+  border-color: #22d3ee !important;
 }
 
 .type-endurance:hover {
-  border-color: #0aa2c0 !important;
-  box-shadow: 0 16px 40px rgba(13, 202, 240, 0.4) !important;
+  border-color: #67e8f9 !important;
+  box-shadow: 0 16px 40px rgba(34, 211, 238, 0.3) !important;
 }
 
 .type-endurance.equipped {
-  border-color: #ffd700 !important;
-  background: linear-gradient(135deg, #fffef0 0%, #e5f8fc 100%) !important;
-}
-
-.type-endurance .item-type-badge {
-  background: linear-gradient(135deg, #0dcaf0, #0aa2c0) !important;
-  box-shadow: 0 3px 10px rgba(13, 202, 240, 0.4) !important;
-}
-
-.type-endurance .item-glow {
-  background: linear-gradient(135deg, #0dcaf0, #0aa2c0) !important;
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.4) !important;
 }
 
 /* Rarity Styles */
 .rarity-common {
-  border-color: #adb5bd;
+  border-color: #94a3b8;
 }
 
 .rarity-common:hover {
-  border-color: #868e96;
-  box-shadow: 0 16px 40px rgba(173, 181, 189, 0.35);
+  border-color: #cbd5e1;
+  box-shadow: 0 16px 40px rgba(148, 163, 184, 0.3);
 }
 
 .rarity-rare {
-  border-color: #0D6EFD;
-  background: linear-gradient(135deg, #ffffff 0%, #e7f1ff 100%);
+  border-color: #38bdf8;
 }
 
 .rarity-rare:hover {
-  border-color: #0a58ca;
-  box-shadow: 0 16px 40px rgba(13, 110, 253, 0.45);
+  border-color: #7dd3fc;
+  box-shadow: 0 16px 40px rgba(56, 189, 248, 0.3);
 }
 
 .rarity-epic {
-  border-color: #9b59b6;
-  background: linear-gradient(135deg, #ffffff 0%, #f3e5f5 100%);
+  border-color: #f472b6;
 }
 
 .rarity-epic:hover {
-  border-color: #8e44ad;
-  box-shadow: 0 16px 40px rgba(155, 89, 182, 0.45);
+  border-color: #fb7185;
+  box-shadow: 0 16px 40px rgba(244, 114, 182, 0.3);
 }
 
 .rarity-legendary {
-  border-color: #f39c12;
-  background: linear-gradient(135deg, #ffffff 0%, #fff8e1 100%);
-  animation: legendary-pulse 2s ease-in-out infinite;
+  border-color: #fbbf24;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
 }
 
 .rarity-legendary:hover {
-  border-color: #e67e22;
-  box-shadow: 0 16px 40px rgba(243, 156, 18, 0.55);
+  border-color: #fcd34d;
+  box-shadow: 0 0 25px rgba(251, 191, 36, 0.5);
 }
 
-.rarity-legendary .bonus-badge {
-  background: linear-gradient(135deg, #f39c12, #e67e22);
-  animation: bonus-pulse 2s ease-in-out infinite;
-}
-
-@keyframes legendary-pulse {
-  0%, 100% { box-shadow: 0 6px 16px rgba(243, 156, 18, 0.3); }
-  50% { box-shadow: 0 6px 28px rgba(243, 156, 18, 0.55); }
-}
-
-@keyframes bonus-pulse {
-  0%, 100% { 
-    box-shadow: 
-      0 4px 12px rgba(243, 156, 18, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-  50% { 
-    box-shadow: 
-      0 6px 20px rgba(243, 156, 18, 0.7),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-}
-
-/* Item Effects */
-.item-shine {
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
-  transform: rotate(45deg);
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.item-card:hover .item-shine {
-  opacity: 1;
-  animation: shine 0.8s ease-in-out;
-}
-
-@keyframes shine {
-  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-}
-
-.item-glow {
-  position: absolute;
-  inset: -3px;
-  border-radius: 20px;
-  opacity: 0;
-  transition: opacity 0.3s;
-  z-index: -1;
-}
-
-.item-card:hover .item-glow {
-  opacity: 1;
-  filter: blur(15px);
-}
-
-.rarity-rare:hover .item-glow {
-  opacity: 1;
-  background: linear-gradient(135deg, #0D6EFD, #0a58ca);
-  filter: blur(15px);
-}
-
-.rarity-epic:hover .item-glow {
-  opacity: 1;
-  background: linear-gradient(135deg, #9b59b6, #8e44ad);
-  filter: blur(15px);
-}
-
-.rarity-legendary:hover .item-glow {
-  opacity: 1;
-  background: linear-gradient(135deg, #f39c12, #e67e22);
-  filter: blur(15px);
-}
-
-/* ========== MEJORAS EN EL CONTENEDOR DE IMAGEN ========== */
-
+/* Contenedor de imagen */
 .item-icon-wrapper {
   position: relative;
   display: flex;
@@ -1090,17 +666,14 @@ const handleImageError = (event: Event) => {
   aspect-ratio: 1;
   margin: 1rem auto;
   padding: 8px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 249, 250, 0.9));
+  background: linear-gradient(135deg, #1e293b, #0f172a);
   border-radius: 16px;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.08),
-    inset 0 2px 4px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .item-card:hover .item-icon-wrapper {
-  box-shadow: 
-    0 8px 20px rgba(0, 0, 0, 0.15),
-    inset 0 2px 4px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   transform: scale(1.05);
   transition: all 0.3s ease;
 }
@@ -1110,7 +683,7 @@ const handleImageError = (event: Event) => {
   height: 100%;
   object-fit: contain;
   object-position: center;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
   transition: all 0.3s ease;
   border-radius: 12px;
   image-rendering: crisp-edges;
@@ -1118,38 +691,33 @@ const handleImageError = (event: Event) => {
 }
 
 .item-card:hover .item-image {
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
   transform: scale(1.08) rotate(2deg);
 }
 
-/* Items equipados - imagen con brillo especial */
+/* Items equipados */
 .item-card.equipped .item-icon-wrapper {
-  background: linear-gradient(135deg, rgba(255, 247, 205, 0.95), rgba(255, 237, 160, 0.95));
-  box-shadow: 
-    0 0 25px rgba(255, 215, 0, 0.4),
-    0 6px 16px rgba(255, 215, 0, 0.3),
-    inset 0 2px 6px rgba(255, 255, 255, 0.9);
+  background: linear-gradient(135deg, #2d2a1f, #1f1b14);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+  border-color: rgba(251, 191, 36, 0.5);
 }
 
 .item-card.equipped:hover .item-icon-wrapper {
-  box-shadow: 
-    0 0 35px rgba(255, 215, 0, 0.6),
-    0 10px 24px rgba(255, 215, 0, 0.5),
-    inset 0 2px 6px rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
 }
 
 .item-card.equipped .item-image {
-  filter: drop-shadow(0 6px 12px rgba(255, 215, 0, 0.3));
+  filter: drop-shadow(0 6px 12px rgba(251, 191, 36, 0.3));
 }
 
 .item-card.equipped:hover .item-image {
-  filter: drop-shadow(0 10px 20px rgba(255, 215, 0, 0.5));
+  filter: drop-shadow(0 10px 20px rgba(251, 191, 36, 0.5));
 }
 
 /* Fallback icon emoji */
 .item-icon {
   font-size: 4rem;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.15));
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
   transition: transform 0.3s ease;
   display: flex;
   align-items: center;
@@ -1163,8 +731,6 @@ const handleImageError = (event: Event) => {
 .item-card:hover .item-icon {
   transform: scale(1.15) rotate(8deg);
 }
-
-/* ========== FIN MEJORAS IMAGEN ========== */
 
 /* Item Content */
 .item-content {
@@ -1180,7 +746,7 @@ const handleImageError = (event: Event) => {
 .item-name {
   font-weight: 800;
   font-size: 1.1rem;
-  color: #212529;
+  color: #ffffff;
   text-align: center;
   line-height: 1.3;
   word-break: break-word;
@@ -1188,25 +754,15 @@ const handleImageError = (event: Event) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.item-type-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: linear-gradient(135deg, #0D6EFD, #0a58ca);
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 14px;
-  font-size: 0.85rem;
-  font-weight: 700;
+.item-type {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
   text-transform: uppercase;
-  letter-spacing: 0.8px;
-  box-shadow: 0 3px 10px rgba(13, 110, 253, 0.3);
-}
-
-.type-icon {
-  font-size: 1rem;
+  letter-spacing: 0.5px;
+  font-weight: 600;
 }
 
 /* Responsive */
@@ -1275,21 +831,12 @@ const handleImageError = (event: Event) => {
     left: 6px;
     padding: 0.4rem 0.7rem;
     font-size: 0.7rem;
-    gap: 0.35rem;
-  }
-
-  .equipped-icon {
-    font-size: 1rem;
   }
 
   .bonus-badge {
     top: 8px;
     right: 8px;
     padding: 0.4rem 0.75rem;
-  }
-
-  .bonus-sign {
-    font-size: 1rem;
   }
 
   .bonus-number {
@@ -1301,37 +848,23 @@ const handleImageError = (event: Event) => {
     margin: 0.75rem auto;
     padding: 6px;
   }
-  
+
   .item-icon {
     font-size: 3rem;
   }
 
-  .icon-ring {
-    inset: -12px;
-    border-width: 2px;
-  }
-  
   .item-name {
     font-size: 0.95rem;
     min-height: 2.1rem;
   }
 
-  .item-type-badge {
-    padding: 0.4rem 0.85rem;
-    font-size: 0.75rem;
+  .item-type {
+    font-size: 0.7rem;
   }
 
-  .equip-button {
+  .action-text {
     padding: 0.6rem 0.85rem;
     font-size: 0.75rem;
-  }
-
-  .button-icon {
-    font-size: 1rem;
-  }
-
-  .particle {
-    font-size: 1rem;
   }
 
   .empty-section {

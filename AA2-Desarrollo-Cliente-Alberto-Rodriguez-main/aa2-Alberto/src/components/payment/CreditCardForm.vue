@@ -1,11 +1,35 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useSubscriptionStore } from '@/stores/SubscriptionStore'
+
+interface ValidationState {
+  cardNumber: boolean
+  cardHolder: boolean
+  expiryDate: boolean
+  cvv: boolean
+}
+
+const router = useRouter()
+const subscriptionStore = useSubscriptionStore()
+
+const emit = defineEmits<{
+  'payment-success': []
+}>()
 
 const cardNumber = ref('')
 const cardHolder = ref('')
 const expiryDate = ref('')
 const cvv = ref('')
 const isProcessing = ref(false)
+const showSuccess = ref(false)
+const errorMessage = ref('')
+const validationErrors = ref<ValidationState>({
+  cardNumber: false,
+  cardHolder: false,
+  expiryDate: false,
+  cvv: false
+})
 
 const formatCardNumber = (value: string) => {
   const cleaned = value.replace(/\D/g, '')
@@ -21,187 +45,347 @@ const formatExpiryDate = (value: string) => {
   return cleaned
 }
 
-const handleSubmit = () => {
+const validateForm = (): boolean => {
+  errorMessage.value = ''
+  validationErrors.value = {
+    cardNumber: false,
+    cardHolder: false,
+    expiryDate: false,
+    cvv: false
+  }
+
+  let isValid = true
+
+  if (!cardNumber.value || cardNumber.value.replace(/\s/g, '').length < 16) {
+    validationErrors.value.cardNumber = true
+    isValid = false
+  }
+
+  if (!cardHolder.value || cardHolder.value.trim().length < 3) {
+    validationErrors.value.cardHolder = true
+    isValid = false
+  }
+
+  if (!expiryDate.value || expiryDate.value.length < 5) {
+    validationErrors.value.expiryDate = true
+    isValid = false
+  }
+
+  if (!cvv.value || cvv.value.length < 3) {
+    validationErrors.value.cvv = true
+    isValid = false
+  }
+
+  // Validar formato de fecha MM/YY
+  const [month, year] = expiryDate.value.split('/')
+  if (month && year) {
+    const monthNum = parseInt(month)
+    if (monthNum < 1 || monthNum > 12) {
+      validationErrors.value.expiryDate = true
+      isValid = false
+    }
+  }
+
+  if (!isValid) {
+    errorMessage.value = 'Por favor, completa todos los campos correctamente'
+  }
+
+  return isValid
+}
+
+const handleSubmit = async () => {
+  if (!validateForm()) {
+    return
+  }
+
   isProcessing.value = true
-  setTimeout(() => {
+  errorMessage.value = ''
+
+  try {
+    // Simular pequeño delay de procesamiento
+    await new Promise(resolve => setTimeout(resolve, 1500))
+
+    // Llamar al store para procesar la suscripción
+    const result = await subscriptionStore.purchaseSubscription()
+
+    if (result.success) {
+      showSuccess.value = true
+      emit('payment-success')
+
+      setTimeout(() => {
+        // Redirigir a la vista de perfil con parámetro de éxito
+        router.push('/profile?tab=subscription&subscribed=true')
+      }, 2500)
+    } else {
+      errorMessage.value = result.error || 'Error al procesar el pago'
+      showSuccess.value = false
+    }
+  } catch (err) {
+    console.error('Payment error:', err)
+    errorMessage.value = 'Error de conexión. Inténtalo de nuevo.'
+    showSuccess.value = false
+  } finally {
     isProcessing.value = false
-    alert('¡Pago procesado con éxito!')
-  }, 2000)
+  }
 }
 </script>
 
 <template>
-  <div class="card-form">
-    <!-- Form Header -->
+  <div class="card-form" :class="{ 'form-success': showSuccess }">
+    <!-- Encabezado del formulario -->
     <div class="form-header">
       <h2 class="form-title">Información de pago</h2>
-      <p class="form-subtitle">Tus datos están encriptados y seguros</p>
+      <p class="form-subtitle">Tus datos están protegidos con encriptación SSL</p>
     </div>
 
-    <!-- Card Preview -->
+    <!-- Vista previa de tarjeta -->
     <div class="card-preview">
-      <div class="card-row">
+      <div class="card-top">
         <div class="card-chip"></div>
+        <div class="card-logo">💳</div>
       </div>
-      <div class="card-number">{{ cardNumber || '•••• •••• •••• ••••' }}</div>
+      <div class="card-number-display">{{ cardNumber || '•••• •••• •••• ••••' }}</div>
       <div class="card-footer">
-        <div class="card-holder">{{ cardHolder || 'Nombre del titular' }}</div>
+        <div class="card-holder">{{ (cardHolder || 'NOMBRE DEL TITULAR').toUpperCase() }}</div>
         <div class="card-expiry">{{ expiryDate || 'MM/YY' }}</div>
       </div>
     </div>
 
-    <!-- Form Fields -->
-    <v-form @submit.prevent="handleSubmit">
-      <!-- Card Number -->
+    <!-- Formulario -->
+    <v-form @submit.prevent="handleSubmit" class="payment-form">
+      <!-- Número de tarjeta -->
       <div class="form-group">
         <label class="form-label">Número de tarjeta</label>
-        <v-text-field
-          v-model="cardNumber"
-          placeholder="1234 5678 9012 3456"
-          maxlength="19"
-          variant="outlined"
-          color="#0a0a0a"
-          base-color="#999999"
-          class="form-input"
-          @update:model-value="(val) => cardNumber = formatCardNumber(val)"
-        />
+        <div class="input-wrapper">
+          <v-text-field
+            v-model="cardNumber"
+            placeholder="1234 5678 9012 3456"
+            maxlength="19"
+            variant="outlined"
+            density="comfortable"
+            class="form-input"
+            :error="validationErrors.cardNumber"
+            @update:model-value="(val) => cardNumber = formatCardNumber(val)"
+          />
+          <div class="card-icons">
+            <v-icon v-if="cardNumber" size="20" color="#4f46e5">mdi-credit-card</v-icon>
+          </div>
+        </div>
+        <div v-if="validationErrors.cardNumber" class="error-text">
+          Ingresa un número de tarjeta válido (16 dígitos)
+        </div>
       </div>
 
-      <!-- Card Holder -->
+      <!-- Nombre del titular -->
       <div class="form-group">
         <label class="form-label">Nombre del titular</label>
-        <v-text-field
-          v-model="cardHolder"
-          placeholder="Como aparece en la tarjeta"
-          maxlength="50"
-          variant="outlined"
-          color="#0a0a0a"
-          base-color="#999999"
-          class="form-input"
-        />
+        <div class="input-wrapper">
+          <v-text-field
+            v-model="cardHolder"
+            placeholder="Como aparece en la tarjeta"
+            maxlength="50"
+            variant="outlined"
+            density="comfortable"
+            class="form-input"
+            :error="validationErrors.cardHolder"
+          />
+          <div class="card-icons">
+            <v-icon v-if="cardHolder" size="20" color="#4f46e5">mdi-account</v-icon>
+          </div>
+        </div>
+        <div v-if="validationErrors.cardHolder" class="error-text">
+          El nombre debe tener al menos 3 caracteres
+        </div>
       </div>
 
-      <!-- Expiry & CVV -->
+      <!-- Vencimiento y CVV -->
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Vencimiento</label>
-          <v-text-field
-            v-model="expiryDate"
-            placeholder="MM/YY"
-            maxlength="5"
-            variant="outlined"
-            color="#0a0a0a"
-            base-color="#999999"
-            class="form-input"
-            @update:model-value="(val) => expiryDate = formatExpiryDate(val)"
-          />
+          <div class="input-wrapper">
+            <v-text-field
+              v-model="expiryDate"
+              placeholder="MM/YY"
+              maxlength="5"
+              variant="outlined"
+              density="comfortable"
+              class="form-input"
+              :error="validationErrors.expiryDate"
+              @update:model-value="(val) => expiryDate = formatExpiryDate(val)"
+            />
+            <div class="card-icons">
+              <v-icon v-if="expiryDate" size="20" color="#4f46e5">mdi-calendar</v-icon>
+            </div>
+          </div>
+          <div v-if="validationErrors.expiryDate" class="error-text">
+            Ingresa una fecha válida (MM/YY)
+          </div>
         </div>
 
         <div class="form-group">
           <label class="form-label">CVV</label>
-          <v-text-field
-            v-model="cvv"
-            placeholder="123"
-            maxlength="4"
-            type="password"
-            variant="outlined"
-            color="#0a0a0a"
-            base-color="#999999"
-            class="form-input"
-            @update:model-value="(val) => cvv = val.replace(/\D/g, '')"
-          />
+          <div class="input-wrapper">
+            <v-text-field
+              v-model="cvv"
+              placeholder="123"
+              maxlength="4"
+              type="password"
+              variant="outlined"
+              density="comfortable"
+              class="form-input"
+              :error="validationErrors.cvv"
+              @update:model-value="(val) => cvv = val.replace(/\D/g, '')"
+            />
+            <div class="card-icons">
+              <v-tooltip text="3 o 4 dígitos en la parte trasera">
+                <template #activator="{ props }">
+                  <v-icon v-bind="props" size="20" color="#4f46e5">mdi-lock</v-icon>
+                </template>
+              </v-tooltip>
+            </div>
+          </div>
+          <div v-if="validationErrors.cvv" class="error-text">
+            CVV inválido (3 o 4 dígitos)
+          </div>
         </div>
       </div>
 
-      <!-- Payment Methods -->
+      <!-- Métodos de pago -->
       <div class="payment-methods">
-        <div class="method">
+        <div class="method visa" title="Visa">
           <v-icon size="28">mdi-visa</v-icon>
         </div>
-        <div class="method">
+        <div class="method mastercard" title="Mastercard">
           <v-icon size="28">mdi-mastercard</v-icon>
         </div>
-        <div class="method">
+        <div class="method amex" title="American Express">
           <v-icon size="28">mdi-american-credit-card</v-icon>
         </div>
       </div>
 
-      <!-- Submit Button -->
+      <!-- Mensaje de error -->
+      <v-alert
+        v-if="errorMessage"
+        type="error"
+        variant="tonal"
+        closable
+        class="error-alert"
+      >
+        {{ errorMessage }}
+      </v-alert>
+
+      <!-- Botón de envío -->
       <v-btn
         type="submit"
         :loading="isProcessing"
+        :disabled="isProcessing"
         block
         size="large"
         class="submit-btn"
       >
-        Confirmar pago
+        <span v-if="!isProcessing">Confirmar pago €10,00</span>
+        <span v-else>Procesando pago...</span>
       </v-btn>
+
+      <!-- Pie de página -->
+      <p class="form-footer">
+        Al confirmar aceptas los términos de servicio. Tu pago está protegido.
+      </p>
     </v-form>
   </div>
 </template>
 
 <style scoped>
 .card-form {
-  background: #ffffff;
-  border: 1px solid #e5e5e5;
-  border-radius: 16px;
-  padding: 2rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 2.5rem;
   height: 100%;
-  min-height: 580px;
+  min-height: 600px;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Form Header */
+.card-form:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+/* Encabezado */
 .form-header {
   margin-bottom: 2rem;
 }
 
 .form-title {
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-size: 1.4rem;
+  font-weight: 800;
   margin: 0 0 0.5rem;
   color: #0a0a0a;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.5px;
 }
 
 .form-subtitle {
   font-size: 0.9rem;
-  color: #999999;
+  color: #888888;
   margin: 0;
   font-weight: 400;
+  line-height: 1.5;
 }
 
-/* Card Preview */
+/* Vista previa de tarjeta */
 .card-preview {
-  background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%);
-  border-radius: 12px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  min-height: 160px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: 2.5rem;
+  min-height: 180px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.3);
+  position: relative;
+  overflow: hidden;
 }
 
-.card-row {
+.card-preview::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent);
+  border-radius: 50%;
+}
+
+.card-top {
   display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
 .card-chip {
-  width: 48px;
-  height: 32px;
-  background: linear-gradient(135deg, #f0e68c 0%, #daa520 100%);
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  width: 50px;
+  height: 38px;
+  background: linear-gradient(135deg, #fbbf24, #d97706);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.card-number {
+.card-logo {
+  font-size: 1.8rem;
+  opacity: 0.9;
+}
+
+.card-number-display {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #0a0a0a;
+  color: white;
   letter-spacing: 2px;
   font-family: 'Courier New', monospace;
+  margin: 1rem 0;
 }
 
 .card-footer {
@@ -211,114 +395,193 @@ const handleSubmit = () => {
 }
 
 .card-holder {
-  font-size: 0.85rem;
-  color: #666666;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.9);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 500;
+  letter-spacing: 0.8px;
+  font-weight: 600;
 }
 
 .card-expiry {
-  font-size: 0.85rem;
-  color: #666666;
-  letter-spacing: 0.5px;
-  font-weight: 500;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.8px;
+  font-weight: 600;
 }
 
-/* Form Groups */
+/* Formulario */
+.payment-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .form-group {
   margin-bottom: 1.5rem;
+  position: relative;
 }
 
 .form-label {
   display: block;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #0a0a0a;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.6rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-input {
+  width: 100%;
 }
 
 .form-input :deep(.v-field) {
-  border: 1px solid #e5e5e5;
-  background: #ffffff;
-  transition: all 0.3s ease;
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 10px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .form-input :deep(.v-field:hover) {
-  border-color: #cccccc;
+  border-color: #d1d5db;
 }
 
 .form-input :deep(.v-field--focused) {
-  border-color: #0a0a0a;
-  box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.05);
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
 }
 
 .form-input :deep(input) {
   color: #0a0a0a;
   font-size: 0.95rem;
+  font-weight: 500;
 }
 
 .form-input :deep(input::placeholder) {
-  color: #cccccc;
+  color: #bbb;
 }
 
-/* Form Row */
-.form-row {
+.form-input :deep(.v-field--error) {
+  border-color: #ef4444 !important;
+}
+
+.form-input :deep(.v-field--error:focus) {
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
+}
+
+.card-icons {
+  position: absolute;
+  right: 12px;
   display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.error-text {
+  font-size: 0.75rem;
+  color: #ef4444;
+  margin-top: 0.4rem;
+  font-weight: 500;
+}
+
+/* Form row */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 
 .form-row .form-group {
-  flex: 1;
   margin-bottom: 1.5rem;
 }
 
-/* Payment Methods */
+/* Métodos de pago */
 .payment-methods {
   display: flex;
   gap: 1rem;
   margin: 2rem 0;
   padding: 1.5rem 0;
-  border-top: 1px solid #e5e5e5;
-  border-bottom: 1px solid #e5e5e5;
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .method {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  background: #f5f5f5;
-  color: #666666;
-  transition: all 0.3s ease;
+  height: 50px;
+  border-radius: 10px;
+  background: #f3f4f6;
+  color: #9ca3af;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
 }
 
 .method:hover {
-  background: #eeeeee;
-  color: #0a0a0a;
+  background: #f0f1f3;
+  color: #4b5563;
 }
 
-/* Submit Button */
+.method.visa:hover {
+  border-color: #1a1f71;
+  color: #1a1f71;
+}
+
+.method.mastercard:hover {
+  border-color: #eb001b;
+  color: #eb001b;
+}
+
+.method.amex:hover {
+  border-color: #006fcf;
+  color: #006fcf;
+}
+
+/* Alert de error */
+.error-alert {
+  margin-bottom: 1.5rem;
+  border-radius: 10px;
+}
+
+/* Botón de envío */
 .submit-btn {
-  background: #0a0a0a !important;
-  color: #ffffff !important;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+  color: white !important;
   font-weight: 700;
   font-size: 1rem;
   text-transform: none;
-  letter-spacing: 0;
-  border-radius: 8px !important;
-  transition: all 0.3s ease;
+  letter-spacing: 0.3px;
+  border-radius: 10px !important;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   margin-top: auto;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
-.submit-btn:hover {
-  background: #333333 !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+}
+
+.submit-btn:disabled {
+  opacity: 0.7;
+}
+
+/* Pie de página */
+.form-footer {
+  font-size: 0.75rem;
+  color: #888888;
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
 }
 
 /* Responsive */
@@ -326,29 +589,77 @@ const handleSubmit = () => {
   .card-form {
     padding: 1.5rem;
     min-height: auto;
+    border-radius: 16px;
   }
 
-  .form-row {
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .form-row .form-group {
+  .form-header {
     margin-bottom: 1.5rem;
   }
 
-  .card-number {
+  .form-title {
+    font-size: 1.2rem;
+  }
+
+  .card-preview {
+    padding: 1.5rem;
+    min-height: 160px;
+    margin-bottom: 1.5rem;
+  }
+
+  .card-number-display {
     font-size: 1.2rem;
     letter-spacing: 1px;
   }
 
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .form-row .form-group:first-child {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-row .form-group:last-child {
+    margin-bottom: 1.5rem;
+  }
+
   .payment-methods {
-    flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
   }
 
   .method {
-    width: 100%;
+    height: 44px;
+  }
+
+  .submit-btn {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-form {
+    padding: 1.2rem;
+    min-height: auto;
+  }
+
+  .form-label {
+    font-size: 0.75rem;
+  }
+
+  .card-chip {
+    width: 40px;
+    height: 30px;
+  }
+
+  .card-number-display {
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
+
+  .card-holder,
+  .card-expiry {
+    font-size: 0.75rem;
   }
 }
 </style>

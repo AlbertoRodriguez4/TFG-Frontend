@@ -105,23 +105,23 @@
 
         <!-- Diálogo de confirmación -->
         <v-dialog v-model="showConfirmDialog" max-width="400" persistent>
-            <v-card>
+            <v-card class="confirm-dialog">
                 <v-card-title class="text-h5 confirm-title">
-                    <v-icon large color="warning" class="mr-2">mdi-alert-circle</v-icon>
+                    <v-icon large color="amber" class="mr-2">mdi-alert-circle</v-icon>
                     ¿Estás seguro?
                 </v-card-title>
                 <v-card-text class="confirm-text">
                     <p>Estás a punto de marcar esta rutina como completada.</p>
-                    <v-alert type="warning" dense outlined class="mt-3">
+                    <v-alert type="warning" dense outlined class="mt-3" color="amber">
                         <strong>⚠️ Esta acción no se puede deshacer</strong>
                     </v-alert>
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn text @click="showConfirmDialog = false">
+                    <v-btn text @click="showConfirmDialog = false" class="cancel-btn">
                         Cancelar
                     </v-btn>
-                    <v-btn color="success" @click="confirmComplete">
+                    <v-btn color="success" @click="confirmComplete" class="confirm-btn">
                         <v-icon left>mdi-check</v-icon>
                         Sí, completar
                     </v-btn>
@@ -205,6 +205,8 @@ export default defineComponent({
 .routine-detail-card {
     overflow: hidden;
     border-radius: 16px;
+    background: linear-gradient(135deg, rgba(26, 10, 46, 0.95) 0%, rgba(15, 10, 26, 0.98) 100%);
+    border: 2px solid rgba(139, 92, 246, 0.3);
 }
 
 .routine-header {
@@ -221,18 +223,16 @@ export default defineComponent({
     content: '';
     position: absolute;
     inset: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,144C960,149,1056,139,1152,122.7C1248,107,1344,85,1392,74.7L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
-    background-size: cover;
-    background-position: bottom;
-    opacity: 0.3;
+    background: radial-gradient(circle at 30% 50%, rgba(167, 139, 250, 0.15) 0%, transparent 60%);
+    opacity: 0.5;
 }
 
 .routine-header.completed {
-    background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+    background: linear-gradient(135deg, rgba(52, 211, 153, 0.3) 0%, rgba(16, 185, 129, 0.2) 100%);
 }
 
 .routine-header.pending {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.3) 0%, rgba(34, 211, 238, 0.2) 100%);
 }
 
 .header-content {
@@ -281,7 +281,7 @@ export default defineComponent({
     align-items: center;
     font-weight: 700;
     font-size: 0.95rem;
-    color: #424242;
+    color: rgba(255, 255, 255, 0.8);
     margin-bottom: 8px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -289,7 +289,7 @@ export default defineComponent({
 
 .section-text {
     font-size: 1.1rem;
-    color: #616161;
+    color: rgba(255, 255, 255, 0.7);
     line-height: 1.6;
     margin: 0;
 }
@@ -299,7 +299,8 @@ export default defineComponent({
 }
 
 .info-card {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: linear-gradient(135deg, rgba(26, 10, 46, 0.6) 0%, rgba(15, 10, 26, 0.8) 100%);
+    border: 2px solid rgba(139, 92, 246, 0.3);
     padding: 20px;
     border-radius: 12px;
     text-align: center;
@@ -314,12 +315,13 @@ export default defineComponent({
 
 .info-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+    border-color: rgba(139, 92, 246, 0.5);
 }
 
 .info-label {
     font-size: 0.85rem;
-    color: #616161;
+    color: rgba(255, 255, 255, 0.6);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -328,6 +330,7 @@ export default defineComponent({
 .info-value {
     font-size: 1.5rem;
     font-weight: 700;
+    color: #ffffff;
 }
 
 .completed-message {
@@ -337,8 +340,8 @@ export default defineComponent({
 
 .routine-actions {
     padding: 16px 24px;
-    background: #fafafa;
-    border-top: 1px solid #e0e0e0;
+    background: rgba(15, 10, 26, 0.8);
+    border-top: 1px solid rgba(139, 92, 246, 0.3);
 }
 
 .complete-btn {
@@ -348,15 +351,35 @@ export default defineComponent({
     padding: 0 32px !important;
 }
 
+.confirm-dialog {
+    background: linear-gradient(135deg, rgba(26, 10, 46, 0.95) 0%, rgba(15, 10, 26, 0.98) 100%);
+    border: 2px solid rgba(139, 92, 246, 0.3);
+    border-radius: 16px;
+}
+
 .confirm-title {
-    background: linear-gradient(135deg, #FFA726 0%, #FB8C00 100%);
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.3) 0%, rgba(245, 158, 11, 0.2) 100%);
     color: white;
     padding: 20px 24px;
+    border-bottom: 1px solid rgba(251, 191, 36, 0.3);
 }
 
 .confirm-text {
     padding: 24px;
     font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.confirm-text p {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.cancel-btn {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.confirm-btn {
+    font-weight: 700;
 }
 
 @media (max-width: 600px) {

@@ -16,4 +16,5 @@ export interface User {
   equippedStrengthItemId: number | null;
   equippedEnduranceItemId: number | null;
   avatarUrl: string;
+  isEmailVerified?: boolean;
 }

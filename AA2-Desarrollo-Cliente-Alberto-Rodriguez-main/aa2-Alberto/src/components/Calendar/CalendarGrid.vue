@@ -110,10 +110,12 @@ const handleCompleteRoutine = (day: number) => {
 
 <style scoped>
 .calendar-container {
-  background: white;
+  background: linear-gradient(135deg, rgba(26, 10, 46, 0.9) 0%, rgba(15, 10, 26, 0.95) 100%);
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  backdrop-filter: blur(10px);
   max-width: 100%;
   width: 100%;
 }
@@ -133,7 +135,7 @@ const handleCompleteRoutine = (day: number) => {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #a78bfa 0%, #22d3ee 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -141,13 +143,13 @@ const handleCompleteRoutine = (day: number) => {
   font-weight: 900;
   font-size: 1.2rem;
   margin: 0 auto 0.5rem;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 20px rgba(167, 139, 250, 0.5);
 }
 
 .week-day-full {
   font-weight: 700;
   font-size: 0.9rem;
-  color: #424242;
+  color: rgba(255, 255, 255, 0.8);
   display: block;
 }
 

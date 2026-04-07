@@ -43,7 +43,7 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  async function registerUser(newUser: User): Promise<boolean> {
+  async function registerUser(newUser: User): Promise<{ success: boolean; userId?: number; emailSent?: boolean }> {
     try {
       const response = await fetch(`${BASE_URL}/api/auth/register`, {
         method: "POST",
@@ -54,9 +54,58 @@ export const useUserStore = defineStore('user', () => {
 
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
-      return true;
+      const data = await response.json();
+
+      return {
+        success: true,
+        userId: data.userId,
+        emailSent: data.emailSent !== false
+      };
     } catch (error) {
       console.error("Error registering user:", error);
+      return { success: false };
+    }
+  }
+
+  async function verifyEmail(code: string): Promise<boolean> {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${BASE_URL}/api/auth/verify-email`, {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ code })
+      });
+
+      if (!response.ok) return false;
+
+      return true;
+    } catch (error) {
+      console.error("Error verifying email:", error);
+      return false;
+    }
+  }
+
+  async function resendVerificationCode(): Promise<boolean> {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${BASE_URL}/api/auth/resend-verification`, {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) return false;
+
+      return true;
+    } catch (error) {
+      console.error("Error resending verification code:", error);
       return false;
     }
   }
@@ -444,6 +493,8 @@ export const useUserStore = defineStore('user', () => {
     createUser,
     DeleteUser,
     registerUser,
+    verifyEmail,
+    resendVerificationCode,
     equipItem,
     unequipItem,
     changePassword

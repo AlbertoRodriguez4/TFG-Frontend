@@ -92,10 +92,10 @@ const getRoomDifficulty = (level: number) => {
 }
 
 const getRoomIcon = (level: number) => {
-  if (level >= 50) return '👑'
-  if (level >= 30) return '🔥'
-  if (level >= 15) return '⚡'
-  return '🏋️'
+  if (level >= 50) return '🐉'
+  if (level >= 30) return '⭐'
+  if (level >= 15) return '💎'
+  return '🎯'
 }
 
 const getStatusColor = (status: string) => {
@@ -147,6 +147,8 @@ const confirmJoinRoom = async () => {
   try {
     await userRoomStore.joinRoom(loggedUser.value.id, roomData.value.id)
     await userRoomStore.fetchMembersByRoomId(roomData.value.id)
+    // Disparar evento para actualizar la lista de salas
+    window.dispatchEvent(new CustomEvent('room-membership-changed'))
     showJoinPopup.value = false
     showSnackbar('Te has unido a la sala correctamente', 'success')
   } catch (error: any) {
@@ -173,6 +175,8 @@ const leaveRoom = async () => {
     await userRoomStore.leaveRoom(loggedUser.value.id, roomData.value.id)
     await userRoomStore.fetchMembersByRoomId(roomData.value.id)
     await userRoomStore.fetchRoomsByUserId(loggedUser.value.id)
+    // Disparar evento para actualizar la lista de salas
+    window.dispatchEvent(new CustomEvent('room-membership-changed'))
     showLeaveConfirmDialog.value = false
     showSnackbar('Has salido de la sala correctamente', 'success')
   } catch (error: any) {

@@ -1,288 +1,314 @@
 <template>
   <div class="subscription-container">
-    <!-- Current Plan -->
-    <v-card class="settings-card plan-card" elevation="0" border>
-      <v-card-title class="card-title">
-        <v-icon>mdi-crown</v-icon>
-        Current Plan
-      </v-card-title>
+    <!-- Loading State -->
+    <div v-if="isLoading" class="loading-state">
+      <v-progress-circular
+        size="64"
+        color="#FFD700"
+        indeterminate
+      />
+      <p class="loading-text">Cargando información de suscripción...</p>
+    </div>
 
-      <v-divider class="card-divider" />
+    <!-- No Subscription -->
+    <div v-else-if="!hasActiveSubscription" class="no-subscription">
+      <v-card class="settings-card plan-card" elevation="0" border>
+        <v-card-title class="card-title">
+          <v-icon>mdi-crown-outline</v-icon>
+          Tu Suscripción
+        </v-card-title>
 
-      <v-card-text>
-        <div class="current-plan">
-          <div class="plan-badge premium">PREMIUM</div>
-          
-          <h3 class="plan-name">Premium Plan</h3>
-          <p class="plan-price">$9.99 <span class="period">/month</span></p>
-          
-          <div class="plan-features">
-            <div class="feature">
-              <v-icon size="small">mdi-check-circle</v-icon>
-              <span>Unlimited workouts</span>
-            </div>
-            <div class="feature">
-              <v-icon size="small">mdi-check-circle</v-icon>
-              <span>CoachAI access</span>
-            </div>
-            <div class="feature">
-              <v-icon size="small">mdi-check-circle</v-icon>
-              <span>Calorie calculator</span>
-            </div>
-            <div class="feature">
-              <v-icon size="small">mdi-check-circle</v-icon>
-              <span>Advanced analytics</span>
-            </div>
-            <div class="feature">
-              <v-icon size="small">mdi-check-circle</v-icon>
-              <span>Priority support</span>
-            </div>
-          </div>
+        <v-divider class="card-divider" />
 
-          <div class="plan-renewal">
-            <p class="renewal-text">Your subscription renews on <strong>March 25, 2026</strong></p>
-          </div>
+        <v-card-text>
+          <div class="free-plan">
+            <div class="plan-badge free">FREE</div>
 
-          <div class="plan-actions">
+            <h3 class="plan-name">Plan Gratuito</h3>
+            <p class="plan-description">
+              Estás utilizando el plan gratuito. Actualiza a Premium para desbloquear todas las funcionalidades.
+            </p>
+
+            <div class="premium-features">
+              <div class="feature">
+                <v-icon size="small">mdi-check-circle</v-icon>
+                <span>Calculadoras de salud (IMC, calorías)</span>
+              </div>
+              <div class="feature">
+                <v-icon size="small">mdi-check-circle</v-icon>
+                <span>Chat con Coach AI personalizado</span>
+              </div>
+              <div class="feature">
+                <v-icon size="small">mdi-check-circle</v-icon>
+                <span>Rutinas personalizadas</span>
+              </div>
+              <div class="feature">
+                <v-icon size="small">mdi-check-circle</v-icon>
+                <span>Seguimiento avanzado de progreso</span>
+              </div>
+              <div class="feature">
+                <v-icon size="small">mdi-check-circle</v-icon>
+                <span>Soporte prioritario</span>
+              </div>
+            </div>
+
+            <div class="pricing-info">
+              <span class="price-tag">10€<small>/mes</small></span>
+              <p class="price-desc">Cancela cuando quieras. Sin permanencia.</p>
+            </div>
+
             <v-btn
-              variant="outlined"
+              class="subscribe-btn"
+              color="#FFD700"
               size="large"
-              class="action-btn"
+              @click="goToPayment"
             >
-              Upgrade Plan
-            </v-btn>
-            <v-btn
-              variant="outlined"
-              size="large"
-              color="error"
-              class="action-btn"
-            >
-              Cancel Subscription
+              <v-icon start>mdi-lock-check</v-icon>
+              Suscribirse a Premium
             </v-btn>
           </div>
-        </div>
-      </v-card-text>
-    </v-card>
+        </v-card-text>
+      </v-card>
+    </div>
 
-    <!-- Billing History -->
-    <v-card class="settings-card" elevation="0" border>
-      <v-card-title class="card-title">
-        <v-icon>mdi-receipt</v-icon>
-        Billing History
-      </v-card-title>
+    <!-- Active Subscription -->
+    <div v-else>
+      <!-- Current Plan -->
+      <v-card class="settings-card plan-card" elevation="0" border>
+        <v-card-title class="card-title">
+          <v-icon>mdi-crown</v-icon>
+          Plan Actual
+        </v-card-title>
 
-      <v-divider class="card-divider" />
+        <v-divider class="card-divider" />
 
-      <v-card-text>
-        <div class="billing-table">
-          <div class="table-header">
-            <div class="table-col">Date</div>
-            <div class="table-col">Description</div>
-            <div class="table-col">Amount</div>
-            <div class="table-col">Status</div>
-            <div class="table-col"></div>
-          </div>
+        <v-card-text>
+          <div class="current-plan">
+            <div class="plan-badge premium">PREMIUM</div>
 
-          <div
-            v-for="invoice in billingHistory"
-            :key="invoice.id"
-            class="table-row"
-          >
-            <div class="table-col">{{ invoice.date }}</div>
-            <div class="table-col">{{ invoice.description }}</div>
-            <div class="table-col">
-              <strong>{{ invoice.amount }}</strong>
+            <h3 class="plan-name">{{ subscription?.planType || 'Premium Plan' }}</h3>
+            <p class="plan-price">{{ subscription?.monthlyPrice.toFixed(2) }}€ <span class="period">/mes</span></p>
+
+            <div class="renewal-info">
+              <v-icon size="small" color="#4ade80">mdi-calendar-check</v-icon>
+              <span>Renovación el <strong>{{ formatDate(subscription?.endDate) }}</strong></span>
             </div>
-            <div class="table-col">
-              <v-chip
-                :label="true"
-                size="small"
-                :color="invoice.status === 'paid' ? '#4ade80' : '#ff9500'"
-                :text-color="invoice.status === 'paid' ? '#000' : '#000'"
-              >
-                {{ invoice.status }}
+
+            <div class="plan-status">
+              <v-chip color="#4ade80" text-color="#000" size="small">
+                <v-icon start size="small">mdi-check-circle</v-icon>
+                Activa
               </v-chip>
             </div>
-            <div class="table-col">
+
+            <div class="plan-actions">
               <v-btn
-                icon="mdi-download"
-                size="small"
-                variant="text"
-                class="download-btn"
-              />
+                variant="outlined"
+                size="large"
+                class="action-btn"
+                @click="renewSubscription"
+                :loading="isRenewing"
+              >
+                Renovar ahora
+              </v-btn>
+              <v-btn
+                variant="outlined"
+                size="large"
+                color="error"
+                class="action-btn"
+                @click="confirmCancel"
+                :loading="isCancelling"
+              >
+                Cancelar suscripción
+              </v-btn>
             </div>
           </div>
-        </div>
-      </v-card-text>
-    </v-card>
+        </v-card-text>
+      </v-card>
 
-    <!-- Payment Method -->
-    <v-card class="settings-card" elevation="0" border>
-      <v-card-title class="card-title">
-        <v-icon>mdi-credit-card</v-icon>
-        Payment Method
-      </v-card-title>
+      <!-- Billing History -->
+      <v-card class="settings-card" elevation="0" border>
+        <v-card-title class="card-title">
+          <v-icon>mdi-receipt</v-icon>
+          Historial de Suscripción
+        </v-card-title>
 
-      <v-divider class="card-divider" />
+        <v-divider class="card-divider" />
 
-      <v-card-text>
-        <div class="payment-method">
-          <div class="card-display">
-            <div class="card-brand">💳</div>
-            <div class="card-info">
-              <p class="card-holder">Visa ending in 4242</p>
-              <p class="card-expiry">Expires 12/2026</p>
+        <v-card-text>
+          <div v-if="subscriptionHistory.length > 0" class="billing-table">
+            <div class="table-header">
+              <div class="table-col">Fecha Inicio</div>
+              <div class="table-col">Fecha Fin</div>
+              <div class="table-col">Precio</div>
+              <div class="table-col">Estado</div>
+            </div>
+
+            <div
+              v-for="sub in subscriptionHistory"
+              :key="sub.subscriptionId"
+              class="table-row"
+            >
+              <div class="table-col">{{ formatDate(sub.startDate) }}</div>
+              <div class="table-col">{{ formatDate(sub.endDate) }}</div>
+              <div class="table-col">
+                <strong>{{ sub.monthlyPrice.toFixed(2) }}€</strong>
+              </div>
+              <div class="table-col">
+                <v-chip
+                  :label="true"
+                  size="small"
+                  :color="sub.isActive ? '#4ade80' : '#ff9500'"
+                  :text-color="sub.isActive ? '#000' : '#000'"
+                >
+                  {{ sub.isActive ? 'activa' : 'finalizada' }}
+                </v-chip>
+              </div>
             </div>
           </div>
-
-          <div class="payment-actions">
-            <v-btn
-              variant="outlined"
-              size="large"
-              class="action-btn"
-            >
-              Update Payment Method
-            </v-btn>
-            <v-btn
-              variant="outlined"
-              size="large"
-              color="error"
-              class="action-btn"
-            >
-              Remove Card
-            </v-btn>
+          <div v-else class="no-history">
+            <v-icon size="48" color="rgba(255, 255, 255, 0.3)">mdi-receipt</v-icon>
+            <p>No hay historial disponible</p>
           </div>
-        </div>
-      </v-card-text>
-    </v-card>
+        </v-card-text>
+      </v-card>
+    </div>
 
-    <!-- Promo Code -->
-    <v-card class="settings-card" elevation="0" border>
-      <v-card-title class="card-title">
-        <v-icon>mdi-ticket</v-icon>
-        Promo Code
-      </v-card-title>
+    <!-- Confirmation Dialog -->
+    <v-dialog v-model="showCancelDialog" max-width="400">
+      <v-card class="dialog-card">
+        <v-card-title class="dialog-title">
+          <v-icon color="#ff9500">mdi-alert-circle</v-icon>
+          ¿Cancelar suscripción?
+        </v-card-title>
+        <v-card-text class="dialog-text">
+          Podrás seguir usando las funciones premium hasta el final del período de facturación. ¿Estás seguro?
+        </v-card-text>
+        <v-card-actions class="dialog-actions">
+          <v-btn variant="text" @click="showCancelDialog = false">Volver</v-btn>
+          <v-btn color="error" @click="cancelSubscription">Sí, cancelar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
-      <v-divider class="card-divider" />
-
-      <v-card-text>
-        <div class="promo-section">
-          <p class="promo-description">Have a promo code? Enter it to get a discount on your subscription.</p>
-          
-          <div class="promo-input-group">
-            <v-text-field
-              v-model="promoCode"
-              placeholder="Enter promo code"
-              variant="outlined"
-              density="comfortable"
-              class="promo-input"
-            />
-            <v-btn
-              color="#ffcc00"
-              text-color="#000"
-              variant="flat"
-              size="large"
-              class="apply-btn"
-            >
-              Apply
-            </v-btn>
-          </div>
-        </div>
-      </v-card-text>
-    </v-card>
-
-    <!-- Subscription FAQ -->
-    <v-card class="settings-card" elevation="0" border>
-      <v-card-title class="card-title">
-        <v-icon>mdi-help-circle</v-icon>
-        Subscription FAQ
-      </v-card-title>
-
-      <v-divider class="card-divider" />
-
-      <v-card-text>
-        <div class="faq-container">
-          <v-expansion-panels class="faq-panel">
-            <v-expansion-panel
-              v-for="(faq, index) in faqItems"
-              :key="index"
-            >
-              <template #title>
-                <span class="faq-question">{{ faq.question }}</span>
-              </template>
-              <template #text>
-                <p class="faq-answer">{{ faq.answer }}</p>
-              </template>
-            </v-expansion-panel>
-          </v-expansion-panels>
-        </div>
-      </v-card-text>
-    </v-card>
+    <!-- Success/Error Snackbar -->
+    <v-snackbar v-model="showSnackbar" :color="snackbarColor" timeout="3000" location="top">
+      {{ snackbarMessage }}
+    </v-snackbar>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useSubscriptionStore } from '@/stores/SubscriptionStore'
+import { useUserStore } from '@/stores/userStore'
 
-const promoCode = ref('')
+const router = useRouter()
+const route = useRoute()
+const subscriptionStore = useSubscriptionStore()
+const userStore = useUserStore()
 
-const billingHistory = [
-  {
-    id: 1,
-    date: 'Feb 25, 2026',
-    description: 'Premium Plan - Monthly Subscription',
-    amount: '$9.99',
-    status: 'paid',
-  },
-  {
-    id: 2,
-    date: 'Jan 25, 2026',
-    description: 'Premium Plan - Monthly Subscription',
-    amount: '$9.99',
-    status: 'paid',
-  },
-  {
-    id: 3,
-    date: 'Dec 25, 2025',
-    description: 'Premium Plan - Monthly Subscription',
-    amount: '$9.99',
-    status: 'paid',
-  },
-  {
-    id: 4,
-    date: 'Nov 25, 2025',
-    description: 'Premium Plan - Annual Subscription',
-    amount: '$99.99',
-    status: 'paid',
-  },
-]
+const isLoading = ref(true)
+const isRenewing = ref(false)
+const isCancelling = ref(false)
+const showCancelDialog = ref(false)
+const showSnackbar = ref(false)
+const snackbarMessage = ref('')
+const snackbarColor = ref('success')
 
-const faqItems = [
-  {
-    question: 'Can I cancel my subscription anytime?',
-    answer: 'Yes, you can cancel your subscription at any time. Your access will continue until the end of your billing period.',
-  },
-  {
-    question: 'What payment methods do you accept?',
-    answer: 'We accept all major credit cards (Visa, Mastercard, American Express) and PayPal for your convenience.',
-  },
-  {
-    question: 'Is there a free trial available?',
-    answer: 'Yes! New members get a 7-day free trial of the Premium plan. No credit card required to start.',
-  },
-  {
-    question: 'Can I upgrade or downgrade my plan?',
-    answer: 'Absolutely! You can upgrade or downgrade your plan at any time. Changes take effect immediately.',
-  },
-  {
-    question: 'What happens if my payment fails?',
-    answer: 'We\'ll notify you and give you 3 days to update your payment method. Your access will continue during this time.',
-  },
-  {
-    question: 'Do you offer refunds?',
-    answer: 'If you\'re not satisfied within 14 days of purchase, we offer a full refund. No questions asked.',
-  },
-]
+const hasActiveSubscription = computed(() => subscriptionStore.hasActiveSubscription)
+const subscription = computed(() => subscriptionStore.activeSubscription)
+const subscriptionHistory = computed(() => subscriptionStore.subscriptionHistory)
+
+onMounted(async () => {
+  await loadSubscriptionData()
+
+  // Check if coming from payment success
+  if (route.query.subscribed === 'true') {
+    showSnackbarMessage('¡Suscripción activada con éxito!', 'success')
+    router.replace({ query: {} })
+  }
+})
+
+async function loadSubscriptionData() {
+  isLoading.value = true
+  try {
+    await subscriptionStore.checkSubscription()
+    if (subscriptionStore.hasActiveSubscription) {
+      await subscriptionStore.getActiveSubscription()
+      await subscriptionStore.getSubscriptionHistory()
+    }
+  } catch (error) {
+    console.error('Error loading subscription:', error)
+    showSnackbarMessage('Error al cargar la información de suscripción', 'error')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function renewSubscription() {
+  isRenewing.value = true
+  try {
+    const result = await subscriptionStore.renewSubscription()
+    if (result.success) {
+      showSnackbarMessage(result.message || '¡Suscripción renovada!', 'success')
+    } else {
+      showSnackbarMessage(result.error || 'Error al renovar', 'error')
+    }
+  } catch (error) {
+    console.error('Error renewing subscription:', error)
+    showSnackbarMessage('Error al renovar la suscripción', 'error')
+  } finally {
+    isRenewing.value = false
+  }
+}
+
+function confirmCancel() {
+  showCancelDialog.value = true
+}
+
+async function cancelSubscription() {
+  if (!subscription.value) return
+
+  isCancelling.value = true
+  showCancelDialog.value = false
+
+  try {
+    const result = await subscriptionStore.cancelSubscription(subscription.value.subscriptionId)
+    if (result.success) {
+      showSnackbarMessage(result.message || 'Suscripción cancelada', 'success')
+      await loadSubscriptionData()
+    } else {
+      showSnackbarMessage(result.error || 'Error al cancelar', 'error')
+    }
+  } catch (error) {
+    console.error('Error cancelling subscription:', error)
+    showSnackbarMessage('Error al cancelar la suscripción', 'error')
+  } finally {
+    isCancelling.value = false
+  }
+}
+
+function goToPayment() {
+  router.push('/payment')
+}
+
+function formatDate(dateString: string | undefined): string {
+  if (!dateString) return 'N/A'
+  const date = new Date(dateString)
+  return date.toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+}
+
+function showSnackbarMessage(message: string, color: string) {
+  snackbarMessage.value = message
+  snackbarColor.value = color
+  showSnackbar.value = true
+}
 </script>
 
 <style scoped>
@@ -292,6 +318,243 @@ const faqItems = [
   gap: 2rem;
 }
 
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1.5rem;
+}
+
+.loading-text {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+}
+
+/* No Subscription */
+.free-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.plan-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 900;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.plan-badge.free {
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.plan-badge.premium {
+  background: linear-gradient(135deg, #ffcc00, #ff9900);
+  color: #000;
+}
+
+.plan-name {
+  margin: 0.5rem 0 0;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.plan-description {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.premium-features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  text-align: left;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+}
+
+.feature :deep(.v-icon) {
+  color: #4ade80;
+}
+
+.pricing-info {
+  margin-top: 1rem;
+}
+
+.price-tag {
+  display: block;
+  font-size: 3rem;
+  font-weight: 900;
+  color: #FFD700;
+  letter-spacing: -2px;
+}
+
+.price-tag small {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: normal;
+}
+
+.price-desc {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0;
+}
+
+.subscribe-btn {
+  width: 100%;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 1.25rem;
+  text-transform: none;
+  margin-top: 1rem;
+}
+
+/* Current Plan */
+.current-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.plan-price {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #ffcc00;
+}
+
+.period {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.renewal-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+}
+
+.plan-status {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.plan-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.action-btn {
+  flex: 1;
+  color: rgba(255, 255, 255, 0.7) !important;
+  border-color: rgba(255, 204, 0, 0.3) !important;
+  font-weight: 600;
+}
+
+/* Billing Table */
+.billing-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 100px 100px;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 204, 0, 0.05);
+  border-radius: 8px 8px 0 0;
+  font-weight: 700;
+  color: #ffcc00;
+  font-size: 0.9rem;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 100px 100px;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 204, 0, 0.1);
+  align-items: center;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+  border-radius: 0 0 8px 8px;
+}
+
+.table-col {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.no-history {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  gap: 1rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Dialog */
+.dialog-card {
+  background: rgba(20, 20, 20, 0.95);
+  border: 1px solid rgba(255, 204, 0, 0.2);
+}
+
+.dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 700;
+}
+
+.dialog-text {
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+}
+
+.dialog-actions {
+  padding: 1rem;
+  gap: 0.5rem;
+}
+
+/* Card Styles */
 .settings-card {
   background: rgba(20, 20, 20, 0.5) !important;
   border: 1px solid rgba(255, 204, 0, 0.15) !important;
@@ -319,232 +582,6 @@ const faqItems = [
   border-color: rgba(255, 204, 0, 0.1) !important;
 }
 
-/* Current Plan */
-.current-plan {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.plan-badge {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-weight: 900;
-  font-size: 0.8rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  width: fit-content;
-}
-
-.plan-badge.premium {
-  background: linear-gradient(135deg, #ffcc00, #ff9900);
-  color: #000;
-}
-
-.plan-name {
-  margin: 0;
-  font-size: 1.8rem;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.plan-price {
-  margin: 0;
-  font-size: 2.5rem;
-  font-weight: 900;
-  color: #ffcc00;
-}
-
-.period {
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.plan-features {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-
-.feature {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.feature :deep(.v-icon) {
-  color: #4ade80;
-}
-
-.plan-renewal {
-  padding: 1rem;
-  border-radius: 8px;
-  background: rgba(74, 222, 128, 0.1);
-  border: 1px solid rgba(74, 222, 128, 0.2);
-}
-
-.renewal-text {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.95rem;
-}
-
-.plan-actions {
-  display: flex;
-  gap: 1rem;
-}
-
-.action-btn {
-  flex: 1;
-  color: rgba(255, 255, 255, 0.7) !important;
-  border-color: rgba(255, 204, 0, 0.3) !important;
-  font-weight: 600;
-}
-
-/* Billing Table */
-.billing-table {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.table-header {
-  display: grid;
-  grid-template-columns: 120px 1fr 100px 100px 50px;
-  gap: 1rem;
-  padding: 1rem;
-  background: rgba(255, 204, 0, 0.05);
-  border-radius: 8px 8px 0 0;
-  font-weight: 700;
-  color: #ffcc00;
-  font-size: 0.9rem;
-}
-
-.table-row {
-  display: grid;
-  grid-template-columns: 120px 1fr 100px 100px 50px;
-  gap: 1rem;
-  padding: 1rem;
-  border-bottom: 1px solid rgba(255, 204, 0, 0.1);
-  align-items: center;
-}
-
-.table-row:last-child {
-  border-bottom: none;
-  border-radius: 0 0 8px 8px;
-}
-
-.table-col {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.download-btn {
-  color: #ffcc00 !important;
-}
-
-/* Payment Method */
-.payment-method {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.card-display {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.5rem;
-  border-radius: 8px;
-  background: linear-gradient(135deg, rgba(255, 204, 0, 0.1), rgba(255, 204, 0, 0.05));
-  border: 1px solid rgba(255, 204, 0, 0.2);
-}
-
-.card-brand {
-  font-size: 2rem;
-  flex-shrink: 0;
-}
-
-.card-info {
-  flex: 1;
-}
-
-.card-holder {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-
-.card-expiry {
-  margin: 0.3rem 0 0 0;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.85rem;
-}
-
-.payment-actions {
-  display: flex;
-  gap: 1rem;
-}
-
-/* Promo Section */
-.promo-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.promo-description {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.promo-input-group {
-  display: flex;
-  gap: 1rem;
-}
-
-.promo-input {
-  flex: 1;
-}
-
-.promo-input :deep(.v-field) {
-  background: rgba(255, 204, 0, 0.03) !important;
-  border-color: rgba(255, 204, 0, 0.15) !important;
-}
-
-.apply-btn {
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-/* FAQ */
-.faq-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.faq-panel :deep(.v-expansion-panel) {
-  background: rgba(255, 204, 0, 0.02) !important;
-  border: 1px solid rgba(255, 204, 0, 0.1) !important;
-  margin-bottom: 0.8rem;
-}
-
-.faq-question {
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 600;
-}
-
-.faq-answer {
-  color: rgba(255, 255, 255, 0.7);
-  line-height: 1.6;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .plan-actions {
@@ -558,29 +595,12 @@ const faqItems = [
   }
 
   .table-header > div:nth-child(2),
-  .table-row > div:nth-child(2),
-  .table-header > div:nth-child(4),
-  .table-row > div:nth-child(4),
-  .table-header > div:nth-child(5),
-  .table-row > div:nth-child(5) {
+  .table-row > div:nth-child(2) {
     display: none;
-  }
-
-  .card-display {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .payment-actions {
-    flex-direction: column;
   }
 }
 
 @media (max-width: 600px) {
-  .promo-input-group {
-    flex-direction: column;
-  }
-
   .plan-price {
     font-size: 2rem;
   }

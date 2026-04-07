@@ -1,14 +1,23 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/userStore'
-import { computed, ref } from 'vue'
+import { useSubscriptionStore } from '@/stores/SubscriptionStore'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 const store = useUserStore()
+const subscriptionStore = useSubscriptionStore()
 const router = useRouter()
 
 const isLogged = computed(() => !!store.loggedUser?.email)
+const hasActiveSubscription = computed(() => subscriptionStore.hasActiveSubscription)
 const { locale } = useI18n()
+
+onMounted(async () => {
+  if (isLogged.value) {
+    await subscriptionStore.checkSubscription()
+  }
+})
 
 const mobileMenuOpen = ref(false)
 const userDropdownOpen = ref(false)
@@ -67,6 +76,22 @@ const currentLanguage = computed(() => {
           <RouterLink to="/plan" class="nav-btn" :class="{ disabled: !isLogged }">📋 Plans</RouterLink>
           <RouterLink to="/rutina" class="nav-btn" :class="{ disabled: !isLogged }">📅 Routines</RouterLink>
           <RouterLink to="/purchase" class="nav-btn" :class="{ disabled: !isLogged }">🛒 Shop</RouterLink>
+
+          <!-- Premium Features -->
+          <RouterLink
+            v-if="isLogged && hasActiveSubscription"
+            to="/CoachAi"
+            class="nav-btn premium-btn"
+          >
+            🤖 CoachAI
+          </RouterLink>
+          <RouterLink
+            v-if="isLogged && hasActiveSubscription"
+            to="/calculator"
+            class="nav-btn premium-btn"
+          >
+            🧮 Calculadora
+          </RouterLink>
         </nav>
 
         <!-- Right Actions -->
@@ -119,13 +144,23 @@ const currentLanguage = computed(() => {
             </div>
           </div>
 
-          <!-- Premium Card -->
-          <div class="premium-card">
+          <!-- Premium Status Card -->
+          <div v-if="hasActiveSubscription" class="premium-card premium-active">
+            <span class="premium-icon">✅</span>
+            <div>
+              <p class="premium-title">Premium Activo</p>
+              <p class="premium-desc">CoachAI y Calculadora desbloqueados</p>
+            </div>
+          </div>
+          <div v-else class="premium-card">
             <span class="premium-icon">⭐</span>
             <div>
               <p class="premium-title">Unlock Premium</p>
-              <p class="premium-desc">CoachAI, Calories, Advanced Analytics & more</p>
+              <p class="premium-desc">CoachAI, Calculadora y más</p>
             </div>
+            <RouterLink to="/plan" class="premium-cta-btn" @click="userDropdownOpen = false">
+              Ver planes →
+            </RouterLink>
           </div>
 
           <!-- Menu Items -->
@@ -179,6 +214,12 @@ const currentLanguage = computed(() => {
         <RouterLink to="/purchase" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">🛒
           Shop</RouterLink>
 
+        <!-- Premium Features (Mobile) -->
+        <template v-if="isLogged && hasActiveSubscription">
+          <RouterLink to="/CoachAi" class="mobile-nav-item premium-item" @click="handleNavClick">🤖 CoachAI</RouterLink>
+          <RouterLink to="/calculator" class="mobile-nav-item premium-item" @click="handleNavClick">🧮 Calculadora</RouterLink>
+        </template>
+
         <div class="mobile-divider"></div>
 
         <RouterLink to="/profile" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">⚙️
@@ -196,9 +237,18 @@ const currentLanguage = computed(() => {
           </select>
         </div>
 
-        <!-- Premium Card (Mobile) -->
-        <div class="mobile-premium-card">
-          <p>⭐ Unlock Premium for exclusive features</p>
+        <!-- Premium Status Card (Mobile) -->
+        <div v-if="hasActiveSubscription" class="mobile-premium-card premium-active">
+          <span class="mpc-icon">✅</span>
+          <p>Premium Activo</p>
+          <p class="mpc-desc">CoachAI y Calculadora desbloqueados</p>
+        </div>
+        <div v-else class="mobile-premium-card">
+          <span class="mpc-icon">⭐</span>
+          <p>Desbloquea CoachAI y Calculadora</p>
+          <RouterLink to="/plan" class="premium-cta-btn" @click="handleNavClick">
+            Ver planes →
+          </RouterLink>
         </div>
 
         <!-- Logout (Mobile) -->
@@ -346,6 +396,40 @@ const currentLanguage = computed(() => {
 .nav-btn.disabled {
   pointer-events: none;
   opacity: 0.28;
+}
+
+/* Premium Navigation Buttons */
+.premium-btn {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(99, 102, 241, 0.1));
+  border: 1px solid rgba(168, 85, 247, 0.3) !important;
+  color: #e9d5ff !important;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
+}
+
+.premium-btn:hover {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(99, 102, 241, 0.15));
+  border-color: rgba(168, 85, 247, 0.5) !important;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+}
+
+.premium-btn.router-link-active {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(99, 102, 241, 0.2));
+  border-color: rgba(168, 85, 247, 0.6) !important;
+  box-shadow: 0 0 25px rgba(168, 85, 247, 0.5);
+}
+
+/* Premium Mobile Items */
+.premium-item {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(99, 102, 241, 0.05));
+  border-left: 3px solid rgba(168, 85, 247, 0.5);
+  color: #e9d5ff !important;
+}
+
+.premium-item:hover,
+.premium-item.router-link-active {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(99, 102, 241, 0.1));
+  border-left-color: #a855f7;
+  color: #f3e8ff !important;
 }
 
 /* ═══════════════════════════════════════
@@ -544,6 +628,12 @@ const currentLanguage = computed(() => {
   display: flex;
   gap: 0.7rem;
   align-items: flex-start;
+  position: relative;
+}
+
+.premium-card.premium-active {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(22, 163, 74, 0.1) 100%);
+  border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
 .premium-icon {
@@ -563,6 +653,25 @@ const currentLanguage = computed(() => {
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.7);
   line-height: 1.4;
+}
+
+/* Premium CTA Button */
+.premium-cta-btn {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.premium-cta-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
 }
 
 /* Dropdown Divider */
@@ -731,11 +840,28 @@ const currentLanguage = computed(() => {
   text-align: center;
 }
 
+.mobile-premium-card.premium-active {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(22, 163, 74, 0.1) 100%);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
 .mobile-premium-card p {
   margin: 0;
   color: rgba(255, 255, 255, 0.8);
   font-size: 0.9rem;
   font-weight: 600;
+}
+
+.mobile-premium-card .mpc-icon {
+  font-size: 1.2rem;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.mobile-premium-card .mpc-desc {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 0.3rem;
 }
 
 .mobile-logout-btn {

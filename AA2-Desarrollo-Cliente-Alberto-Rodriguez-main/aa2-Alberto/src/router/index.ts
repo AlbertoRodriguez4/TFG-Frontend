@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
+import { useSubscriptionStore } from '@/stores/SubscriptionStore'
 
 import HomeView from '@/views/dashboard/HomeView.vue'
 import HomeLoggedView from '@/views/dashboard/HomeLoggedView.vue'
@@ -10,6 +11,7 @@ import UserView from '@/views/dashboard/UserView.vue'
 import RoomView from '@/views/rooms/RoomView.vue'
 import RegisterView from '@/views/auth/RegisterView.vue'
 import LoginView from '@/views/auth/LoginView.vue'
+import VerifyEmailView from '@/views/auth/VerifyEmailView.vue'
 import RutinaView from '@/views/features/RutinaView.vue'
 import JoinRoomView from '@/views/rooms/JoinRoomView.vue'
 import ProfileSettingsView from '@/views/profile/ProfileSettingsView.vue'
@@ -61,6 +63,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresGuest: true },
   },
   {
+    path: '/verify-email',
+    name: 'verifyEmail',
+    component: VerifyEmailView,
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/login',
     name: 'login',
     component: LoginView,
@@ -87,11 +95,13 @@ const routes: RouteRecordRaw[] = [
     path: '/calculator',
     name: 'calculator',
     component: HealthCalculatorView,
-  }, 
+    meta: { requiresAuth: true, requiresPremium: true },
+  },
   {
     path: '/CoachAi',
     name: 'coachAi',
     component: ChatView,
+    meta: { requiresAuth: true, requiresPremium: true },
   },
   {
     path: '/payment',
@@ -127,18 +137,37 @@ const router = createRouter({
 })
 
 // **Global Guard**
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const store = useUserStore()
+  const subscriptionStore = useSubscriptionStore()
   const isLogged = !!store.loggedUser?.email
+
+  if (to.meta.requiresGuest && isLogged) {
+    // intenta ir a home/página pública estando logueado → homeLogged
+    return next({ name: 'homeLogged' })
+  }
 
   if (to.meta.requiresAuth && !isLogged) {
     // intenta ir a ruta protegida sin sesión → home público
     return next({ name: 'home' })
   }
-  if (to.meta.requiresGuest && isLogged) {
-    // intenta ir a home/página pública estando logueado → homeLogged
-    return next({ name: 'homeLogged' })
+
+  // Verificar suscripción premium para rutas protegidas
+  if (to.meta.requiresPremium) {
+    // Primero verificar que esté logueado
+    if (!isLogged) {
+      return next({ name: 'home' })
+    }
+
+    // Verificar si tiene suscripción activa
+    await subscriptionStore.checkSubscription()
+
+    if (!subscriptionStore.hasActiveSubscription) {
+      // Sin suscripción → redirigir a página de planes
+      return next({ name: 'plan', query: { premium: 'required' } })
+    }
   }
+
   next()
 })
 

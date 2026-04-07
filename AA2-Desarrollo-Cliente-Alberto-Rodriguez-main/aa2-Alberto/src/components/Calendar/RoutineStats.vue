@@ -284,15 +284,18 @@ const closeDialog = (): void => {
 .routine-stats-card {
   border-radius: 16px;
   overflow: hidden;
+  background: linear-gradient(135deg, rgba(26, 10, 46, 0.95) 0%, rgba(15, 10, 26, 0.98) 100%);
+  border: 2px solid rgba(139, 92, 246, 0.3);
 }
 
 .stats-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.3) 0%, rgba(34, 211, 238, 0.2) 100%);
   color: white;
   padding: 24px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  border-bottom: 2px solid rgba(139, 92, 246, 0.3);
 }
 
 .header-content {
@@ -320,28 +323,32 @@ const closeDialog = (): void => {
 }
 
 .summary-card {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, rgba(26, 10, 46, 0.6) 0%, rgba(15, 10, 26, 0.8) 100%);
+  border: 2px solid rgba(139, 92, 246, 0.3);
   border-radius: 16px;
   padding: 1.5rem;
   text-align: center;
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .summary-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+  border-color: rgba(167, 139, 250, 0.6);
 }
 
 .summary-value {
   font-size: 2.5rem;
   font-weight: 800;
-  color: #1a1a2e;
+  color: #ffffff;
   margin: 0.5rem 0;
+  text-shadow: 0 0 20px rgba(167, 139, 250, 0.4);
 }
 
 .summary-label {
   font-size: 0.95rem;
-  color: #616161;
+  color: rgba(255, 255, 255, 0.7);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -350,7 +357,7 @@ const closeDialog = (): void => {
 .section-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: #ffffff;
   margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
@@ -363,19 +370,20 @@ const closeDialog = (): void => {
 }
 
 .month-card {
-  background: white;
+  background: rgba(26, 10, 46, 0.6);
+  border: 2px solid rgba(139, 92, 246, 0.3);
   border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
   cursor: pointer;
-  border: 2px solid transparent;
+  backdrop-filter: blur(10px);
 }
 
 .month-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  border-color: #667eea;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+  border-color: rgba(167, 139, 250, 0.6);
 }
 
 .month-header {
@@ -384,18 +392,18 @@ const closeDialog = (): void => {
   align-items: baseline;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid rgba(139, 92, 246, 0.2);
 }
 
 .month-name {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #667eea;
+  color: rgba(167, 139, 250, 0.9);
 }
 
 .month-year {
   font-size: 1rem;
-  color: #757575;
+  color: rgba(255, 255, 255, 0.7);
   font-weight: 600;
 }
 
@@ -408,6 +416,7 @@ const closeDialog = (): void => {
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
+  color: white;
 }
 
 .stat-label {
@@ -415,7 +424,7 @@ const closeDialog = (): void => {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.95rem;
-  color: #616161;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .stat-value {
@@ -429,7 +438,7 @@ const closeDialog = (): void => {
 
 .progress-bar {
   height: 8px;
-  background: #e0e0e0;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 0.5rem;
@@ -437,14 +446,14 @@ const closeDialog = (): void => {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  background: linear-gradient(90deg, #a78bfa, #22d3ee);
   border-radius: 4px;
   transition: width 0.5s ease;
 }
 
 .progress-label {
   font-size: 0.85rem;
-  color: #757575;
+  color: rgba(255, 255, 255, 0.7);
   font-weight: 600;
 }
 
@@ -452,7 +461,8 @@ const closeDialog = (): void => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.3) 0%, rgba(245, 158, 11, 0.2) 100%);
+  border: 2px solid rgba(251, 191, 36, 0.4);
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 20px;
@@ -463,8 +473,8 @@ const closeDialog = (): void => {
 }
 
 .stats-footer {
-  background: #fafafa;
-  border-top: 1px solid #e0e0e0;
+  background: rgba(15, 10, 26, 0.8);
+  border-top: 1px solid rgba(139, 92, 246, 0.3);
   padding: 16px 24px;
 }
 

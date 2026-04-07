@@ -20,10 +20,10 @@ defineEmits<{
 }>()
 
 const difficulties: Record<string, { label: string; color: string; rgb: string; dim: string; secondRgb: string }> = {
-  common: { label: 'Common', color: '#cbd5e1', rgb: '203,213,225', secondRgb: '148,163,184', dim: 'rgba(203,213,225,0.07)' },
-  rare: { label: 'Rare', color: '#a5b4fc', rgb: '165,180,252', secondRgb: '129,140,248', dim: 'rgba(165,180,252,0.08)' },
-  epic: { label: 'Epic', color: '#f0abfc', rgb: '240,171,252', secondRgb: '232,121,249', dim: 'rgba(240,171,252,0.08)' },
-  legendary: { label: 'Legendary', color: '#fcd34d', rgb: '252,211,77', secondRgb: '251,191,36', dim: 'rgba(252,211,77,0.08)' },
+  common: { label: 'Común', color: '#94a3b8', rgb: '148,163,184', secondRgb: '71,85,105', dim: 'rgba(148,163,184,0.08)' },
+  rare: { label: 'Raro', color: '#38bdf8', rgb: '56,189,248', secondRgb: '14,165,233', dim: 'rgba(56,189,248,0.08)' },
+  epic: { label: 'Épico', color: '#f472b6', rgb: '244,114,182', secondRgb: '236,72,153', dim: 'rgba(244,114,182,0.08)' },
+  legendary: { label: 'Legendario', color: '#fbbf24', rgb: '251,191,36', secondRgb: '245,158,11', dim: 'rgba(251,191,36,0.08)' },
 }
 
 const getRoomDifficulty = (level: number) => {
@@ -34,10 +34,10 @@ const getRoomDifficulty = (level: number) => {
 }
 
 const getRoomIcon = (level: number) => {
-  if (level >= 50) return '👑'
-  if (level >= 30) return '🔥'
-  if (level >= 15) return '⚡'
-  return '🏋️'
+  if (level >= 50) return '🐉'
+  if (level >= 30) return '⭐'
+  if (level >= 15) return '💎'
+  return '🎯'
 }
 </script>
 
@@ -204,30 +204,31 @@ const getRoomIcon = (level: number) => {
   align-items: center;
   gap: 1.5rem;
   width: 100%;
-  padding: 1.375rem 1.75rem;
-  border-radius: 16px;
-  border: 1px solid rgba(var(--accent-rgb), 0.2);
-  background: linear-gradient(118deg,
-      rgba(var(--accent-rgb), 0.07) 0%,
-      rgba(10, 14, 26, 0.92) 45%,
-      rgba(var(--accent2-rgb), 0.04) 100%);
-  backdrop-filter: blur(16px);
+  padding: 1.5rem 1.875rem;
+  border-radius: 20px;
+  border: 1px solid rgba(var(--accent-rgb), 0.25);
+  background: linear-gradient(135deg,
+      rgba(15, 23, 42, 0.95) 0%,
+      rgba(var(--accent-rgb), 0.06) 50%,
+      rgba(15, 23, 42, 0.92) 100%);
+  backdrop-filter: blur(20px);
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.04),
-    0 2px 20px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 40px rgba(var(--accent-rgb), 0.04);
 }
 
 .room-card:hover {
-  border-color: rgba(var(--accent-rgb), 0.45);
-  transform: translateY(-4px);
+  border-color: rgba(var(--accent-rgb), 0.6);
+  transform: translateY(-6px) scale(1.01);
   box-shadow:
-    0 0 0 1px rgba(var(--accent-rgb), 0.2),
-    0 12px 48px rgba(0, 0, 0, 0.55),
-    0 0 80px rgba(var(--accent-rgb), 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    0 0 0 1px rgba(var(--accent-rgb), 0.3),
+    0 20px 60px rgba(0, 0, 0, 0.7),
+    0 0 120px rgba(var(--accent-rgb), 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 /* Scanline */
@@ -308,28 +309,31 @@ const getRoomIcon = (level: number) => {
 }
 
 .avatar-box {
-  width: 68px;
-  height: 68px;
-  border-radius: 16px;
-  border: 1.5px solid rgba(var(--accent-rgb), 0.35);
-  background: radial-gradient(circle at 30% 30%, rgba(var(--accent-rgb), 0.18), rgba(var(--accent-rgb), 0.04));
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  border: 2px solid rgba(var(--accent-rgb), 0.4);
+  background: radial-gradient(circle at 30% 30%, rgba(var(--accent-rgb), 0.25), rgba(15, 23, 42, 0.8));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: 2.2rem;
   position: relative;
   z-index: 1;
-  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: inset 0 0 20px rgba(var(--accent-rgb), 0.08), 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow:
+    inset 0 0 30px rgba(var(--accent-rgb), 0.15),
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(var(--accent-rgb), 0.2);
 }
 
 .room-card:hover .avatar-box {
-  transform: scale(1.12) rotate(8deg);
-  border-color: rgba(var(--accent-rgb), 0.65);
+  transform: scale(1.15) rotate(10deg);
+  border-color: rgba(var(--accent-rgb), 0.8);
   box-shadow:
-    inset 0 0 24px rgba(var(--accent-rgb), 0.15),
-    0 0 24px rgba(var(--accent-rgb), 0.25),
-    0 8px 24px rgba(0, 0, 0, 0.4);
+    inset 0 0 40px rgba(var(--accent-rgb), 0.25),
+    0 0 40px rgba(var(--accent-rgb), 0.4),
+    0 12px 32px rgba(0, 0, 0, 0.6);
 }
 
 .avatar-ring {
@@ -379,44 +383,45 @@ const getRoomIcon = (level: number) => {
 
 .id-tag {
   flex-shrink: 0;
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   font-family: 'Courier New', monospace;
-  font-weight: 700;
-  letter-spacing: 1.2px;
-  /* ← más claro */
-  color: rgba(var(--accent-rgb), 0.85);
-  background: rgba(var(--accent-rgb), 0.1);
-  border: 1px solid rgba(var(--accent-rgb), 0.25);
-  border-radius: 4px;
-  padding: 0.125rem 0.375rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.15);
+  border: 1px solid rgba(var(--accent-rgb), 0.35);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.2);
 }
 
 .room-name {
   margin: 0;
-  font-size: 1.125rem;
-  font-weight: 800;
-  /* ← blanco puro */
-  color: #f8fafc;
-  letter-spacing: -0.3px;
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 .diff-badge {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.5625rem;
-  font-weight: 800;
+  gap: 0.4rem;
+  font-size: 0.625rem;
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 1.4px;
+  letter-spacing: 1.2px;
   color: var(--accent);
-  background: rgba(var(--accent-rgb), 0.12);
-  border: 1px solid rgba(var(--accent-rgb), 0.35);
-  border-radius: 6px;
-  padding: 0.25rem 0.625rem;
+  background: rgba(var(--accent-rgb), 0.15);
+  border: 1px solid rgba(var(--accent-rgb), 0.4);
+  border-radius: 8px;
+  padding: 0.3rem 0.7rem;
+  box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.2);
 }
 
 .diff-dot {
@@ -440,64 +445,66 @@ const getRoomIcon = (level: number) => {
   }
 }
 
-/* ← descripción legible */
 .room-desc {
   margin: 0;
-  font-size: 0.75rem;
-  color: #94a3b8;
-  line-height: 1.5;
+  font-size: 0.8125rem;
+  color: #cbd5e1;
+  line-height: 1.6;
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
 }
 
 /* Chips */
 .chips-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: 0.5rem;
 }
 
 .chip {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
-  padding: 0.2rem 0.55rem;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  transition: all 0.2s;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(var(--accent-rgb), 0.2);
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .chip:hover {
-  background: rgba(var(--accent-rgb), 0.09);
-  border-color: rgba(var(--accent-rgb), 0.28);
+  background: rgba(var(--accent-rgb), 0.15);
+  border-color: rgba(var(--accent-rgb), 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.25);
 }
 
-/* ← etiquetas de chips visibles */
 .chip-lbl {
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
-  color: #64748b;
-  font-weight: 600;
+  letter-spacing: 0.6px;
+  color: #94a3b8;
+  font-weight: 700;
 }
 
 .chip-val {
-  font-size: 0.75rem;
-  font-weight: 800;
+  font-size: 0.8125rem;
+  font-weight: 900;
   color: var(--accent);
   font-family: 'Courier New', monospace;
+  text-shadow: 0 0 8px rgba(var(--accent-rgb), 0.4);
 }
 
-/* ← valores secundarios legibles */
 .chip-val--muted {
-  color: #94a3b8;
+  color: #cbd5e1;
   font-family: inherit;
-  font-weight: 600;
-  font-size: 0.6875rem;
-  max-width: 90px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -568,43 +575,43 @@ const getRoomIcon = (level: number) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  padding: 0.45rem 1rem;
-  border-radius: 8px;
+  gap: 0.5rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 10px;
   border: none;
-  font-size: 0.6875rem;
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   white-space: nowrap;
 }
 
-/* ← botón editar legible */
 .btn-edit {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: #94a3b8;
 }
 
 .btn-edit:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.22);
-  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.1);
 }
 
 .btn-join {
-  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.85), rgba(var(--accent2-rgb), 0.7));
+  background: linear-gradient(135deg, var(--accent) 0%, rgba(var(--accent2-rgb), 0.85) 100%);
   color: #0f172a;
   font-weight: 900;
-  box-shadow: 0 2px 14px rgba(var(--accent-rgb), 0.35);
+  box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.4), 0 0 20px rgba(var(--accent-rgb), 0.15);
 }
 
 .btn-join:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 5px 22px rgba(var(--accent-rgb), 0.5);
-  filter: brightness(1.12);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 28px rgba(var(--accent-rgb), 0.6), 0 0 30px rgba(var(--accent-rgb), 0.25);
+  filter: brightness(1.1);
 }
 
 .arrow {

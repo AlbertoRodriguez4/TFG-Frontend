@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRoomStore } from '@/stores/RoomStore'
 import { useUserRoomStore } from '@/stores/UsersRoomStore'
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import CreateRoomPopup from '../PopUps/RoomPopup.vue'
 import { useUserStore } from '@/stores/userStore'
@@ -33,10 +33,30 @@ const roomMemberCounts = ref<Map<number, number>>(new Map())
 // Set con los IDs de salas en las que el usuario ya está
 const joinedRoomIds    = ref<Set<number>>(new Set())
 
+// Event listeners para limpiar
+const handleMembershipChange = async () => {
+  await loadJoinedRooms()
+  await loadRoomMemberCounts()
+}
+
+const handleFocus = async () => {
+  await loadJoinedRooms()
+  await loadRoomMemberCounts()
+}
+
 onMounted(async () => {
   await store.fetchRoom()
   await loadRoomMemberCounts()
   await loadJoinedRooms()
+
+  // Escuchar evento de cambio de membresía
+  window.addEventListener('room-membership-changed', handleMembershipChange)
+  window.addEventListener('focus', handleFocus)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('room-membership-changed', handleMembershipChange)
+  window.removeEventListener('focus', handleFocus)
 })
 
 watch(searchTerm,    () => { currentPage.value = 1 })
@@ -56,13 +76,12 @@ async function loadRoomMemberCounts() {
 async function loadJoinedRooms() {
   if (!loggedUser.value?.id) return
   try {
-    // Recorremos todas las salas y comprobamos si el usuario está en ellas
     const ids = new Set<number>()
     for (const room of store.room) {
       await userRoomStore.fetchMembersByRoomId(room.id)
-      // Si el store expone los miembros como array, buscamos al usuario
-      const members: any[] = (userRoomStore as any).members ?? []
-      if (members.some((m: any) => m.userId === loggedUser.value?.id || m.id === loggedUser.value?.id)) {
+      // currentRoomMembers contiene objetos { userid, roomid, user: {...} }
+      const members = userRoomStore.currentRoomMembers
+      if (members.some((m) => m.userid === loggedUser.value?.id)) {
         ids.add(room.id)
       }
     }
@@ -102,6 +121,14 @@ function toggleSort(field: 'level' | 'stats') {
 
 function toggleFilter(filter: 'joinable' | 'joined') {
   activeFilter.value = activeFilter.value === filter ? null : filter
+}
+
+function clearAllFilters() {
+  activeFilter.value = null
+  sortField.value = null
+  sortDirection.value = 'asc'
+  searchTerm.value = ''
+  currentPage.value = 1
 }
 
 const filteredRooms = computed(() => {
@@ -244,51 +271,68 @@ function goToRoom(roomId: number) {
         />
         <span v-if="searchTerm" class="search-clear" @click="searchTerm = ''">✕</span>
       </div>
-
-      <!-- Ordenación -->
-      <div class="sort-group">
-        <button class="sort-btn" :class="{ active: sortField === 'level' }" @click="toggleSort('level')">
-          <span>📊</span> Nivel
-          <span class="sort-arrow" v-if="sortField === 'level'">
-            {{ sortDirection === 'asc' ? '↑' : '↓' }}
-          </span>
-        </button>
-        <button class="sort-btn" :class="{ active: sortField === 'stats' }" @click="toggleSort('stats')">
-          <span>💪</span> Stats
-          <span class="sort-arrow" v-if="sortField === 'stats'">
-            {{ sortDirection === 'asc' ? '↑' : '↓' }}
-          </span>
-        </button>
-      </div>
     </div>
 
-    <!-- ── Filtros de membresía ── -->
-    <div class="membership-filters">
-      <button
-        class="mfilter-btn"
-        :class="{ active: activeFilter === 'joinable' }"
-        @click="toggleFilter('joinable')"
-      >
-        <span class="mfilter-icon">🚀</span>
-        <span class="mfilter-label">Puedo unirme</span>
-        <span v-if="activeFilter === 'joinable'" class="mfilter-close">✕</span>
-      </button>
+    <!-- ── Filtros combinados ── -->
+    <div class="all-filters">
+      <!-- Filtros de ordenación -->
+      <div class="filter-section">
+        <span class="filter-section-title">Ordenar por:</span>
+        <button
+          class="mfilter-btn mfilter-level"
+          :class="{ active: sortField === 'level' }"
+          @click="toggleSort('level')"
+        >
+          <span class="mfilter-icon">📊</span>
+          <span class="mfilter-label">Nivel</span>
+          <span v-if="sortField === 'level'" class="sort-indicator">
+            {{ sortDirection === 'asc' ? '↑' : '↓' }}
+          </span>
+        </button>
 
-      <button
-        class="mfilter-btn mfilter-joined"
-        :class="{ active: activeFilter === 'joined' }"
-        @click="toggleFilter('joined')"
-      >
-        <span class="mfilter-icon">✅</span>
-        <span class="mfilter-label">Ya unido</span>
-        <span v-if="activeFilter === 'joined'" class="mfilter-close">✕</span>
-      </button>
-
-      <!-- Indicador de filtro activo -->
-      <div v-if="activeFilter" class="active-filter-badge">
-        <span class="afb-dot"></span>
-        Filtro activo
+        <button
+          class="mfilter-btn mfilter-stats"
+          :class="{ active: sortField === 'stats' }"
+          @click="toggleSort('stats')"
+        >
+          <span class="mfilter-icon">💪</span>
+          <span class="mfilter-label">Stats</span>
+          <span v-if="sortField === 'stats'" class="sort-indicator">
+            {{ sortDirection === 'asc' ? '↑' : '↓' }}
+          </span>
+        </button>
       </div>
+
+      <!-- Filtros de membresía -->
+      <div class="filter-section">
+        <span class="filter-section-title">Filtrar por:</span>
+        <button
+          class="mfilter-btn mfilter-joined"
+          :class="{ active: activeFilter === 'joined' }"
+          @click="toggleFilter('joined')"
+        >
+          <span class="mfilter-icon">✅</span>
+          <span class="mfilter-label">Unidas</span>
+        </button>
+
+        <button
+          class="mfilter-btn mfilter-joinable"
+          :class="{ active: activeFilter === 'joinable' }"
+          @click="toggleFilter('joinable')"
+        >
+          <span class="mfilter-icon">🚀</span>
+          <span class="mfilter-label">Disponibles</span>
+        </button>
+      </div>
+
+      <!-- Botón limpiar filtros -->
+      <button
+        class="mfilter-btn mfilter-clear"
+        @click="clearAllFilters"
+      >
+        <span class="mfilter-icon">🧹</span>
+        <span class="mfilter-label">Limpiar filtros</span>
+      </button>
     </div>
 
     <!-- ── Contador ── -->
@@ -400,10 +444,10 @@ function goToRoom(roomId: number) {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(165, 180, 252, 0.1);
-  border: 1px solid rgba(165, 180, 252, 0.25);
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
   border-radius: 14px;
-  box-shadow: 0 0 20px rgba(165, 180, 252, 0.12), inset 0 0 12px rgba(165, 180, 252, 0.06);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.15), inset 0 0 12px rgba(251, 191, 36, 0.08);
   flex-shrink: 0;
 }
 
@@ -430,8 +474,8 @@ function goToRoom(roomId: number) {
 .sub-dot {
   width: 5px; height: 5px;
   border-radius: 50%;
-  background: #a5b4fc;
-  box-shadow: 0 0 6px #a5b4fc;
+  background: #fbbf24;
+  box-shadow: 0 0 6px #fbbf24;
   animation: sdot 2s ease-in-out infinite;
 }
 @keyframes sdot {
@@ -444,21 +488,21 @@ function goToRoom(roomId: number) {
   align-items: center;
   gap: 0.4rem;
   padding: 0.5625rem 1.125rem;
-  background: linear-gradient(135deg, rgba(165,180,252,0.85), rgba(129,140,248,0.75));
-  border: 1px solid rgba(165, 180, 252, 0.4);
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  border: 1px solid rgba(251, 191, 36, 0.5);
   border-radius: 10px;
   color: #0f172a;
   font-size: 0.8125rem;
   font-weight: 800;
   cursor: pointer;
   transition: all 0.22s ease;
-  box-shadow: 0 3px 16px rgba(129, 140, 248, 0.3);
+  box-shadow: 0 3px 16px rgba(251, 191, 36, 0.4);
   white-space: nowrap;
 }
 
 .create-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(129, 140, 248, 0.45);
+  box-shadow: 0 6px 24px rgba(251, 191, 36, 0.55);
   filter: brightness(1.1);
 }
 
@@ -475,7 +519,7 @@ function goToRoom(roomId: number) {
 .rule-line {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(165, 180, 252, 0.3) 30%, rgba(165, 180, 252, 0.3) 70%, transparent);
+  background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.3) 30%, rgba(251, 191, 36, 0.3) 70%, transparent);
 }
 
 .rule-glow {
@@ -484,21 +528,18 @@ function goToRoom(roomId: number) {
   left: 50%;
   transform: translateX(-50%);
   width: 120px; height: 5px;
-  background: radial-gradient(ellipse, rgba(165,180,252,0.55), transparent 70%);
+  background: radial-gradient(ellipse, rgba(251,191,36,0.55), transparent 70%);
   filter: blur(3px);
 }
 
 /* ── Controls ── */
 .controls-bar {
   display: flex;
-  gap: 0.625rem;
-  margin-bottom: 0.875rem;
-  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
 }
 
 .search-box {
   flex: 1;
-  min-width: 180px;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -510,9 +551,9 @@ function goToRoom(roomId: number) {
 }
 
 .search-box:focus-within {
-  border-color: rgba(165, 180, 252, 0.5);
-  background: rgba(165, 180, 252, 0.05);
-  box-shadow: 0 0 0 3px rgba(165, 180, 252, 0.1);
+  border-color: rgba(251, 191, 36, 0.5);
+  background: rgba(251, 191, 36, 0.05);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
 }
 
 .search-icon { font-size: 0.75rem; opacity: 0.45; flex-shrink: 0; }
@@ -540,131 +581,174 @@ function goToRoom(roomId: number) {
 }
 .search-clear:hover { color: #94a3b8; }
 
-.sort-group { display: flex; gap: 0.4rem; }
-
-.sort-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.5rem 0.875rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.sort-btn:hover { color: #94a3b8; border-color: rgba(255,255,255,0.18); }
-
-.sort-btn.active {
-  background: rgba(165, 180, 252, 0.12);
-  border-color: rgba(165, 180, 252, 0.38);
-  color: #a5b4fc;
-  box-shadow: 0 0 12px rgba(165, 180, 252, 0.12);
-}
-
-.sort-arrow { font-weight: 900; font-size: 0.8125rem; }
-
 /* ════════════════════════════════════════
-   FILTROS DE MEMBRESÍA — nueva sección
+   FILTROS COMBINADOS
    ════════════════════════════════════════ */
-.membership-filters {
+.all-filters {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
+  gap: 1rem;
   margin-bottom: 1.25rem;
   flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
+.filter-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-section-title {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #475569;
+  font-weight: 700;
+  margin-right: 0.25rem;
 }
 
 .mfilter-btn {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.4375rem 0.875rem;
+  padding: 0.5rem 0.9rem;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.8125rem;
+  font-weight: 700;
   color: #64748b;
   cursor: pointer;
-  transition: all 0.22s ease;
+  transition: all 0.2s ease;
   white-space: nowrap;
   position: relative;
   overflow: hidden;
 }
 
-/* Efecto shimmer al hover */
-.mfilter-btn::before {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
-  transition: left 0.5s ease;
-}
-.mfilter-btn:hover::before { left: 150%; }
-
 .mfilter-btn:hover {
   color: #94a3b8;
-  border-color: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
   transform: translateY(-1px);
 }
 
-/* "Puedo unirme" — acento verde esmeralda */
-.mfilter-btn.active {
-  background: rgba(52, 211, 153, 0.1);
-  border-color: rgba(52, 211, 153, 0.4);
-  color: #6ee7b7;
-  box-shadow:
-    0 0 0 1px rgba(52, 211, 153, 0.15),
-    0 4px 16px rgba(52, 211, 153, 0.12);
+/* Ordenación - Nivel */
+.mfilter-level {
+  background: rgba(139, 92, 246, 0.08);
+  border-color: rgba(139, 92, 246, 0.3);
+  color: #c4b5fd;
 }
 
-/* "Ya unido" — acento azul cielo */
-.mfilter-joined.active {
-  background: rgba(56, 189, 248, 0.1);
-  border-color: rgba(56, 189, 248, 0.4);
+.mfilter-level:hover {
+  background: rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.mfilter-level.active {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.5);
+  color: #a78bfa;
+  box-shadow:
+    0 0 0 1px rgba(139, 92, 246, 0.2),
+    0 4px 16px rgba(139, 92, 246, 0.15);
+}
+
+/* Ordenación - Stats */
+.mfilter-stats {
+  background: rgba(244, 114, 182, 0.08);
+  border-color: rgba(244, 114, 182, 0.3);
+  color: #f472b6;
+}
+
+.mfilter-stats:hover {
+  background: rgba(244, 114, 182, 0.12);
+  border-color: rgba(244, 114, 182, 0.4);
+}
+
+.mfilter-stats.active {
+  background: rgba(244, 114, 182, 0.15);
+  border-color: rgba(244, 114, 182, 0.5);
+  color: #f472b6;
+  box-shadow:
+    0 0 0 1px rgba(244, 114, 182, 0.2),
+    0 4px 16px rgba(244, 114, 182, 0.15);
+}
+
+/* Filtro Unidas */
+.mfilter-joined {
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.3);
   color: #7dd3fc;
+}
+
+.mfilter-joined:hover {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.mfilter-joined.active {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.5);
+  color: #38bdf8;
   box-shadow:
-    0 0 0 1px rgba(56, 189, 248, 0.15),
-    0 4px 16px rgba(56, 189, 248, 0.12);
+    0 0 0 1px rgba(56, 189, 248, 0.2),
+    0 4px 16px rgba(56, 189, 248, 0.15);
 }
 
-.mfilter-icon  { font-size: 0.875rem; }
-.mfilter-label { letter-spacing: 0.2px; }
-
-.mfilter-close {
-  font-size: 0.5625rem;
-  opacity: 0.7;
-  margin-left: 0.125rem;
-  font-weight: 900;
+/* Filtro Disponibles */
+.mfilter-joinable {
+  background: rgba(52, 211, 153, 0.08);
+  border-color: rgba(52, 211, 153, 0.3);
+  color: #6ee7b7;
 }
 
-/* Badge de filtro activo */
-.active-filter-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
+.mfilter-joinable:hover {
+  background: rgba(52, 211, 153, 0.12);
+  border-color: rgba(52, 211, 153, 0.4);
+}
+
+.mfilter-joinable.active {
+  background: rgba(52, 211, 153, 0.15);
+  border-color: rgba(52, 211, 153, 0.5);
+  color: #34d399;
+  box-shadow:
+    0 0 0 1px rgba(52, 211, 153, 0.2),
+    0 4px 16px rgba(52, 211, 153, 0.15);
+}
+
+/* Botón Limpiar filtros */
+.mfilter-clear {
   margin-left: auto;
-  font-size: 0.5625rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: #64748b;
-  font-weight: 700;
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
 }
 
-.afb-dot {
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: #a5b4fc;
-  box-shadow: 0 0 5px #a5b4fc;
-  animation: sdot 1.5s ease-in-out infinite;
+.mfilter-clear:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #ef4444;
+  transform: translateY(-1px);
+}
+
+.sort-indicator {
+  font-weight: 900;
+  font-size: 0.875rem;
+  margin-left: 0.2rem;
+}
+
+.mfilter-icon {
+  font-size: 0.875rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+.mfilter-label {
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  font-size: 0.7rem;
 }
 
 /* ── Barra de resultados ── */
@@ -740,17 +824,17 @@ function goToRoom(roomId: number) {
 }
 
 .page-btn:hover:not(:disabled):not(.ellipsis) {
-  border-color: rgba(165, 180, 252, 0.45);
-  color: #a5b4fc;
-  background: rgba(165, 180, 252, 0.08);
+  border-color: rgba(251, 191, 36, 0.5);
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
 }
 
 .page-btn.active {
-  background: linear-gradient(135deg, rgba(165,180,252,0.85), rgba(129,140,248,0.75));
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
   border-color: transparent;
   color: #0f172a;
   font-weight: 900;
-  box-shadow: 0 2px 12px rgba(129, 140, 248, 0.38);
+  box-shadow: 0 2px 12px rgba(251, 191, 36, 0.5);
   transform: scale(1.08);
 }
 
@@ -786,13 +870,13 @@ function goToRoom(roomId: number) {
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .rooms-wrapper       { padding: 1.25rem 0.875rem 2rem; }
-  .controls-bar        { flex-direction: column; }
-  .search-box          { min-width: 100%; }
-  .sort-group          { width: 100%; }
-  .sort-btn            { flex: 1; justify-content: center; }
-  .membership-filters  { gap: 0.5rem; }
-  .mfilter-btn         { flex: 1; justify-content: center; font-size: 0.6875rem; }
-  .active-filter-badge { width: 100%; justify-content: center; margin-left: 0; }
+  .controls-bar        { margin-bottom: 0.5rem; }
+  .search-box          { width: 100%; }
+  .all-filters         { gap: 0.5rem; padding: 0.5rem; }
+  .filter-section      { width: 100%; }
+  .filter-section-title { display: none; }
+  .mfilter-btn         { flex: 1; justify-content: center; font-size: 0.75rem; }
+  .mfilter-clear       { width: 100%; margin-left: 0; }
   .rooms-list          { gap: 1.5rem; }
   .nav-label           { display: none; }
   .header-title        { font-size: 1.0625rem; }

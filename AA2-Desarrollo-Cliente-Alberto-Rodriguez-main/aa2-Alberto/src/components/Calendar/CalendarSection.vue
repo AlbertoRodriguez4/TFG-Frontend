@@ -77,6 +77,7 @@ const handleCompleteRoutine = (day: number, routineId: number) => {
   padding: 0 0 4rem;
   position: relative;
   z-index: 2;
+  background: linear-gradient(135deg, rgba(26, 10, 46, 0.9) 0%, rgba(15, 10, 26, 0.95) 100%);
 }
 
 /* Responsive Design */

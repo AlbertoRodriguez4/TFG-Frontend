@@ -142,19 +142,21 @@ const progressColor = computed((): string => {
   width: 100%;
 }
 
-/* Tarjeta flotante base */
+/* Tarjeta flotante base - Tema oscuro futurista */
 .floating-stat-card {
   margin-bottom: 1rem;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border: 2px solid rgba(0, 0, 0, 0.05);
+  background: linear-gradient(135deg, rgba(26, 10, 46, 0.9) 0%, rgba(15, 10, 26, 0.95) 100%);
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  backdrop-filter: blur(10px);
   cursor: default;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .floating-stat-card:hover {
   transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15) !important;
-  border-color: rgba(102, 126, 234, 0.2);
+  box-shadow: 0 16px 48px rgba(139, 92, 246, 0.4) !important;
+  border-color: rgba(139, 92, 246, 0.6);
 }
 
 /* Animaciones flotantes escalonadas */
@@ -216,44 +218,50 @@ const progressColor = computed((): string => {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
 
-/* Colores de los iconos */
+/* Colores de los iconos - Tema oscuro */
 .mini-icon-wrapper.purple {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #a78bfa 0%, #22d3ee 100%);
+  box-shadow: 0 4px 16px rgba(167, 139, 250, 0.4);
 }
 
 .mini-icon-wrapper.amber {
-  background: linear-gradient(135deg, #ffc107, #ff9800);
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  box-shadow: 0 4px 16px rgba(251, 191, 36, 0.4);
 }
 
 .mini-icon-wrapper.green {
-  background: linear-gradient(135deg, #4caf50, #8bc34a);
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  box-shadow: 0 4px 16px rgba(52, 211, 153, 0.4);
 }
 
-/* Labels y valores */
+/* Labels y valores - Tema oscuro */
 .stat-label {
   font-weight: 700;
   letter-spacing: 0.5px;
   font-size: 0.7rem;
   line-height: 1;
   margin-bottom: 4px;
-  opacity: 0.8;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .stat-value {
   line-height: 1;
-  color: #212121;
-  transition: color 0.3s ease;
+  color: #ffffff;
+  transition: all 0.3s ease;
+  text-shadow: 0 0 20px rgba(167, 139, 250, 0.3);
 }
 
 .floating-stat-card:hover .stat-value {
-  color: #667eea;
+  color: #a78bfa;
+  text-shadow: 0 0 25px rgba(167, 139, 250, 0.6);
 }
 
-/* Barra de progreso XP */
+/* Barra de progreso XP - Tema oscuro */
 .xp-progress {
   border-radius: 10px;
   overflow: hidden;
   transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.1) !important;
 }
 
 .xp-progress >>> .v-progress-linear__determinate {
@@ -261,15 +269,16 @@ const progressColor = computed((): string => {
 }
 
 .floating-stat-card:hover .xp-progress {
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 12px rgba(139, 92, 246, 0.4);
 }
 
-/* Texto de XP */
+/* Texto de XP - Tema oscuro */
 .xp-text {
   font-weight: 600;
   font-size: 0.75rem;
   text-align: center;
   letter-spacing: 0.3px;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* Icono decorativo del cofre */
@@ -418,29 +427,6 @@ const progressColor = computed((): string => {
   }
 }
 
-/* Modo oscuro (opcional) */
-@media (prefers-color-scheme: dark) {
-  .floating-stat-card {
-    background: linear-gradient(135deg, #2d2d2d 0%, #1e1e1e 100%);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-  
-  .floating-stat-card:hover {
-    border-color: rgba(102, 126, 234, 0.4);
-  }
-  
-  .stat-value {
-    color: #ffffff;
-  }
-  
-  .stat-label {
-    color: rgba(255, 255, 255, 0.7) !important;
-  }
-  
-  .xp-text {
-    color: rgba(255, 255, 255, 0.6) !important;
-  }
-}
 
 /* Accesibilidad */
 @media (prefers-reduced-motion: reduce) {

@@ -95,29 +95,32 @@ export default {
 </script>
 
 <style scoped>
-/* Tarjeta principal de navegación */
+/* Tarjeta principal de navegación - Tema Oscuro */
 .month-nav-card {
-  background: white;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, rgba(26, 10, 46, 0.9) 0%, rgba(15, 10, 26, 0.95) 100%);
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
 
-/* Información del mes central */
+/* Información del mes central - Tema Oscuro */
 .month-info {
   flex: 1;
   user-select: none; /* Evita selección de texto */
 }
 
 .month-title {
-  color: #212121;
+  color: #ffffff;
   letter-spacing: 0.5px;
   line-height: 1.2;
   transition: color 0.3s ease;
+  text-shadow: 0 0 20px rgba(167, 139, 250, 0.3);
 }
 
 .year-subtitle {
   font-weight: 600;
-  opacity: 0.7;
+  color: rgba(255, 255, 255, 0.7);
   transition: opacity 0.3s ease;
 }
 
@@ -129,7 +132,7 @@ export default {
 
 .nav-fab:hover {
   transform: scale(1.1);
-  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4) !important;
+  box-shadow: 0 8px 30px rgba(167, 139, 250, 0.5) !important;
 }
 
 .nav-fab:active {

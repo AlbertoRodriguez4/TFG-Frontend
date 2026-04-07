@@ -169,7 +169,7 @@ export default defineComponent({
 
 <style scoped>
 .hero-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0f0a1a 100%);
   padding: 4rem 0 6rem;
   position: relative;
   overflow: hidden;
@@ -178,21 +178,21 @@ export default defineComponent({
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,144C960,149,1056,139,1152,122.7C1248,107,1344,85,1392,74.7L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(139,92,246,0.08)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,144C960,149,1056,139,1152,122.7C1248,107,1344,85,1392,74.7L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
   background-size: cover;
   background-position: bottom;
-  opacity: 0.3;
+  opacity: 0.5;
 }
 
 .hero-particles {
   position: absolute;
   inset: 0;
-  background-image: 
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-    radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-  background-size: 50px 50px, 80px 80px, 100px 100px;
-  background-position: 0 0, 40px 60px, 130px 270px;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.15) 1px, transparent 1px),
+    radial-gradient(circle at 80% 80%, rgba(34, 211, 238, 0.12) 1px, transparent 1px),
+    radial-gradient(circle at 40% 20%, rgba(167, 139, 250, 0.1) 1px, transparent 1px);
+  background-size: 60px 60px, 100px 100px, 120px 120px;
+  background-position: 0 0, 50px 70px, 150px 280px;
   animation: particleFloat 20s linear infinite;
 }
 
@@ -201,7 +201,7 @@ export default defineComponent({
     transform: translateY(0);
   }
   to {
-    transform: translateY(-20px);
+    transform: translateY(-15px);
   }
 }
 
@@ -211,7 +211,7 @@ export default defineComponent({
 }
 
 .hero-title {
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
   animation: fadeInUp 0.8s ease-out;
 }
 
@@ -229,27 +229,33 @@ export default defineComponent({
 .hero-badge {
   font-weight: 700;
   font-size: 0.95rem;
-  border-radius: 20px;
-  padding: 8px 16px;
+  border-radius: 50px;
+  padding: 10px 20px;
   animation: pulse 2s ease-in-out infinite;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(34, 211, 238, 0.3)) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(139, 92, 246, 0.5) !important;
 }
 
 @keyframes pulse {
   0%, 100% {
     transform: scale(1);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
   }
   50% {
-    transform: scale(1.05);
+    transform: scale(1.08);
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
   }
 }
 
 .gradient-text-hero {
-  background: linear-gradient(135deg, #ffd700, #ffed4e, #ffd700);
+  background: linear-gradient(135deg, #a78bfa 0%, #22d3ee 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: shimmer 3s linear infinite;
+  filter: drop-shadow(0 0 20px rgba(167, 139, 250, 0.5));
 }
 
 @keyframes shimmer {
@@ -259,9 +265,10 @@ export default defineComponent({
 }
 
 .hero-subtitle {
-  opacity: 0.95;
+  opacity: 0.9;
   max-width: 600px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  color: #94a3b8;
+  text-shadow: none;
   animation: fadeInUp 0.8s ease-out 0.2s both;
 }
 
@@ -273,29 +280,33 @@ export default defineComponent({
   font-weight: 700;
   text-transform: none;
   letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px;
+  background: linear-gradient(135deg, #8b5cf6, #22d3ee) !important;
+  box-shadow: 0 8px 30px rgba(139, 92, 246, 0.4) !important;
 }
 
 .hero-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4) !important;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(139, 92, 246, 0.6) !important;
 }
 
 .hero-btn-secondary {
   font-weight: 700;
   text-transform: none;
-  border: 2px solid rgba(255, 255, 255, 0.7) !important;
+  border: 2px solid rgba(139, 92, 246, 0.4) !important;
   backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
-  border-radius: 12px;
+  background: rgba(139, 92, 246, 0.1) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px;
+  color: #a78bfa !important;
 }
 
 .hero-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 1) !important;
-  transform: translateY(-2px);
+  background: rgba(139, 92, 246, 0.2) !important;
+  border-color: rgba(139, 92, 246, 0.7) !important;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
 }
 
 .rest-dialog {

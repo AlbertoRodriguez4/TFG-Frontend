@@ -1,11 +1,19 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
+import { onMounted } from 'vue';
 import HeaderView from './views/layout/HeaderView.vue';
 import FooterView from './views/layout/FooterView.vue';
 import { useThemeStore } from '@/stores/useTheme';
+import { useSubscriptionStore } from '@/stores/SubscriptionStore';
 
 // Inicializar el store para aplicar el tema guardado
 useThemeStore();
+
+// Inicializar el store de suscripciones al cargar la app
+const subscriptionStore = useSubscriptionStore();
+onMounted(async () => {
+  await subscriptionStore.initializeSubscription();
+});
 </script>
 
 <template>

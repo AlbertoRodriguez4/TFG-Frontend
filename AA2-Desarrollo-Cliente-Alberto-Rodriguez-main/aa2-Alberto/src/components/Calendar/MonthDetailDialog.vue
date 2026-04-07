@@ -200,15 +200,18 @@ const closeDialog = (): void => {
 .month-detail-card {
   border-radius: 16px;
   overflow: hidden;
+  background: linear-gradient(135deg, rgba(26, 10, 46, 0.95) 0%, rgba(15, 10, 26, 0.98) 100%);
+  border: 2px solid rgba(139, 92, 246, 0.3);
 }
 
 .detail-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.3) 0%, rgba(34, 211, 238, 0.2) 100%);
   color: white;
   padding: 24px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  border-bottom: 2px solid rgba(139, 92, 246, 0.3);
 }
 
 .header-content {
@@ -236,36 +239,39 @@ const closeDialog = (): void => {
 }
 
 .mini-stat {
-  background: white;
+  background: rgba(26, 10, 46, 0.6);
+  border: 2px solid rgba(139, 92, 246, 0.3);
   border-radius: 12px;
   padding: 1rem;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   border-left: 4px solid;
+  backdrop-filter: blur(10px);
 }
 
 .mini-stat.success {
-  border-left-color: #4caf50;
+  border-left-color: rgba(52, 211, 153, 0.8);
 }
 
 .mini-stat.warning {
-  border-left-color: #ff9800;
+  border-left-color: rgba(251, 191, 36, 0.8);
 }
 
 .mini-stat.info {
-  border-left-color: #ffc107;
+  border-left-color: rgba(251, 191, 36, 0.8);
 }
 
 .mini-stat-value {
   font-size: 2rem;
   font-weight: 800;
-  color: #1a1a2e;
+  color: #ffffff;
   margin: 0.5rem 0;
+  text-shadow: 0 0 20px rgba(167, 139, 250, 0.4);
 }
 
 .mini-stat-label {
   font-size: 0.85rem;
-  color: #616161;
+  color: rgba(255, 255, 255, 0.7);
   font-weight: 600;
   text-transform: uppercase;
 }
@@ -273,7 +279,7 @@ const closeDialog = (): void => {
 .list-title {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: #ffffff;
   margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
@@ -286,27 +292,30 @@ const closeDialog = (): void => {
 }
 
 .routine-item {
-  background: white;
+  background: rgba(26, 10, 46, 0.6);
+  border: 2px solid rgba(139, 92, 246, 0.3);
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 1.5rem;
   align-items: center;
   transition: all 0.3s ease;
-  border-left: 4px solid #ff9800;
+  border-left: 4px solid rgba(251, 191, 36, 0.6);
+  backdrop-filter: blur(10px);
 }
 
 .routine-item.completed {
-  border-left-color: #4caf50;
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.05), rgba(139, 195, 74, 0.05));
+  border-left-color: rgba(52, 211, 153, 0.8);
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
 }
 
 .routine-item:hover {
   transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+  border-color: rgba(167, 139, 250, 0.5);
 }
 
 .routine-date {
@@ -319,19 +328,19 @@ const closeDialog = (): void => {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ff9800, #f57c00);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.8), rgba(245, 158, 11, 0.6));
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
   font-weight: 800;
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
 }
 
 .date-circle.completed {
-  background: linear-gradient(135deg, #4caf50, #66bb6a);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.8), rgba(16, 185, 129, 0.6));
+  box-shadow: 0 4px 12px rgba(52, 211, 153, 0.4);
 }
 
 .date-info {
@@ -341,14 +350,14 @@ const closeDialog = (): void => {
 
 .weekday {
   font-size: 0.85rem;
-  color: #757575;
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .full-date {
   font-size: 1rem;
-  color: #424242;
+  color: rgba(255, 255, 255, 0.8);
   font-weight: 700;
 }
 
@@ -359,7 +368,7 @@ const closeDialog = (): void => {
 .routine-name {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: #ffffff;
   margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
@@ -367,7 +376,7 @@ const closeDialog = (): void => {
 
 .routine-description {
   font-size: 0.95rem;
-  color: #616161;
+  color: rgba(255, 255, 255, 0.6);
   line-height: 1.4;
 }
 
@@ -391,8 +400,8 @@ const closeDialog = (): void => {
 }
 
 .detail-footer {
-  background: #fafafa;
-  border-top: 1px solid #e0e0e0;
+  background: rgba(15, 10, 26, 0.8);
+  border-top: 1px solid rgba(139, 92, 246, 0.3);
   padding: 16px 24px;
 }
 

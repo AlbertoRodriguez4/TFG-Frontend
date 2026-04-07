@@ -1,198 +1,374 @@
 <script setup lang="ts">
 import { useRoomStore } from '@/stores/RoomStore';
+import { useUserRoomStore } from '@/stores/UsersRoomStore';
+import { useUserStore } from '@/stores/userStore';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import RoomRender from '../../components/Renders/RoomRender.vue';
+
 const store = useRoomStore()
-store.fetchRoom()
+const userRoomStore = useUserRoomStore()
+const userStore = useUserStore()
+
+const loggedUser = ref(userStore.loggedUser)
+const totalMembers = ref(0)
+const joinedRoomsCount = ref(0)
+
+// Estadísticas reales calculadas
+const statsLoaded = ref(false)
+
+const totalRoomsCount = computed(() => store.room.length)
+
+const averageLevel = computed(() => {
+  if (store.room.length === 0) return 0
+  const sum = store.room.reduce((acc, room) => acc + room.minlevel, 0)
+  return Math.round(sum / store.room.length)
+})
+
+const myJoinedRooms = computed(() => {
+  if (!loggedUser.value?.id) return 0
+  let count = 0
+  store.room.forEach(room => {
+    const members = userRoomStore.currentRoomMembers
+    if (members.some(m => m.userid === loggedUser.value?.id && m.roomid === room.id)) {
+      count++
+    }
+  })
+  return count
+})
+
+const handleMembershipChange = async () => {
+  await calculateStats()
+}
+
+onMounted(async () => {
+  await store.fetchRoom()
+  await calculateStats()
+
+  // Escuchar evento de cambio de membresía para actualizar stats
+  window.addEventListener('room-membership-changed', handleMembershipChange)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('room-membership-changed', handleMembershipChange)
+})
+
+async function calculateStats() {
+  if (!loggedUser.value?.id) {
+    statsLoaded.value = true
+    return
+  }
+
+  try {
+    // Contar miembros totales en todas las salas
+    let membersCount = 0
+    let myRooms = 0
+
+    for (const room of store.room) {
+      await userRoomStore.fetchMembersByRoomId(room.id)
+      const currentMembers = userRoomStore.currentRoomMembers.length
+      membersCount += currentMembers
+
+      // Contar salas a las que estoy unido
+      if (currentMembers > 0 && userRoomStore.currentRoomMembers.some(m => m.userid === loggedUser.value?.id)) {
+        myRooms++
+      }
+    }
+
+    totalMembers.value = membersCount
+    joinedRoomsCount.value = myRooms
+  } catch (error) {
+    console.error('Error calculating stats:', error)
+  } finally {
+    statsLoaded.value = true
+  }
+}
 </script>
 
 <template>
   <v-app>
     <v-main class="main">
-      <v-container fluid class="fill-height d-flex flex-column pa-0">
-        <!-- Hero Section con overlay gradiente -->
-        <div class="hero-section">
-          <div class="hero-overlay"></div>
-          <div class="hero-content">
-            <div class="title-container">
-              <div class="icon-pulse">
-                <v-icon size="48" color="#00ff88">mdi-dumbbell</v-icon>
-              </div>
-              <h1 class="hero-title">{{ $t('rooms') }}</h1>
-              <p class="hero-subtitle">Entrena en grupo, supera retos, alcanza la grandeza</p>
+      <!-- Background Effects -->
+      <div class="background-overlay"></div>
+      <div class="gradient-orb orb-1"></div>
+      <div class="gradient-orb orb-2"></div>
+
+      <v-container fluid class="content-container">
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+          <div class="banner-glow"></div>
+          <div class="banner-content">
+            <div class="welcome-icon">🏛️</div>
+            <div class="welcome-text">
+              <h1 class="welcome-title">{{ $t('rooms') || 'Salas de Entrenamiento' }}</h1>
+              <p class="welcome-subtitle">Entrena en grupo, supera retos, alcanza la grandeza</p>
             </div>
-            
-            <!-- Stats bar flotante -->
-            <div class="stats-bar">
-              <div class="stat-item">
-                <v-icon size="20" color="#00ff88">mdi-account-group</v-icon>
-                <span class="stat-value">{{ store.activeUsers || '...' }}</span> <!-- Mostrar '...' si el valor es null o undefined, crear una funcion que me cuente los active users-->
-                <span class="stat-label">Entrenando ahora</span>
-              </div>
-              <div class="stat-divider"></div>
-              <div class="stat-item">
-                <v-icon size="20" color="#ffcc00">mdi-fire</v-icon>
-                <span class="stat-value">{{ store.totalRooms || '...' }}</span> <!-- Mostrar '...' si el valor es null o undefined, crear una funcion que me cuente las salas activas-->
-                <span class="stat-label">Salas activas</span>
-              </div>
-              <div class="stat-divider"></div>
-              <div class="stat-item">
-                <v-icon size="20" color="#ff6b9d">mdi-trophy</v-icon>
-                <span class="stat-value">{{ store.dailyChallenges || '...' }}</span> <!-- Mostrar '...' si el valor es null o undefined, crear una funcion que me cuente los retos diarios-->
-                <span class="stat-label">Retos hoy</span>
-              </div>
-            </div>
+          </div>
+          <div class="banner-decoration">
+            <div class="decoration-line"></div>
+            <div class="decoration-dot"></div>
+            <div class="decoration-line"></div>
           </div>
         </div>
 
-        <!-- Content Section -->
-        <v-row class="content-section w-100 ma-0 pa-6" id="inventarios">
-          <v-col cols="12">
-            <RoomRender />
-          </v-col>
-        </v-row>
+        <!-- Stats Section -->
+        <section class="stats-section">
+          <div class="section-header">
+            <div class="section-icon">📊</div>
+            <h2 class="section-title">{{ $t('estadisticas_salas') || 'Estadísticas de Salas' }}</h2>
+            <div class="section-line"></div>
+          </div>
+          <div class="stats-grid">
+            <!-- Total Salas Card -->
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-card-icon total-rooms">
+                  🏟️
+                </div>
+                <div class="stat-card-body">
+                  <span class="stat-value">{{ totalRoomsCount || '...' }}</span>
+                  <span class="stat-label">Salas totales</span>
+                </div>
+              </div>
+            </div>
 
-        <!-- Floating action button -->
-        <v-btn
-          class="floating-action"
-          color="#00ff88"
-          size="x-large"
-          elevation="8"
-          icon
-        >
-          <v-icon size="32">mdi-plus</v-icon>
-        </v-btn>
+            <!-- Mis Salas Card -->
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-card-icon my-rooms">
+                  ✅
+                </div>
+                <div class="stat-card-body">
+                  <span class="stat-value">{{ joinedRoomsCount || '...' }}</span>
+                  <span class="stat-label">Mis salas</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total Miembros Card -->
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-card-icon total-members">
+                  👥
+                </div>
+                <div class="stat-card-body">
+                  <span class="stat-value">{{ totalMembers || '...' }}</span>
+                  <span class="stat-label">Entrenadores</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Content Section -->
+        <section class="content-section" id="inventarios">
+          <RoomRender />
+        </section>
+
+        <!-- Floating Action Button -->
+        <div class="fab-container">
+          <button class="fab" @click="$emit('create-room')">
+            <span class="fab-icon">↑</span>
+          </button>
+        </div>
       </v-container>
     </v-main>
   </v-app>
 </template>
 
 <style scoped>
-.main {
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
-  position: relative;
-  min-height: 100vh;
-  overflow-x: hidden;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Hero Section */
-.hero-section {
+/* Main Wrapper - Consistente con HomeLoggedView */
+.main {
   position: relative;
+  min-height: 100vh;
   width: 100%;
-  min-height: 400px;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 50%, #16213e 100%);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Background Effects - Consistente con el resto de la app */
+.background-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-image: url('../assets/imgs/gimansio-fondo.jpg');
   background-size: cover;
   background-position: center;
-  background-attachment: fixed;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+  background-repeat: no-repeat;
+  opacity: 0.15;
+  z-index: 0;
+  pointer-events: none;
 }
 
-.hero-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.3) 0%,
-    rgba(0, 0, 0, 0.7) 50%,
-    rgba(10, 10, 10, 0.95) 100%
-  );
-  backdrop-filter: blur(2px);
-}
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  max-width: 1200px;
-  padding: 3rem 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3rem;
-}
-
-/* Title Section */
-.title-container {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.icon-pulse {
-  animation: pulse 2s ease-in-out infinite;
-  background: rgba(0, 255, 136, 0.1);
-  padding: 1rem;
+/* Gradient Orbs - Efecto visual consistente */
+.gradient-orb {
+  position: fixed;
   border-radius: 50%;
-  border: 2px solid rgba(0, 255, 136, 0.3);
+  filter: blur(100px);
+  opacity: 0.12;
+  z-index: 1;
+  pointer-events: none;
+  animation: float-orb 20s ease-in-out infinite;
 }
 
-@keyframes pulse {
+.orb-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, #fbbf24, transparent);
+  top: -250px;
+  right: -250px;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #f59e0b, transparent);
+  bottom: -200px;
+  left: -200px;
+  animation-delay: 5s;
+}
+
+@keyframes float-orb {
   0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7);
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(50px, -50px) scale(1.1);
   }
   50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 15px rgba(0, 255, 136, 0);
+    transform: translate(-30px, 30px) scale(0.9);
+  }
+  75% {
+    transform: translate(40px, 40px) scale(1.05);
   }
 }
 
-.hero-title {
-  font-size: clamp(3rem, 8vw, 5rem);
-  font-weight: 900;
-  background: linear-gradient(135deg, #00ff88 0%, #00d9ff 50%, #ffcc00 100%);
+/* Content Container */
+.content-container {
+  position: relative;
+  z-index: 2;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 2rem 1rem;
+}
+
+/* Welcome Banner */
+.welcome-banner {
+  position: relative;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(245, 158, 11, 0.05) 100%);
+  border: 2px solid rgba(251, 191, 36, 0.35);
+  border-radius: 24px;
+  padding: 2.5rem;
+  margin-bottom: 3rem;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 8px 32px rgba(251, 191, 36, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.banner-glow {
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  border-radius: 24px;
+  opacity: 0;
+  filter: blur(20px);
+  transition: opacity 0.3s;
+  z-index: -1;
+}
+
+.welcome-banner:hover .banner-glow {
+  opacity: 0.25;
+}
+
+.banner-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.welcome-icon {
+  font-size: 4rem;
+  filter: drop-shadow(0 4px 12px rgba(251, 191, 36, 0.5));
+  animation: pulse-icon 2s ease-in-out infinite;
+}
+
+@keyframes pulse-icon {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.welcome-text {
+  flex: 1;
+}
+
+.welcome-title {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.2;
+  text-shadow: 0 2px 20px rgba(251, 191, 36, 0.4);
+}
+
+.room-title-highlight {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin: 0;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  text-shadow: 0 0 80px rgba(0, 255, 136, 0.5);
-  animation: titleGlow 3s ease-in-out infinite;
+  font-weight: 900;
 }
 
-@keyframes titleGlow {
-  0%, 100% {
-    filter: brightness(1);
-  }
-  50% {
-    filter: brightness(1.2);
-  }
+.welcome-subtitle {
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0.5rem 0 0 0;
+  font-weight: 500;
 }
 
-.hero-subtitle {
-  font-size: clamp(1rem, 2vw, 1.25rem);
-  color: rgba(255, 255, 255, 0.8);
-  font-weight: 300;
-  letter-spacing: 0.05em;
-  margin: 0;
-  text-transform: uppercase;
-}
-
-/* Stats Bar */
-.stats-bar {
+.banner-decoration {
   display: flex;
   align-items: center;
-  gap: 2rem;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(20px);
-  padding: 1.5rem 3rem;
-  border-radius: 100px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  animation: slideUp 0.6s ease-out;
+  gap: 0.5rem;
+  opacity: 0.5;
 }
 
-@keyframes slideUp {
+.decoration-line {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #fbbf24, transparent);
+}
+
+.decoration-dot {
+  width: 8px;
+  height: 8px;
+  background: #fbbf24;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #fbbf24;
+}
+
+/* Stats Section - Panel consistente */
+.stats-section {
+  margin-bottom: 3rem;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(30px);
@@ -203,114 +379,138 @@ store.fetchRoom()
   }
 }
 
-.stat-item {
+.section-header {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 8px rgba(251, 191, 36, 0.5));
+}
+
+.section-title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(251, 191, 36, 0.3);
+}
+
+.section-line {
+  flex: 1;
+  height: 3px;
+  background: linear-gradient(90deg, #fbbf24, transparent);
+  border-radius: 2px;
+  margin-left: 1rem;
+}
+
+/* Stats Cards Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:hover {
+  border-color: rgba(251, 191, 36, 0.5);
+  box-shadow: 0 8px 32px rgba(251, 191, 36, 0.25);
+  transform: translateY(-2px);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  border-radius: 20px;
+  opacity: 0;
+  filter: blur(10px);
+  transition: opacity 0.3s;
+  z-index: -1;
+}
+
+.stat-card:hover::before {
+  opacity: 0.2;
+}
+
+.stat-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.stat-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.15), inset 0 0 12px rgba(251, 191, 36, 0.08);
+}
+
+.stat-card-icon.total-rooms {
+  background: rgba(251, 191, 36, 0.12);
+  border-color: rgba(251, 191, 36, 0.4);
+}
+
+.stat-card-icon.my-rooms {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.stat-card-icon.total-members {
+  background: rgba(52, 211, 153, 0.12);
+  border-color: rgba(52, 211, 153, 0.4);
+}
+
+.stat-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .stat-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #fff;
-  min-width: 40px;
-  text-align: center;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(251, 191, 36, 0.3);
 }
 
 .stat-label {
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   color: rgba(255, 255, 255, 0.6);
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.stat-divider {
-  width: 1px;
-  height: 30px;
-  background: rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.5px;
 }
 
 /* Content Section */
 .content-section {
   position: relative;
-  z-index: 3;
-  margin-top: -50px;
+  z-index: 2;
+  margin-top: 0;
+  animation: fadeIn 0.8s ease-out 0.2s both;
 }
 
-/* Floating Action Button */
-.floating-action {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  z-index: 1000;
-  background: linear-gradient(135deg, #00ff88 0%, #00d9ff 100%) !important;
-  box-shadow: 
-    0 8px 32px rgba(0, 255, 136, 0.4),
-    0 0 0 0 rgba(0, 255, 136, 0.7);
-  animation: floatPulse 3s ease-in-out infinite;
-  transition: all 0.3s ease;
-}
-
-.floating-action:hover {
-  transform: scale(1.1) rotate(90deg);
-  box-shadow: 
-    0 12px 48px rgba(0, 255, 136, 0.6),
-    0 0 0 20px rgba(0, 255, 136, 0);
-}
-
-@keyframes floatPulse {
-  0%, 100% {
-    box-shadow: 
-      0 8px 32px rgba(0, 255, 136, 0.4),
-      0 0 0 0 rgba(0, 255, 136, 0.7);
-  }
-  50% {
-    box-shadow: 
-      0 8px 32px rgba(0, 255, 136, 0.4),
-      0 0 0 20px rgba(0, 255, 136, 0);
-  }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .hero-section {
-    min-height: 300px;
-  }
-  
-  .hero-content {
-    padding: 2rem 1rem;
-    gap: 2rem;
-  }
-  
-  .stats-bar {
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1.5rem 2rem;
-    border-radius: 24px;
-  }
-  
-  .stat-divider {
-    width: 80%;
-    height: 1px;
-  }
-  
-  .stat-item {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  .floating-action {
-    bottom: 1rem;
-    right: 1rem;
-  }
-  
-  .content-section {
-    margin-top: -30px;
-  }
-}
-
-/* Animaciones adicionales */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -320,7 +520,141 @@ store.fetchRoom()
   }
 }
 
-.content-section {
-  animation: fadeIn 0.8s ease-out 0.2s both;
+/* Floating Action Button - Estilo consistente con HomeLoggedView */
+.fab-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+}
+
+.fab {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  border: none;
+  box-shadow:
+    0 4px 12px rgba(251, 191, 36, 0.5),
+    0 0 0 0 rgba(251, 191, 36, 0.5);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  animation: fab-pulse 2s ease-in-out infinite;
+}
+
+.fab:hover {
+  transform: translateY(-4px) scale(1.1);
+  box-shadow:
+    0 8px 24px rgba(251, 191, 36, 0.7),
+    0 0 0 8px rgba(251, 191, 36, 0.15);
+}
+
+.fab:active {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.fab-icon {
+  font-size: 1.5rem;
+  color: white;
+  font-weight: bold;
+}
+
+@keyframes fab-pulse {
+  0%, 100% {
+    box-shadow:
+      0 4px 12px rgba(251, 191, 36, 0.5),
+      0 0 0 0 rgba(251, 191, 36, 0.5);
+  }
+  50% {
+    box-shadow:
+      0 4px 12px rgba(251, 191, 36, 0.5),
+      0 0 0 10px rgba(251, 191, 36, 0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .content-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .welcome-banner {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .banner-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .welcome-icon {
+    font-size: 3rem;
+  }
+
+  .section-header {
+    flex-wrap: wrap;
+  }
+
+  .section-line {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fab-container {
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .fab {
+    width: 48px;
+    height: 48px;
+  }
+
+  .gradient-orb {
+    filter: blur(80px);
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-title {
+    font-size: 1.5rem;
+  }
+
+  .welcome-subtitle {
+    font-size: 0.875rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+
+  .section-icon {
+    font-size: 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 </style>

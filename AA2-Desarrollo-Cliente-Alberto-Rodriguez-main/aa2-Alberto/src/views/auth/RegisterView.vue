@@ -172,19 +172,31 @@ const register = async () => {
 
   try {
     const result = await store.registerUser(user)
-    if (!result) {
+
+    if (!result.success) {
       errorMessage.value = 'No se pudo crear el usuario. Puede que el correo ya esté registrado.'
       showSnackbar('Error: El correo ya está registrado o no se pudo crear el usuario.', 'error')
       isLoading.value = false
       return
     }
 
+    // Iniciar sesión automáticamente
     const loginResult = await store.loginUser(emailTrimmed, passwordTrimmed)
+
     if (loginResult && store.loggedUser?.email === emailTrimmed) {
-      showSnackbar('¡Bienvenido al Training Hub! Tu aventura comienza ahora.', 'success')
-      setTimeout(() => {
-        router.push({ name: 'homeLogged' })
-      }, 1500)
+      if (result.emailSent) {
+        // Redirigir a la página de verificación
+        showSnackbar('Registro exitoso. Verifica tu email para continuar.', 'success')
+        setTimeout(() => {
+          router.push({ name: 'verifyEmail' })
+        }, 1500)
+      } else {
+        // El email no se envió, pero el registro fue exitoso
+        showSnackbar('Registro exitoso, pero no se pudo enviar el email de verificación.', 'warning')
+        setTimeout(() => {
+          router.push({ name: 'homeLogged' })
+        }, 1500)
+      }
     } else {
       errorMessage.value = 'El registro fue exitoso, pero hubo un error al iniciar sesión.'
       showSnackbar('Registro exitoso. Por favor, inicia sesión manualmente.', 'warning')

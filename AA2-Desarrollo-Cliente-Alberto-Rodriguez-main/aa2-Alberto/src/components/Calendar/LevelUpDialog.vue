@@ -51,7 +51,9 @@ export default {
 
 <style scoped>
 .level-up-dialog {
-  background: linear-gradient(to bottom, #fff 0%, #f8f9fa 100%);
+  background: linear-gradient(135deg, rgba(26, 10, 46, 0.95) 0%, rgba(15, 10, 26, 0.98) 100%);
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  backdrop-filter: blur(20px);
 }
 
 .level-up-animation {

@@ -1,613 +1,448 @@
 <script setup lang="ts">
-import CreditCardForm from '../../components/payment/CreditCardForm.vue'
-import PaymentSummary from '../../components/payment/PaymentSummary.vue'
+import { ref } from 'vue'
+import CreditCardForm from '@/components/payment/CreditCardForm.vue'
+import PaymentSummary from '@/components/payment/PaymentSummary.vue'
+import PaymentSnackbar from '@/components/payment/PaymentSnackbar.vue'
+
+const snackbarRef = ref<InstanceType<typeof PaymentSnackbar>>()
+
+const handlePaymentSuccess = () => {
+  snackbarRef.value?.show()
+}
 </script>
 
 <template>
-  <div class="main">
-    <!-- Particles Background -->
-    <div class="particles-bg">
-      <div class="particle" v-for="i in 35" :key="i" :style="{
-        left: Math.random() * 100 + '%',
-        animationDelay: Math.random() * 10 + 's',
-        animationDuration: (5 + Math.random() * 8) + 's'
-      }"></div>
-    </div>
+  <div class="checkout">
+    <v-container class="checkout-container">
+      <!-- Fondo decorativo -->
+      <div class="background-decoration">
+        <div class="gradient-blob blob-1"></div>
+        <div class="gradient-blob blob-2"></div>
+      </div>
 
-    <v-container fluid class="main-container">
-      <!-- Hero Section -->
-      <div class="hero-section">
-        <div class="hero-glow"></div>
-
-        <!-- Shield Icon -->
-        <div class="shield-container">
-          <div class="shield-rings">
-            <div class="ring ring-1"></div>
-            <div class="ring ring-2"></div>
-            <div class="ring ring-3"></div>
-          </div>
-          <v-icon class="shield-icon">mdi-shield-check-outline</v-icon>
-        </div>
-
-        <!-- Title Section -->
-        <div class="hero-title-section">
-          <h1 class="hero-title">
-            <span class="title-top">FINALIZAR</span>
-            <span class="title-main">PAGO</span>
-          </h1>
-          <p class="hero-subtitle">Completa tu compra de forma segura y comienza tu transformación</p>
-        </div>
-
-        <!-- Divider -->
-        <div class="hero-divider">
-          <div class="divider-line"></div>
-          <v-icon class="divider-icon">mdi-lock-check</v-icon>
-          <div class="divider-line"></div>
-        </div>
-
-        <!-- Security Badges -->
-        <div class="security-grid">
-          <div class="security-card security-1">
-            <div class="security-icon-wrapper">
-              <v-icon size="32" color="#00ff88">mdi-ssl</v-icon>
-            </div>
-            <div class="security-content">
-              <div class="security-title">Encriptación SSL</div>
-              <div class="security-text">Datos 100% protegidos</div>
-            </div>
-          </div>
-
-          <div class="security-card security-2">
-            <div class="security-icon-wrapper">
-              <v-icon size="32" color="#00D2FF">mdi-credit-card-check</v-icon>
-            </div>
-            <div class="security-content">
-              <div class="security-title">Pago Seguro</div>
-              <div class="security-text">Procesador verificado</div>
-            </div>
-          </div>
-
-          <div class="security-card security-3">
-            <div class="security-icon-wrapper">
-              <v-icon size="32" color="#A855F7">mdi-lightning-bolt</v-icon>
-            </div>
-            <div class="security-content">
-              <div class="security-title">Activación</div>
-              <div class="security-text">Acceso inmediato</div>
-            </div>
-          </div>
+      <!-- Sección de encabezado -->
+      <div class="header-section">
+        <div class="header-content">
+          <div class="header-badge">Pago seguro y verificado</div>
+          <h1 class="page-title">Completa tu compra</h1>
+          <p class="page-subtitle">Ingresa tus datos de pago para acceder inmediatamente a todos los beneficios</p>
         </div>
       </div>
 
-      <!-- Payment Form Section -->
-      <div class="payment-section">
-        <v-row class="payment-grid" align="stretch">
-          <v-col cols="12" lg="7">
-            <!-- Credit Card Form -->
-            <CreditCardForm />
-          </v-col>
-
-          <v-col cols="12" lg="5">
-            <!-- Payment Summary -->
+      <!-- Contenido principal -->
+      <!-- Reemplaza esto en el template -->
+      <div class="content-section">
+        <div class="payment-grid">
+          <div class="payment-col form-col">
+            <CreditCardForm @payment-success="handlePaymentSuccess" />
+          </div>
+          <div class="payment-col summary-col">
             <PaymentSummary />
-          </v-col>
-        </v-row>
+          </div>
+        </div>
       </div>
 
-      <!-- Trust Badges -->
+      <!-- Sección de confianza -->
       <div class="trust-section">
-        <div class="trust-badge badge-1">
-          <div class="badge-icon">
-            <v-icon size="36" color="#00ff88">mdi-shield-check</v-icon>
+        <div class="trust-card">
+          <div class="trust-icon shield">
+            <v-icon size="28">mdi-shield-check</v-icon>
           </div>
-          <div class="badge-text">
-            <div class="badge-title">Garantía de Reembolso</div>
-            <div class="badge-subtitle">30 días sin preguntas</div>
-          </div>
-        </div>
-
-        <div class="trust-badge badge-2">
-          <div class="badge-icon">
-            <v-icon size="36" color="#00D2FF">mdi-account-check</v-icon>
-          </div>
-          <div class="badge-text">
-            <div class="badge-title">Soporte 24/7</div>
-            <div class="badge-subtitle">Asistencia premium</div>
+          <div class="trust-text">
+            <div class="trust-title">Pago 100% seguro</div>
+            <div class="trust-desc">Encriptación SSL 256-bit con certificado verificado</div>
           </div>
         </div>
 
-        <div class="trust-badge badge-3">
-          <div class="badge-icon">
-            <v-icon size="36" color="#FFD700">mdi-cog-outline</v-icon>
+        <div class="trust-divider"></div>
+
+        <div class="trust-card">
+          <div class="trust-icon refund">
+            <v-icon size="28">mdi-undo</v-icon>
           </div>
-          <div class="badge-text">
-            <div class="badge-title">Cancela Cuando Quieras</div>
-            <div class="badge-subtitle">Sin permanencia</div>
+          <div class="trust-text">
+            <div class="trust-title">Garantía 30 días</div>
+            <div class="trust-desc">Reembolso completo sin hacer preguntas</div>
+          </div>
+        </div>
+
+        <div class="trust-divider"></div>
+
+        <div class="trust-card">
+          <div class="trust-icon instant">
+            <v-icon size="28">mdi-lightning-bolt</v-icon>
+          </div>
+          <div class="trust-text">
+            <div class="trust-title">Acceso inmediato</div>
+            <div class="trust-desc">Activa tu suscripción al instante después de pagar</div>
           </div>
         </div>
       </div>
     </v-container>
+
+    <!-- Snackbar de éxito -->
+    <PaymentSnackbar ref="snackbarRef" />
   </div>
 </template>
 
 <style scoped>
-.main {
-  position: relative;
+.checkout {
   width: 100%;
   min-height: 100vh;
-  background:
-    radial-gradient(ellipse at top, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at bottom, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-    linear-gradient(180deg, #0a0e1a 0%, #0f1419 50%, #0a0e1a 100%);
-  overflow-x: hidden;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fb 100%);
+  color: #0a0a0a;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Particles */
-.particles-bg {
+/* Fondos decorativos */
+.background-decoration {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
   pointer-events: none;
-  overflow: hidden;
   z-index: 0;
 }
 
-.particle {
+.gradient-blob {
   position: absolute;
-  width: 3px;
-  height: 3px;
-  background: rgba(255, 215, 0, 0.5);
+  filter: blur(80px);
+  opacity: 0.1;
   border-radius: 50%;
-  animation: particle-rise linear infinite;
-}
-
-@keyframes particle-rise {
-  0% {
-    transform: translateY(100vh) scale(0);
-    opacity: 0;
-  }
-
-  10% {
-    opacity: 1;
-  }
-
-  90% {
-    opacity: 1;
-  }
-
-  100% {
-    transform: translateY(-100px) scale(1);
-    opacity: 0;
-  }
-}
-
-.main-container {
-  position: relative;
-  z-index: 1;
-  padding: 3rem 2rem;
-}
-
-/* Hero Section */
-.hero-section {
-  position: relative;
-  text-align: center;
-  padding: 3rem 0 4rem;
-  margin-bottom: 4rem;
-}
-
-.hero-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 1000px;
-  height: 1000px;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
   pointer-events: none;
 }
 
-/* Shield Container */
-.shield-container {
-  position: relative;
-  display: inline-block;
-  margin-bottom: 2rem;
+.blob-1 {
+  width: 600px;
+  height: 600px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  top: -200px;
+  right: -300px;
+  animation: float 8s ease-in-out infinite;
 }
 
-.shield-rings {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  height: 100%;
+.blob-2 {
+  width: 500px;
+  height: 500px;
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  bottom: -200px;
+  left: -250px;
+  animation: float 10s ease-in-out infinite reverse;
 }
 
-.ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border: 3px solid rgba(255, 215, 0, 0.3);
-  border-radius: 50%;
-  animation: ring-expand 4s ease-out infinite;
-}
+@keyframes float {
 
-.ring-1 {
-  width: 100px;
-  height: 100px;
-  animation-delay: 0s;
-}
-
-.ring-2 {
-  width: 100px;
-  height: 100px;
-  animation-delay: 1.3s;
-}
-
-.ring-3 {
-  width: 100px;
-  height: 100px;
-  animation-delay: 2.6s;
-}
-
-@keyframes ring-expand {
-  0% {
-    width: 100px;
-    height: 100px;
-    opacity: 1;
-  }
-
+  0%,
   100% {
-    width: 280px;
-    height: 280px;
-    opacity: 0;
-  }
-}
-
-.shield-icon {
-  font-size: 5rem !important;
-  color: #FFD700;
-  filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.8));
-  animation: shield-float 3s ease-in-out infinite;
-}
-
-@keyframes shield-float {
-  0%, 100% {
-    transform: translateY(0) rotate(-5deg);
-    filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.8));
+    transform: translateY(0px);
   }
 
   50% {
-    transform: translateY(-15px) rotate(5deg);
-    filter: drop-shadow(0 0 60px rgba(255, 215, 0, 1));
-  }
-}
-
-/* Hero Title */
-.hero-title-section {
-  margin-bottom: 2.5rem;
-}
-
-.hero-title {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin: 0 0 1rem;
-}
-
-.title-top {
-  font-size: clamp(1.2rem, 3vw, 1.8rem);
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.6);
-  letter-spacing: 8px;
-  text-transform: uppercase;
-}
-
-.title-main {
-  font-size: clamp(3rem, 8vw, 5.5rem);
-  font-weight: 900;
-  background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FFD700 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  animation: gradient-shift 4s ease infinite;
-}
-
-@keyframes gradient-shift {
-  0%, 100% {
-    background-position: 0% center;
-  }
-
-  50% {
-    background-position: 100% center;
-  }
-}
-
-.hero-subtitle {
-  font-size: clamp(1rem, 2vw, 1.3rem);
-  color: rgba(255, 255, 255, 0.6);
-  font-weight: 400;
-  letter-spacing: 1px;
-  max-width: 700px;
-  margin: 0 auto;
-}
-
-/* Hero Divider */
-.hero-divider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-  max-width: 600px;
-  margin: 0 auto 3rem;
-}
-
-.divider-line {
-  flex: 1;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.5), transparent);
-}
-
-.divider-icon {
-  color: #00ff88;
-  font-size: 2rem !important;
-  animation: lock-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes lock-pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  50% {
-    opacity: 0.8;
-    transform: scale(1.2);
-  }
-}
-
-/* Security Grid */
-.security-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  max-width: 1000px;
-  margin: 0 auto 3rem;
-}
-
-.security-card {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  background: linear-gradient(135deg, rgba(20, 30, 48, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
-  backdrop-filter: blur(20px);
-  border: 2px solid;
-  border-radius: 20px;
-  padding: 1.75rem;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  animation: card-entrance 0.6s ease-out backwards;
-}
-
-.security-1 {
-  border-color: rgba(0, 255, 136, 0.3);
-  animation-delay: 0.1s;
-}
-
-.security-2 {
-  border-color: rgba(0, 210, 255, 0.3);
-  animation-delay: 0.2s;
-}
-
-.security-3 {
-  border-color: rgba(168, 85, 247, 0.3);
-  animation-delay: 0.3s;
-}
-
-@keyframes card-entrance {
-  0% {
-    opacity: 0;
-    transform: translateY(30px) scale(0.9);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.security-card:hover {
-  transform: translateY(-8px) scale(1.02);
-}
-
-.security-1:hover {
-  border-color: rgba(0, 255, 136, 0.6);
-  box-shadow: 0 15px 40px rgba(0, 255, 136, 0.3);
-}
-
-.security-2:hover {
-  border-color: rgba(0, 210, 255, 0.6);
-  box-shadow: 0 15px 40px rgba(0, 210, 255, 0.3);
-}
-
-.security-3:hover {
-  border-color: rgba(168, 85, 247, 0.6);
-  box-shadow: 0 15px 40px rgba(168, 85, 247, 0.3);
-}
-
-.security-icon-wrapper {
-  width: 60px;
-  height: 60px;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background: rgba(0, 0, 0, 0.3);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-}
-
-.security-content {
-  flex: 1;
-  text-align: left;
-}
-
-.security-title {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: white;
-  margin-bottom: 0.25rem;
-}
-
-.security-text {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-/* Payment Section */
-.payment-section {
-  margin-bottom: 4rem;
-}
-
-.payment-grid {
-  gap: 2rem;
-  display: flex;
-  align-items: stretch;
-}
-
-.payment-grid .v-col {
-  display: flex;
-  flex-direction: column;
-}
-
-.payment-grid .v-col > * {
-  height: 100%;
-}
-
-/* Trust Section */
-.trust-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto 4rem;
-  padding: 0 1rem;
-}
-
-.trust-badge {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  background: linear-gradient(135deg, rgba(20, 30, 48, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
-  backdrop-filter: blur(20px);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 1.5rem;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  animation: badge-entrance 0.6s ease-out backwards;
-}
-
-.badge-1 {
-  animation-delay: 0.1s;
-}
-
-.badge-2 {
-  animation-delay: 0.2s;
-}
-
-.badge-3 {
-  animation-delay: 0.3s;
-}
-
-@keyframes badge-entrance {
-  0% {
-    opacity: 0;
     transform: translateY(30px);
   }
+}
 
-  100% {
+.checkout-container {
+  max-width: 1400px;
+  padding: 3rem 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Sección de encabezado */
+.header-section {
+  text-align: center;
+  margin-bottom: 4rem;
+  padding: 2rem 0;
+  animation: slideDown 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-.trust-badge:hover {
-  transform: translateY(-8px);
-  border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+.header-content {
+  max-width: 700px;
+  margin: 0 auto;
 }
 
-.badge-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 16px;
+.header-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #4f46e5;
+  padding: 0.5rem 1.2rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.page-title {
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: 800;
+  margin: 0 0 1rem;
+  letter-spacing: -0.8px;
+  color: #0a0a0a;
+  background: linear-gradient(135deg, #0a0a0a, #4f46e5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-subtitle {
+  font-size: 1.1rem;
+  color: #666666;
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.7;
+  letter-spacing: 0.3px;
+}
+
+/* Sección de contenido */
+.content-section {
+  margin-bottom: 4rem;
+  animation: fadeIn 0.8s ease-out 0.2s both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.payment-grid {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 2.5rem;
+  width: 100%;
+}
+
+.payment-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.payment-col > * {
+  height: 100%;
+}
+
+.form-col {
+  flex: 7;
+  min-width: 0;
+}
+
+.summary-col {
+  flex: 5;
+  min-width: 0;
+}
+
+/* Sección de confianza */
+.trust-section {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.3);
+  gap: 2rem;
+  padding: 3.5rem 2rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(248, 249, 251, 0.7));
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(20px);
+  flex-wrap: wrap;
+  margin-top: 2rem;
+  animation: fadeIn 0.8s ease-out 0.4s both;
+}
+
+.trust-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex: 0 1 auto;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.trust-card:hover {
+  transform: translateY(-2px);
+}
+
+.trust-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  font-weight: 600;
 }
 
-.badge-title {
-  font-size: 1rem;
-  font-weight: 800;
-  color: white;
-  margin-bottom: 0.25rem;
+.trust-icon.shield {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05));
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
-.badge-subtitle {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.5);
+.trust-icon.refund {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.trust-icon.instant {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(168, 85, 247, 0.05));
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.trust-text {
+  text-align: left;
+}
+
+.trust-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0a0a0a;
+  margin-bottom: 0.3rem;
+  letter-spacing: -0.3px;
+}
+
+.trust-desc {
+  font-size: 0.8rem;
+  color: #888888;
+  line-height: 1.5;
+}
+
+.trust-divider {
+  width: 1px;
+  height: 50px;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.1), transparent);
 }
 
 /* Responsive */
-@media (max-width: 960px) {
-  .main-container {
-    padding: 2rem 1.5rem;
+@media (max-width: 1024px) {
+  .checkout-container {
+    padding: 2.5rem 1.5rem;
   }
 
-  .hero-section {
-    padding: 2rem 0 3rem;
+  .header-section {
     margin-bottom: 3rem;
   }
 
-  .shield-icon {
-    font-size: 4rem !important;
+  .content-section {
+    margin-bottom: 3rem;
   }
 
-  .security-grid {
-    grid-template-columns: 1fr;
+  .payment-grid {
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 960px) {
+  .trust-section {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 2.5rem 1.5rem;
+  }
+
+  .trust-divider {
+    display: none;
+  }
+
+  .trust-card {
+    width: 100%;
+    justify-content: flex-start;
   }
 }
 
 @media (max-width: 600px) {
-  .main-container {
+  .checkout-container {
     padding: 1.5rem 1rem;
   }
 
-  .shield-icon {
-    font-size: 3.5rem !important;
+  .header-section {
+    margin-bottom: 2.5rem;
+    padding: 1rem 0;
   }
 
-  .hero-subtitle {
+  .header-badge {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.9rem;
+  }
+
+  .page-title {
+    font-size: 2rem;
+  }
+
+  .page-subtitle {
     font-size: 0.95rem;
   }
 
+  .content-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .payment-grid {
+    gap: 1.5rem;
+  }
+
   .trust-section {
-    grid-template-columns: 1fr;
+    padding: 2rem 1rem;
+    border-radius: 16px;
   }
 
-  .trust-badge {
-    flex-direction: column;
-    text-align: center;
+  .trust-card {
+    gap: 0.9rem;
   }
 
-  .badge-text {
-    text-align: center;
+  .trust-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .trust-title {
+    font-size: 0.85rem;
+  }
+
+  .trust-desc {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .checkout-container {
+    padding: 1rem 0.8rem;
+  }
+
+  .page-title {
+    font-size: 1.75rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .trust-section {
+    gap: 1rem;
+    padding: 1.5rem 1rem;
   }
 }
 </style>

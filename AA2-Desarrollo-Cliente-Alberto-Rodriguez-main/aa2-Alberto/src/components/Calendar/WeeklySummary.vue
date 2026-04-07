@@ -1,10 +1,10 @@
 <template>
   <v-card class="weekly-summary-card mt-8" elevation="4" rounded="xl">
     <v-card-text class="pa-6">
-      <h3 class="text-h5 font-weight-bold mb-4">
-        <v-icon color="purple" class="mr-2">mdi-calendar-week</v-icon>
-        Resumen Semanal
-      </h3>
+      <h3 class="text-h5 font-weight-bold mb-4 text-white">
+  <v-icon color="purple" class="mr-2">mdi-calendar-week</v-icon>
+  Resumen Semanal
+</h3>
       <v-row>
         <v-col cols="6" md="3">
           <div class="summary-item">
@@ -65,7 +65,9 @@ export default {
 
 <style scoped>
 .weekly-summary-card {
-  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  background: linear-gradient(135deg, rgba(26, 10, 46, 0.9) 0%, rgba(15, 10, 26, 0.95) 100%);
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  backdrop-filter: blur(10px);
 }
 
 .summary-item {
@@ -76,14 +78,15 @@ export default {
 .summary-value {
   font-size: 2rem;
   font-weight: 900;
-  color: #212121;
+  color: #ffffff;
   margin: 0.5rem 0 0.25rem;
+  text-shadow: 0 0 20px rgba(167, 139, 250, 0.3);
 }
 
 .summary-label {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #757575;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 @media (max-width: 600px) {
