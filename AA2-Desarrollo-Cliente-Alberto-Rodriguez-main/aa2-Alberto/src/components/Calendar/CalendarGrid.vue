@@ -189,25 +189,25 @@ const handleCompleteRoutine = (day: number) => {
   .calendar-container {
     padding: 1rem;
   }
-  
+
   .week-day-circle {
     width: 40px;
     height: 40px;
     font-size: 1rem;
   }
-  
+
   .week-day-full {
     font-size: 0.75rem;
   }
-  
+
   .days-grid {
     gap: 0.5rem;
   }
-  
+
   .day-item-wrapper {
     min-height: 120px;
   }
-  
+
   .empty-day {
     min-height: 120px;
   }
@@ -215,35 +215,71 @@ const handleCompleteRoutine = (day: number) => {
 
 @media (max-width: 600px) {
   .calendar-container {
-    padding: 0.75rem;
-    border-radius: 16px;
+    padding: 0.5rem;
+    border-radius: 12px;
   }
-  
+
   .week-headers {
-    gap: 0.35rem;
-    margin-bottom: 1rem;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
   }
-  
+
+  .week-day-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
   .week-day-circle {
-    width: 35px;
-    height: 35px;
-    font-size: 0.9rem;
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+    margin: 0;
   }
-  
+
   .week-day-full {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
-  
+
   .days-grid {
-    gap: 0.35rem;
+    gap: 0.3rem;
   }
-  
+
   .day-item-wrapper {
-    min-height: 100px;
+    min-height: 95px;
   }
-  
+
   .empty-day {
-    min-height: 100px;
+    min-height: 95px;
+  }
+}
+
+@media (max-width: 360px) {
+  .calendar-container {
+    padding: 0.35rem;
+    border-radius: 10px;
+  }
+
+  .week-day-circle {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+
+  .week-day-full {
+    font-size: 0.55rem;
+  }
+
+  .day-item-wrapper {
+    min-height: 85px;
+  }
+
+  .empty-day {
+    min-height: 85px;
   }
 }
 </style>

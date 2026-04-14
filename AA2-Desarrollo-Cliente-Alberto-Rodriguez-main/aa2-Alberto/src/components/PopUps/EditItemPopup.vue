@@ -2,6 +2,7 @@
 import { watch, reactive, ref } from 'vue'
 import type { Item } from '@/components/Models/Item'
 import { useItemStore } from '@/stores/itemStore'
+import { logger } from '@/utils/logger'
 
 const store = useItemStore()
 
@@ -78,7 +79,7 @@ const handleEdit = async () => {
   } catch (error: any) {
     const message = error?.data?.message
     errorMessage.value = message || "Hubo un problema al editar el ítem."
-    console.error("Error al editar el ítem:", error)
+    logger.error("Error al editar el ítem:", error)
   }
 }
 

@@ -1,22 +1,18 @@
 import type { Room } from "../components/Models/Room"
 import { defineStore } from "pinia"
 import { ref } from "vue"
-
-const BASE_URL = "http://localhost:6873";
+import { API_BASE_URL, getAuthHeaders } from '@/config/api'
+import { logger } from '@/utils/logger'
 
 export const useRoomStore = defineStore('room', () => {
     const room = ref<Room[]>([])
-    const activeUsers = ref(0) 
-    const totalRooms = ref(0); 
-    const dailyChallenges = ref(0); 
-    const getAuthHeaders = () => ({
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem('token')}`
-    });
+    const activeUsers = ref(0)
+    const totalRooms = ref(0);
+    const dailyChallenges = ref(0);
 
     async function fetchRoom() {
         try {
-            const response = await fetch(`${BASE_URL}/api/Room`, {
+            const response = await fetch(`${API_BASE_URL}/api/Room`, {
                 method: "GET",
                 mode: "cors",
                 headers: getAuthHeaders()
@@ -35,14 +31,14 @@ export const useRoomStore = defineStore('room', () => {
                 date: d.date,
                 localization: d.localization
             }));
-            totalRooms.value = room.value.length; // Update total rooms count
+            totalRooms.value = room.value.length;
         } catch (error) {
-            console.error("Error fetching rooms:", error);
+            logger.error("Error fetching rooms:", error);
         }
     }
 
     async function fetchSortedRooms(field: 'level' | 'stats', direction: 'asc' | 'desc') {
-        const endpoint = `${BASE_URL}/api/Room/sort-${field}-${direction}`;
+        const endpoint = `${API_BASE_URL}/api/Room/sort-${field}-${direction}`;
         try {
             const response = await fetch(endpoint, {
                 method: "GET",
@@ -61,7 +57,7 @@ export const useRoomStore = defineStore('room', () => {
                 minconsistency: d.room.minconsistency
             }));
         } catch (error) {
-            console.error("Error fetching sorted rooms:", error);
+            logger.error("Error fetching sorted rooms:", error);
         }
     }
 
@@ -70,13 +66,10 @@ export const useRoomStore = defineStore('room', () => {
         userid: number
     ) {
         try {
-            const response = await fetch(`${BASE_URL}/api/Room`, {
+            const response = await fetch(`${API_BASE_URL}/api/Room`, {
                 method: "POST",
                 mode: "cors",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem('token')}`
-                },
+                headers: getAuthHeaders(),
                 body: JSON.stringify({
                     room: newRoom,
                     userid: userid
@@ -97,13 +90,13 @@ export const useRoomStore = defineStore('room', () => {
 
             room.value.push(createdRoom);
         } catch (error) {
-            console.error("Error creating room:", error);
+            logger.error("Error creating room:", error);
         }
     }
 
     async function editRoom(roomid: number, newRoom: Room): Promise<void> {
         try {
-            const response = await fetch(`${BASE_URL}/api/Room/${roomid}`, {
+            const response = await fetch(`${API_BASE_URL}/api/Room/${roomid}`, {
                 method: 'PUT',
                 mode: 'cors',
                 headers: getAuthHeaders(),
@@ -114,7 +107,7 @@ export const useRoomStore = defineStore('room', () => {
 
             await fetchRoom();
         } catch (error) {
-            console.error('Error editing room:', error);
+            logger.error('Error editing room:', error);
         }
     }
 

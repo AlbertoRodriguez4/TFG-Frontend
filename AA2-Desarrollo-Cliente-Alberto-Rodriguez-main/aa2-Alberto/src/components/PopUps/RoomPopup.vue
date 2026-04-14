@@ -2,6 +2,7 @@
 import { useUserStore } from "@/stores/userStore"
 import { useRoomStore } from "@/stores/RoomStore"
 import { ref, watch } from "vue"
+import { logger } from '@/utils/logger'
 
 const props = defineProps({
   isVisible: Boolean,
@@ -97,7 +98,7 @@ async function createRoom() {
 
   if (!loggedUser.value?.id) {
     error.value = "Usuario no logueado."
-    console.error(error.value)
+    logger.error(error.value)
     return
   }
 
@@ -121,7 +122,7 @@ async function createRoom() {
   } catch (e) {
     error.value = "Error al crear la sala."
     showSnackbar("Error al crear la sala", 'error')
-    console.error(e)
+    logger.error(e)
   }
 }
 </script>

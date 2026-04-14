@@ -273,6 +273,8 @@ export default defineComponent({
 }
 
 .hero-actions {
+  display: flex;
+  gap: 1rem;
   animation: fadeInUp 0.8s ease-out 0.4s both;
 }
 
@@ -335,43 +337,90 @@ export default defineComponent({
   .hero-section {
     padding: 3rem 0 4rem;
   }
-  
+
   .display-2 {
     font-size: 2.5rem !important;
   }
-  
+
   .hero-actions {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .hero-actions .v-btn {
     width: 100%;
     margin: 0 !important;
+    min-height: 48px;
   }
 }
 
 @media (max-width: 600px) {
   .hero-section {
-    padding: 2rem 0 3rem;
+    padding: 1.5rem 0 2.5rem;
   }
-  
+
   .display-2 {
-    font-size: 2rem !important;
+    font-size: 1.75rem !important;
     line-height: 1.2;
   }
-  
+
   .text-h6 {
-    font-size: 1rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  .hero-badge {
+    font-size: 0.8rem;
+    padding: 8px 16px;
+  }
+
+  .hero-actions {
+    gap: 0.75rem;
+  }
+
+  .hero-actions .v-btn {
+    min-height: 56px;
+    font-size: 0.9rem !important;
+  }
+
+  .hero-btn-primary,
+  .hero-btn-secondary {
+    border-radius: 12px !important;
   }
 
   .rest-dialog-title {
-    font-size: 1.25rem;
-    padding: 20px;
+    font-size: 1.1rem;
+    padding: 16px;
   }
 
   .rest-dialog-text {
-    padding: 24px 16px;
+    padding: 20px 12px;
+  }
+
+  .rest-dialog-text .text-h6 {
+    font-size: 1rem !important;
+  }
+
+  .rest-dialog-text .text-body-1 {
+    font-size: 0.875rem !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero-section {
+    padding: 1rem 0 2rem;
+  }
+
+  .display-2 {
+    font-size: 1.5rem !important;
+  }
+
+  .text-h6 {
+    font-size: 0.85rem !important;
+  }
+
+  .hero-actions .v-btn {
+    min-height: 52px;
+    font-size: 0.85rem !important;
   }
 }
 </style>

@@ -78,18 +78,10 @@ const currentLanguage = computed(() => {
           <RouterLink to="/purchase" class="nav-btn" :class="{ disabled: !isLogged }">🛒 Shop</RouterLink>
 
           <!-- Premium Features -->
-          <RouterLink
-            v-if="isLogged && hasActiveSubscription"
-            to="/CoachAi"
-            class="nav-btn premium-btn"
-          >
+          <RouterLink v-if="isLogged && hasActiveSubscription" to="/CoachAi" class="nav-btn premium-btn">
             🤖 CoachAI
           </RouterLink>
-          <RouterLink
-            v-if="isLogged && hasActiveSubscription"
-            to="/calculator"
-            class="nav-btn premium-btn"
-          >
+          <RouterLink v-if="isLogged && hasActiveSubscription" to="/calculator" class="nav-btn premium-btn">
             🧮 Calculadora
           </RouterLink>
         </nav>
@@ -192,80 +184,76 @@ const currentLanguage = computed(() => {
     </Transition>
 
     <!-- Mobile Menu -->
-    <Transition name="slide">
-      <nav v-if="mobileMenuOpen" class="nav-mobile">
+    <nav v-show="mobileMenuOpen" class="nav-mobile">
 
-        <!-- User Summary (Mobile) -->
-        <div v-if="isLogged && store.loggedUser" class="mobile-user-summary">
-          <div>
-            <p class="mobile-level">LV {{ store.loggedUser.level || 1 }}</p>
-            <p class="mobile-stats">⚡ {{ store.loggedUser.strength || 0 }} • 🪙 {{ store.loggedUser.gold || 0 }}</p>
-          </div>
+      <!-- User Summary (Mobile) -->
+      <div v-if="isLogged && store.loggedUser" class="mobile-user-summary">
+        <div>
+          <p class="mobile-level">LV {{ store.loggedUser.level || 1 }}</p>
+          <p class="mobile-stats">⚡ {{ store.loggedUser.strength || 0 }} • 🪙 {{ store.loggedUser.gold || 0 }}</p>
         </div>
+      </div>
 
-        <!-- Navigation Links -->
-        <RouterLink to="/" class="mobile-nav-item" @click="handleNavClick">🏠 Home</RouterLink>
-        <RouterLink to="/room" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">🚪 Rooms
+      <!-- Navigation Links -->
+      <RouterLink to="/" class="mobile-nav-item" @click="handleNavClick">🏠 Home</RouterLink>
+      <RouterLink to="/room" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">🚪 Rooms
+      </RouterLink>
+      <RouterLink to="/plan" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">📋 Plans
+      </RouterLink>
+      <RouterLink to="/rutina" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">📅
+        Routines</RouterLink>
+      <RouterLink to="/purchase" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">🛒
+        Shop</RouterLink>
+
+      <!-- Premium Features (Mobile) -->
+      <template v-if="isLogged && hasActiveSubscription">
+        <RouterLink to="/CoachAi" class="mobile-nav-item premium-item" @click="handleNavClick">🤖 CoachAI</RouterLink>
+        <RouterLink to="/calculator" class="mobile-nav-item premium-item" @click="handleNavClick">🧮 Calculadora
         </RouterLink>
-        <RouterLink to="/plan" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">📋 Plans
+      </template>
+
+      <div class="mobile-divider"></div>
+
+      <RouterLink to="/profile" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">⚙️
+        Settings</RouterLink>
+      <RouterLink to="/user" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">👥
+        Community</RouterLink>
+
+      <!-- Language Selector (Mobile) -->
+      <div class="mobile-language">
+        <span>🌍 Language</span>
+        <select v-model="locale" @change="handleNavClick">
+          <option v-for="lang in languages" :key="lang.code" :value="lang.code">
+            {{ lang.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Premium Status Card (Mobile) -->
+      <div v-if="hasActiveSubscription" class="mobile-premium-card premium-active">
+        <span class="mpc-icon">✅</span>
+        <p>Premium Activo</p>
+        <p class="mpc-desc">CoachAI y Calculadora desbloqueados</p>
+      </div>
+      <div v-else class="mobile-premium-card">
+        <span class="mpc-icon">⭐</span>
+        <p>Desbloquea CoachAI y Calculadora</p>
+        <RouterLink to="/plan" class="premium-cta-btn" @click="handleNavClick">
+          Ver planes →
         </RouterLink>
-        <RouterLink to="/rutina" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">📅
-          Routines</RouterLink>
-        <RouterLink to="/purchase" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">🛒
-          Shop</RouterLink>
+      </div>
 
-        <!-- Premium Features (Mobile) -->
-        <template v-if="isLogged && hasActiveSubscription">
-          <RouterLink to="/CoachAi" class="mobile-nav-item premium-item" @click="handleNavClick">🤖 CoachAI</RouterLink>
-          <RouterLink to="/calculator" class="mobile-nav-item premium-item" @click="handleNavClick">🧮 Calculadora</RouterLink>
-        </template>
+      <!-- Logout (Mobile) -->
+      <button class="mobile-logout-btn" @click="handleLogout">⚡ Logout</button>
+         
+    </nav>
 
-        <div class="mobile-divider"></div>
-
-        <RouterLink to="/profile" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">⚙️
-          Settings</RouterLink>
-        <RouterLink to="/user" class="mobile-nav-item" :class="{ disabled: !isLogged }" @click="handleNavClick">👥
-          Community</RouterLink>
-
-        <!-- Language Selector (Mobile) -->
-        <div class="mobile-language">
-          <span>🌍 Language</span>
-          <select v-model="locale" @change="handleNavClick">
-            <option v-for="lang in languages" :key="lang.code" :value="lang.code">
-              {{ lang.label }}
-            </option>
-          </select>
-        </div>
-
-        <!-- Premium Status Card (Mobile) -->
-        <div v-if="hasActiveSubscription" class="mobile-premium-card premium-active">
-          <span class="mpc-icon">✅</span>
-          <p>Premium Activo</p>
-          <p class="mpc-desc">CoachAI y Calculadora desbloqueados</p>
-        </div>
-        <div v-else class="mobile-premium-card">
-          <span class="mpc-icon">⭐</span>
-          <p>Desbloquea CoachAI y Calculadora</p>
-          <RouterLink to="/plan" class="premium-cta-btn" @click="handleNavClick">
-            Ver planes →
-          </RouterLink>
-        </div>
-
-        <!-- Logout (Mobile) -->
-        <button class="mobile-logout-btn" @click="handleLogout">⚡ Logout</button>
-      </nav>
-    </Transition>
-
-    <!-- Overlay for dropdowns -->
-    <Transition name="fade">
-      <div v-if="userDropdownOpen || mobileMenuOpen" class="overlay"
-        @click="userDropdownOpen = false; mobileMenuOpen = false"></div>
-    </Transition>
+            <div v-if="userDropdownOpen && !mobileMenuOpen" class="overlay" @click="userDropdownOpen = false"></div>
+     
   </div>
 </template>
 
 <style scoped>
-
 * {
   box-sizing: border-box;
 }
@@ -750,16 +738,22 @@ const currentLanguage = computed(() => {
 ═══════════════════════════════════════ */
 .nav-mobile {
   display: none;
-  position: absolute;
-  top: 100%;
+  position: fixed;
+  top: 68px;
   left: 0;
   right: 0;
+  bottom: 0;
   background: rgba(5, 5, 5, 0.99);
   border-top: 1px solid rgba(255, 204, 0, 0.25);
   padding: 0.5rem 0 1.5rem;
-  max-height: calc(100vh - 68px);
   overflow-y: auto;
-  z-index: 999;
+  z-index: 1001;
+}
+
+/* Asegurar que los enlaces del menú móvil sean clicables */
+.nav-mobile a {
+  position: relative;
+  z-index: 1002;
 }
 
 .mobile-user-summary {
@@ -884,12 +878,12 @@ const currentLanguage = computed(() => {
 ═══════════════════════════════════════ */
 .overlay {
   position: fixed;
-  top: 0;
+  top: 68px;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 999;
-  background: transparent;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.5);
 }
 
 /* ═══════════════════════════════════════
@@ -897,23 +891,12 @@ const currentLanguage = computed(() => {
 ═══════════════════════════════════════ */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.15s ease;
+  transition: opacity 0.2s ease;
 }
 
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-}
-
-.slide-enter-active,
-.slide-leave-active {
-  transition: all 0.28s ease;
-}
-
-.slide-enter-from,
-.slide-leave-to {
-  opacity: 0;
-  transform: translateY(-12px);
 }
 
 /* ═══════════════════════════════════════

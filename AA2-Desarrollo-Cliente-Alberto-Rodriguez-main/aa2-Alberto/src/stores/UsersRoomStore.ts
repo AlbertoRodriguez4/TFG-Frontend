@@ -1,36 +1,24 @@
 import { defineStore } from "pinia"
 import { ref, computed } from "vue"
+import { API_BASE_URL, getAuthHeaders } from '@/config/api'
+import { logger } from '@/utils/logger'
 
 // --- Interfaces ---
 export interface UserRoom {
     userid: number;
     roomid: number;
-    // Definimos 'user' con 'any' o con una interfaz User completa para acceder a user.name, user.items, etc.
-    user?: any; 
+    user?: any;
     room?: any;
 }
-
-// YA NO NECESITAS UserRoomResponseDTO porque ahora todo es UserRoom
-// export interface UserRoomResponseDTO { ... } 
-
-const BASE_URL = "http://localhost:6873";
 
 export const useUserRoomStore = defineStore('userRoom', () => {
     // --- State ---
     const allUserRooms = ref<UserRoom[]>([]);
     const currentUserRooms = ref<UserRoom[]>([]);
-    
-    // CAMBIO 1: Ahora los miembros son del tipo UserRoom[] (igual que los otros estados)
-    const currentRoomMembers = ref<UserRoom[]>([]); 
-    
+    const currentRoomMembers = ref<UserRoom[]>([]);
+
     const loading = ref(false);
     const error = ref<string | null>(null);
-
-    // --- Helpers ---
-    const getAuthHeaders = () => ({
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem('token')}`
-    });
 
     // --- Actions ---
 
@@ -38,7 +26,7 @@ export const useUserRoomStore = defineStore('userRoom', () => {
     async function fetchAllUserRooms() {
         loading.value = true;
         try {
-            const response = await fetch(`${BASE_URL}/api/UserRoom`, {
+            const response = await fetch(`${API_BASE_URL}/api/UserRoom`, {
                 method: "GET",
                 headers: getAuthHeaders()
             });
@@ -48,7 +36,7 @@ export const useUserRoomStore = defineStore('userRoom', () => {
             const data = await response.json();
             allUserRooms.value = data;
         } catch (err: any) {
-            console.error("Error fetching all user rooms:", err);
+            logger.error("Error fetching all user rooms:", err);
             error.value = err.message;
         } finally {
             loading.value = false;
@@ -59,7 +47,7 @@ export const useUserRoomStore = defineStore('userRoom', () => {
     async function fetchRoomsByUserId(userId: number) {
         loading.value = true;
         try {
-            const response = await fetch(`${BASE_URL}/api/UserRoom/user/${userId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/UserRoom/user/${userId}`, {
                 method: "GET",
                 headers: getAuthHeaders()
             });
@@ -69,7 +57,7 @@ export const useUserRoomStore = defineStore('userRoom', () => {
             const data = await response.json();
             currentUserRooms.value = data;
         } catch (err: any) {
-            console.error("Error fetching rooms by user id:", err);
+            logger.error("Error fetching rooms by user id:", err);
             error.value = err.message;
         } finally {
             loading.value = false;
@@ -81,7 +69,7 @@ export const useUserRoomStore = defineStore('userRoom', () => {
         loading.value = true;
         currentRoomMembers.value = []; 
         try {
-            const response = await fetch(`${BASE_URL}/api/UserRoom/room/${roomId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/UserRoom/room/${roomId}`, {
                 method: "GET",
                 headers: getAuthHeaders()
             });
@@ -93,7 +81,7 @@ export const useUserRoomStore = defineStore('userRoom', () => {
             currentRoomMembers.value = data;
             
         } catch (err: any) {
-            console.error("Error fetching room members:", err);
+            logger.error("Error fetching room members:", err);
             error.value = err.message;
         } finally {
             loading.value = false;
@@ -104,7 +92,7 @@ export const useUserRoomStore = defineStore('userRoom', () => {
     async function joinRoom(userId: number, roomId: number) {
         loading.value = true;
         try {
-            const response = await fetch(`${BASE_URL}/api/UserRoom`, {
+            const response = await fetch(`${API_BASE_URL}/api/UserRoom`, {
                 method: "POST",
                 headers: getAuthHeaders(),
                 body: JSON.stringify({ userid: userId, roomid: roomId })
@@ -118,7 +106,7 @@ export const useUserRoomStore = defineStore('userRoom', () => {
             await fetchRoomsByUserId(userId);
             return true;
         } catch (err: any) {
-            console.error("Error joining room:", err);
+            logger.error("Error joining room:", err);
             error.value = err.message;
             throw err; 
         } finally {
@@ -130,7 +118,7 @@ export const useUserRoomStore = defineStore('userRoom', () => {
     async function leaveRoom(userId: number, roomId: number) {
         loading.value = true;
         try {
-            const response = await fetch(`${BASE_URL}/api/UserRoom/${userId}/${roomId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/UserRoom/${userId}/${roomId}`, {
                 method: "DELETE",
                 headers: getAuthHeaders()
             });
@@ -143,7 +131,7 @@ export const useUserRoomStore = defineStore('userRoom', () => {
             
             return true;
         } catch (err: any) {
-            console.error("Error leaving room:", err);
+            logger.error("Error leaving room:", err);
             error.value = err.message;
             throw err;
         } finally {
@@ -155,7 +143,7 @@ export const useUserRoomStore = defineStore('userRoom', () => {
     async function updateUserRoom(userId: number, roomId: number, data: UserRoom) {
         loading.value = true;
         try {
-            const response = await fetch(`${BASE_URL}/api/UserRoom/${userId}/${roomId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/UserRoom/${userId}/${roomId}`, {
                 method: "PUT",
                 headers: getAuthHeaders(),
                 body: JSON.stringify(data)
@@ -164,7 +152,7 @@ export const useUserRoomStore = defineStore('userRoom', () => {
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             return true;
         } catch (err: any) {
-            console.error("Error updating user room:", err);
+            logger.error("Error updating user room:", err);
             error.value = err.message;
         } finally {
             loading.value = false;

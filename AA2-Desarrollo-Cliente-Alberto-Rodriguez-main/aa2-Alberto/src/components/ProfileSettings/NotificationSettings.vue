@@ -2,25 +2,25 @@
   <v-card class="settings-card" elevation="0" border>
     <v-card-title class="card-title">
       <v-icon>mdi-bell</v-icon>
-      Notification Preferences
+      {{ $t('Preferencias de Notificaciones') }}
     </v-card-title>
 
     <v-divider class="card-divider" />
 
     <v-card-text>
       <div class="notifications-container">
-        
+
         <div class="notification-section">
-          <h3 class="section-title">App Alerts</h3>
-          <p class="section-subtitle mb-4 text-medium-emphasis">Choose which notifications you want to receive to stay updated without distractions.</p>
-          
+          <h3 class="section-title">{{ $t('Alertas de la App') }}</h3>
+          <p class="section-subtitle mb-4 text-medium-emphasis">{{ $t('Elige qué notificaciones quieres recibir para mantenerte informado sin distracciones.') }}</p>
+
           <div class="notification-item">
             <div class="item-content">
-              <p class="item-title">Inactivity Reminder</p>
+              <p class="item-title">{{ $t('Recordatorio de Inactividad') }}</p>
               <p class="item-description d-flex align-center flex-wrap gap-2">
-                Notify me if I haven't logged a workout in 
+                {{ $t('Notifícame si no he registrado un entrenamiento en') }}
                 <v-text-field
-                  v-model.number="notifs.inactivityDays"
+                  v-model.number="store.preferences.inactivityDays"
                   type="number"
                   variant="outlined"
                   density="compact"
@@ -28,13 +28,13 @@
                   min="1"
                   max="30"
                   class="inline-input"
-                  :disabled="!notifs.inactivityEnabled"
+                  :disabled="!store.preferences.inactivityEnabled"
                 />
-                days
+                {{ $t('días') }}
               </p>
             </div>
             <v-switch
-              v-model="notifs.inactivityEnabled"
+              v-model="store.preferences.inactivityEnabled"
               color="#ffcc00"
               class="toggle-switch"
               hide-details
@@ -43,11 +43,11 @@
 
           <div class="notification-item">
             <div class="item-content">
-              <p class="item-title">Room Activity</p>
-              <p class="item-description">Notify me when creating or joining a training room</p>
+              <p class="item-title">{{ $t('Actividad de Salas') }}</p>
+              <p class="item-description">{{ $t('Notifícame al crear o unirme a una sala de entrenamiento') }}</p>
             </div>
             <v-switch
-              v-model="notifs.rooms"
+              v-model="store.preferences.roomsEnabled"
               color="#ffcc00"
               class="toggle-switch"
               hide-details
@@ -56,11 +56,11 @@
 
           <div class="notification-item">
             <div class="item-content">
-              <p class="item-title">Purchase Receipts</p>
-              <p class="item-description">Confirmations when I buy an item in the store</p>
+              <p class="item-title">{{ $t('Recibos de Compra') }}</p>
+              <p class="item-description">{{ $t('Confirmaciones al comprar un objeto en la tienda') }}</p>
             </div>
             <v-switch
-              v-model="notifs.purchases"
+              v-model="store.preferences.purchasesEnabled"
               color="#ffcc00"
               class="toggle-switch"
               hide-details
@@ -69,11 +69,11 @@
 
           <div class="notification-item">
             <div class="item-content">
-              <p class="item-title">Subscription Expiry</p>
-              <p class="item-description">Alert me before my Premium Plan expires</p>
+              <p class="item-title">{{ $t('Expiración de Suscripción') }}</p>
+              <p class="item-description">{{ $t('Alertarme antes de que expire mi Plan Premium') }}</p>
             </div>
             <v-switch
-              v-model="notifs.premium"
+              v-model="store.preferences.subscriptionExpiryEnabled"
               color="#ffcc00"
               class="toggle-switch"
               hide-details
@@ -81,6 +81,11 @@
           </div>
 
         </div>
+
+        <!-- Mensaje de error -->
+        <v-alert v-if="store.error" type="error" variant="tonal" class="mt-2" closable @click:close="store.error = null">
+          {{ store.error }}
+        </v-alert>
 
         <div class="form-actions">
           <v-btn
@@ -89,20 +94,20 @@
             variant="flat"
             size="large"
             class="save-btn"
-            :loading="isSaving"
-            @click="savePreferences"
+            :loading="store.isLoading"
+            @click="handleSave"
           >
             <v-icon start>mdi-check</v-icon>
-            Save Preferences
+            {{ $t('Guardar Preferencias') }}
           </v-btn>
           <v-btn
             variant="outlined"
             size="large"
             class="reset-btn"
-            @click="resetDefaults"
-            :disabled="isSaving"
+            @click="handleReset"
+            :disabled="store.isLoading"
           >
-            Reset to Default
+            {{ $t('Restablecer por Defecto') }}
           </v-btn>
         </div>
       </div>
@@ -111,41 +116,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted } from 'vue'
+import { useNotificationPreferencesStore } from '@/stores/NotificationPreferencesStore'
+import { logger } from '@/utils/logger'
 
-const isSaving = ref(false)
+const store = useNotificationPreferencesStore()
 
-// Estado centralizado de las notificaciones
-const notifs = ref({
-  inactivityEnabled: true,
-  inactivityDays: 3,
-  rooms: true,
-  purchases: true,
-  premium: true
+onMounted(() => {
+  store.fetchPreferences()
 })
 
-// Función para guardar
-const savePreferences = async () => {
-  isSaving.value = true
-  try {
-    // Simulación de guardado en API
-    await new Promise(resolve => setTimeout(resolve, 800))
-    console.log('Saved preferences:', notifs.value)
-  } catch (error) {
-    console.error('Error saving:', error)
-  } finally {
-    isSaving.value = false
+const handleSave = async () => {
+  const success = await store.savePreferences()
+  if (success) {
+    logger.log('Preferencias guardadas correctamente')
   }
 }
 
-// Función para resetear
-const resetDefaults = () => {
-  notifs.value = {
-    inactivityEnabled: true,
-    inactivityDays: 3,
-    rooms: true,
-    purchases: true,
-    premium: true
+const handleReset = async () => {
+  const success = await store.resetDefaults()
+  if (success) {
+    logger.log('Preferencias restablecidas a valores por defecto')
   }
 }
 </script>

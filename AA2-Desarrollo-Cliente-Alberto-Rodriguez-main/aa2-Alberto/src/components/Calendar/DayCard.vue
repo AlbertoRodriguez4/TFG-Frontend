@@ -335,11 +335,11 @@ const handleClick = () => {
   .day-num {
     font-size: 1.4rem;
   }
-  
+
   .workout-name {
     font-size: 0.8rem;
   }
-  
+
   .workout-icon-container {
     width: 45px;
     height: 45px;
@@ -347,44 +347,100 @@ const handleClick = () => {
 }
 
 @media (max-width: 600px) {
+  .day-item {
+    aspect-ratio: auto;
+    min-height: 100px;
+  }
+
   .day-card-inner {
-    padding: 0.5rem;
+    padding: 0.6rem;
   }
-  
+
+  .day-top {
+    margin-bottom: 0.5rem;
+  }
+
   .day-num {
-    font-size: 1.1rem;
+    font-size: 1rem;
+    font-weight: 800;
   }
-  
+
+  .today-chip {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    min-height: 20px;
+  }
+
   .workout-name {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     margin-bottom: 0.5rem;
+    -webkit-line-clamp: 3;
   }
-  
+
   .workout-icon-container {
-    width: 35px;
-    height: 35px;
-    margin-bottom: 0.5rem;
+    width: 32px;
+    height: 32px;
+    margin-bottom: 0.4rem;
   }
-  
+
   .workout-icon-container .v-icon {
-    font-size: 20px !important;
+    font-size: 18px !important;
   }
-  
+
   .completed-badge {
-    padding: 0.35rem 0.75rem;
-    font-size: 0.7rem;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.65rem;
+    border-radius: 12px;
   }
-  
+
   .add-workout-icon .v-icon {
-    font-size: 28px !important;
+    font-size: 24px !important;
   }
-  
+
   .add-workout-text {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
+    font-weight: 700;
   }
 
   .click-hint {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
+  }
+
+  .pending-indicator {
+    gap: 0.25rem;
+  }
+
+  .pending-indicator .v-chip {
+    min-height: 20px;
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .day-card-inner {
+    padding: 0.5rem;
+  }
+
+  .day-num {
+    font-size: 0.9rem;
+  }
+
+  .workout-icon-container {
+    width: 28px;
+    height: 28px;
+  }
+
+  .workout-icon-container .v-icon {
+    font-size: 16px !important;
+  }
+
+  .workout-name {
+    font-size: 0.7rem;
+  }
+
+  .completed-badge {
+    font-size: 0.6rem;
+    padding: 0.25rem 0.5rem;
   }
 }
 </style>

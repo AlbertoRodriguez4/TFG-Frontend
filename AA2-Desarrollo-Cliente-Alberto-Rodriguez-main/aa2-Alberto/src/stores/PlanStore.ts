@@ -1,20 +1,15 @@
 import type { Plan } from "../components/Models/Plan"
 import { defineStore } from "pinia"
 import { ref } from "vue"
-
-const BASE_URL = "http://localhost:6873";
+import { API_BASE_URL, getAuthHeaders } from '@/config/api'
+import { logger } from '@/utils/logger'
 
 export const usePlanStore = defineStore('plan', () => {
     const plan = ref<Plan[]>([])
 
-    const getAuthHeaders = () => ({
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem('token')}`
-    });
-
     async function fetchPlan() {
         try {
-            const response = await fetch(`${BASE_URL}/api/Plan`, {
+            const response = await fetch(`${API_BASE_URL}/api/Plan`, {
                 method: "GET",
                 mode: "cors",
                 headers: getAuthHeaders()
@@ -28,7 +23,7 @@ export const usePlanStore = defineStore('plan', () => {
                 description: d.description
             }))
         } catch (error) {
-            console.error("Error fetching plans:", error)
+            logger.error("Error fetching plans:", error)
         }
     }
 

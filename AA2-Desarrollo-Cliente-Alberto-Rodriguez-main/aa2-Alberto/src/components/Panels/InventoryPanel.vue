@@ -141,10 +141,11 @@ const handleImageError = (event: Event) => {
           <v-col
             v-for="item in strengthItems"
             :key="item.purchaseId"
-            cols="6"
-            sm="4"
-            md="3"
-            lg="2"
+            cols="12"
+            sm="6"
+            md="4"
+            lg="3"
+            xl="2"
           >
             <div
               class="item-card"
@@ -215,10 +216,11 @@ const handleImageError = (event: Event) => {
           <v-col
             v-for="item in enduranceItems"
             :key="item.purchaseId"
-            cols="6"
-            sm="4"
-            md="3"
-            lg="2"
+            cols="12"
+            sm="6"
+            md="4"
+            lg="3"
+            xl="2"
           >
             <div
               class="item-card"
@@ -766,11 +768,21 @@ const handleImageError = (event: Event) => {
 }
 
 /* Responsive */
+@media (max-width: 1200px) {
+  .item-icon-wrapper {
+    max-width: 160px;
+  }
+
+  .item-card {
+    min-height: 360px;
+  }
+}
+
 @media (max-width: 960px) {
   .item-icon-wrapper {
     max-width: 140px;
   }
-  
+
   .item-card {
     min-height: 350px;
   }
@@ -780,11 +792,11 @@ const handleImageError = (event: Event) => {
   .inventory-wrapper {
     padding: 1rem;
   }
-  
+
   .inventory-header {
     margin-bottom: 2rem;
   }
-  
+
   .header-decoration {
     width: 40px;
   }
@@ -819,34 +831,72 @@ const handleImageError = (event: Event) => {
   .items-grid {
     gap: 1.5rem;
   }
-  
+
   .item-card {
-    padding: 1.25rem;
-    padding-bottom: 3.5rem;
-    min-height: 340px;
+    padding: 1.5rem;
+    padding-bottom: 4rem;
+    min-height: 380px;
   }
 
   .equipped-badge {
-    top: 6px;
-    left: 6px;
-    padding: 0.4rem 0.7rem;
-    font-size: 0.7rem;
+    top: 8px;
+    left: 8px;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.75rem;
   }
 
   .bonus-badge {
-    top: 8px;
-    right: 8px;
-    padding: 0.4rem 0.75rem;
+    top: 10px;
+    right: 10px;
+    padding: 0.5rem 0.85rem;
   }
 
   .bonus-number {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
+  }
+
+  .item-icon-wrapper {
+    max-width: 140px;
+    margin: 1rem auto;
+    padding: 8px;
+  }
+
+  .item-icon {
+    font-size: 3.5rem;
+  }
+
+  .item-name {
+    font-size: 1.1rem;
+    min-height: 2.4rem;
+  }
+
+  .item-type {
+    font-size: 0.75rem;
+  }
+
+  .action-text {
+    padding: 0.7rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .empty-section {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .empty-section p {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .item-card {
+    min-height: 360px;
+    padding: 1.25rem;
+    padding-bottom: 3.5rem;
   }
 
   .item-icon-wrapper {
     max-width: 120px;
-    margin: 0.75rem auto;
-    padding: 6px;
   }
 
   .item-icon {
@@ -854,24 +904,6 @@ const handleImageError = (event: Event) => {
   }
 
   .item-name {
-    font-size: 0.95rem;
-    min-height: 2.1rem;
-  }
-
-  .item-type {
-    font-size: 0.7rem;
-  }
-
-  .action-text {
-    padding: 0.6rem 0.85rem;
-    font-size: 0.75rem;
-  }
-
-  .empty-section {
-    padding: 2rem 1rem;
-  }
-
-  .empty-section p {
     font-size: 1rem;
   }
 }

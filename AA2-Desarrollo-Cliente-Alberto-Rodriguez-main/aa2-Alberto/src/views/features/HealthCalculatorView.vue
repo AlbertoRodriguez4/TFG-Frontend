@@ -101,6 +101,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSubscriptionStore } from '@/stores/SubscriptionStore'
+import { logger } from '@/utils/logger'
 import BmiCalculatorModern from '../../components/CalculadorCalorias/BmiCalculatorModern.vue'
 import CaloriesCalculatorModern from '../../components/CalculadorCalorias/CaloriesCalculatorModern.vue'
 import HealthHistoryModern from '../../components/CalculadorCalorias/HealthHistoryModern.vue'
@@ -155,7 +156,7 @@ async function checkPremiumStatus() {
     await subscriptionStore.checkSubscription()
     isPremium.value = subscriptionStore.hasActiveSubscription
   } catch (error) {
-    console.error('Error checking premium status:', error)
+    logger.error('Error checking premium status:', error)
     isPremium.value = false
   } finally {
     isLoading.value = false
@@ -219,7 +220,7 @@ const loadAllResults = () => {
       allResults.value = JSON.parse(stored)
       allResults.value.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     } catch (e) {
-      console.error('Error loading results:', e)
+      logger.error('Error loading results:', e)
     }
   }
 }

@@ -59,5 +59,19 @@
     "already_have_account": "Already have an account?",
     "comprarItems": "Do you want to buy this item for ",
     "editarSala": "Edit room",
-    "tienda": "Shop"
+    "tienda": "Shop",
+    "Preferencias de Notificaciones": "Notification Preferences",
+    "Alertas de la App": "App Alerts",
+    "Elige qué notificaciones quieres recibir para mantenerte informado sin distracciones.": "Choose which notifications you want to receive to stay updated without distractions.",
+    "Recordatorio de Inactividad": "Inactivity Reminder",
+    "Notifícame si no he registrado un entrenamiento en": "Notify me if I haven't logged a workout in",
+    "días": "days",
+    "Actividad de Salas": "Room Activity",
+    "Notifícame al crear o unirme a una sala de entrenamiento": "Notify me when creating or joining a training room",
+    "Recibos de Compra": "Purchase Receipts",
+    "Confirmaciones al comprar un objeto en la tienda": "Confirmations when I buy an item in the store",
+    "Expiración de Suscripción": "Subscription Expiry",
+    "Alertarme antes de que expire mi Plan Premium": "Alert me before my Premium Plan expires",
+    "Guardar Preferencias": "Save Preferences",
+    "Restablecer por Defecto": "Reset to Default"
 }

@@ -56,6 +56,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '../../stores/userStore'
+import { logger } from '@/utils/logger'
 
 defineProps({
   open: { type: Boolean, default: false }
@@ -115,7 +116,7 @@ onMounted(() => {
       ]
     }
   } catch (error) {
-    console.error('No se pudieron cargar las métricas:', error)
+    logger.error('No se pudieron cargar las métricas:', error)
   }
 })
 </script>

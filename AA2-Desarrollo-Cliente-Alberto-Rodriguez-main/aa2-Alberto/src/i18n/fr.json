@@ -59,5 +59,19 @@
   "already_have_account": "Vous avez déjà un compte ?",
   "comprarItems": "Voulez-vous acheter cet objet pour ",
   "editarSala": "Modifier la salle",
-  "tienda": "Boutique"
+  "tienda": "Boutique",
+  "Preferencias de Notificaciones": "Préférences de notification",
+  "Alertas de la App": "Alertes de l'application",
+  "Elige qué notificaciones quieres recibir para mantenerte informado sin distracciones.": "Choisissez les notifications que vous souhaitez recevoir pour rester informé sans distractions.",
+  "Recordatorio de Inactividad": "Rappel d'inactivité",
+  "Notifícame si no he registrado un entrenamiento en": "Notifiez-moi si je n'ai pas enregistré d'entraînement depuis",
+  "días": "jours",
+  "Actividad de Salas": "Activité des salles",
+  "Notifícame al crear o unirme a una sala de entrenamiento": "Notifiez-moi lors de la création ou de l'adhésion à une salle d'entraînement",
+  "Recibos de Compra": "Reçus d'achat",
+  "Confirmaciones al comprar un objeto en la tienda": "Confirmations lors de l'achat d'un objet dans la boutique",
+  "Expiración de Suscripción": "Expiration de l'abonnement",
+  "Alertarme antes de que expire mi Plan Premium": "Alertez-moi avant l'expiration de mon plan Premium",
+  "Guardar Preferencias": "Enregistrer les préférences",
+  "Restablecer por Defecto": "Réinitialiser par défaut"
 }

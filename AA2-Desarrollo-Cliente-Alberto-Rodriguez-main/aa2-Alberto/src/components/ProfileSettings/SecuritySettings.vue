@@ -75,6 +75,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import { logger } from '@/utils/logger'
 
 const userStore = useUserStore()
 const passwordForm = ref()
@@ -129,7 +130,7 @@ async function handleUpdatePassword() {
       showSnackbar('Error: La contraseña actual no es correcta.', 'error')
     }
   } catch (error) {
-    console.error(error)
+    logger.error(error)
     showSnackbar('Ha ocurrido un error inesperado. Inténtalo de nuevo.', 'error')
   } finally {
     isUpdating.value = false

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue';
 import { useRoomStore } from '@/stores/RoomStore';
+import { logger } from '@/utils/logger';
 
 const store = useRoomStore()
 
@@ -94,7 +95,7 @@ const handleEdit = async () => {
       showSnackbar("Hubo un problema al editar la sala", 'error')
     }
   } catch (error) {
-    console.error('Error editing room:', error)
+    logger.error('Error editing room:', error)
     showSnackbar("Hubo un problema al editar la sala", 'error')
   }
 }

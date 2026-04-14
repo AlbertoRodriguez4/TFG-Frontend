@@ -73,6 +73,7 @@ import { ref, computed, onMounted, onBeforeUnmount, reactive } from 'vue';
 import { useRoutineStore } from '@/stores/RoutineStore';
 import { useUserStore } from '@/stores/userStore';
 import type { Routines } from '@/components/Models/Routines';
+import { logger } from '@/utils/logger';
 
 import HeroSection from '../../components/Calendar/HeroSection.vue';
 import CalendarSection from '../../components/Calendar/CalendarSection.vue';
@@ -104,6 +105,9 @@ const snackbar = reactive({
   message: '',
   color: 'success'
 });
+
+// Contador de reenvío de código (para limpiar en onBeforeUnmount)
+let countdownInterval: number | null = null;
 
 // Configuración estática
 const daysOfWeek: string[] = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
@@ -140,7 +144,7 @@ const coins = computed(() => {
  * Racha de consistencia del usuario
  */
 const streak = computed(() => {
-  return userStore.loggedUser?.consistencyStreak || userStore.loggedUser?.consistencystreak || 0;
+  return userStore.loggedUser?.consistencyStreak || 0;
 });
 
 /**
@@ -281,7 +285,7 @@ const handleCreateRoutine = async (routine: Routines): Promise<void> => {
     }
 
   } catch (error) {
-    console.error('❌ Error al crear la rutina:', error);
+    logger.error('❌ Error al crear la rutina:', error);
     snackbar.message = '❌ Error al crear la rutina. Intenta de nuevo.';
     snackbar.color = 'error';
     snackbar.show = true;
@@ -296,12 +300,12 @@ const handleCompleteFromDetail = async (routineId: number): Promise<void> => {
     const routine = routineStore.routines.find(r => r.id === routineId);
 
     if (!routine) {
-      console.error('❌ Rutina no encontrada');
+      logger.error('❌ Rutina no encontrada');
       return;
     }
 
     if (routine.iscompleted) {
-      console.warn('⚠️ La rutina ya está completada');
+      logger.warn('⚠️ La rutina ya está completada');
       snackbar.message = '⚠️ Esta rutina ya está completada';
       snackbar.color = 'warning';
       snackbar.show = true;
@@ -309,7 +313,7 @@ const handleCompleteFromDetail = async (routineId: number): Promise<void> => {
     }
 
     if (!userStore.loggedUser) {
-      console.error('❌ No hay usuario logueado');
+      logger.error('❌ No hay usuario logueado');
       return;
     }
 
@@ -323,7 +327,7 @@ const handleCompleteFromDetail = async (routineId: number): Promise<void> => {
       ...userStore.loggedUser,
       strength: (userStore.loggedUser.strength || 0) + routine.reward, // +XP
       gold: (userStore.loggedUser.gold || 0) + 50, // +50 monedas
-      consistencyStreak: (userStore.loggedUser.consistencyStreak || userStore.loggedUser.consistencystreak || 0) + 1, // +1 racha
+      consistencyStreak: (userStore.loggedUser.consistencyStreak || 0) + 1, // +1 racha
     };
 
     // Verificar si sube de nivel
@@ -360,7 +364,7 @@ const handleCompleteFromDetail = async (routineId: number): Promise<void> => {
     }
 
   } catch (error) {
-    console.error('❌ Error al completar rutina:', error);
+    logger.error('❌ Error al completar rutina:', error);
     snackbar.message = '❌ Error al completar la rutina. Intenta de nuevo.';
     snackbar.color = 'error';
     snackbar.show = true;
@@ -410,10 +414,10 @@ const loadUserData = async (): Promise<void> => {
 
 
     } else {
-      console.warn('⚠️ No hay usuario logueado');
+      logger.warn('⚠️ No hay usuario logueado');
     }
   } catch (error) {
-    console.error('❌ Error cargando datos:', error);
+    logger.error('❌ Error cargando datos:', error);
     snackbar.message = 'Error al cargar los datos';
     snackbar.color = 'error';
     snackbar.show = true;

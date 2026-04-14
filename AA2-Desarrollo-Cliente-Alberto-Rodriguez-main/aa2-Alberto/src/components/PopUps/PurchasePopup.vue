@@ -2,6 +2,7 @@
 import { useUserStore } from '@/stores/userStore'
 import { usePurchaseStore } from '@/stores/PurchaseStore'
 import { ref, watchEffect, watch } from 'vue'
+import { logger } from '@/utils/logger'
 
 const store = useUserStore()
 const purchaseStore = usePurchaseStore()
@@ -42,7 +43,7 @@ watch(dialogVisible, val => { if (!val) emit('close') })
 const handleBuy = async () => {
   const userId = loggedUser.value?.id
   if (!userId) {
-    console.error("Usuario no identificado")
+    logger.error("Usuario no identificado")
     return
   }
 
@@ -63,7 +64,7 @@ const handleBuy = async () => {
     } else if (message) {
       showSnackbar(message, 'error')
     } else {
-      console.error("Error al realizar la compra:", error)
+      logger.error("Error al realizar la compra:", error)
       showSnackbar("Hubo un problema al realizar la compra", 'error')
     }
     dialogVisible.value = false

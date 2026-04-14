@@ -77,7 +77,7 @@ async function calculateStats() {
     totalMembers.value = membersCount
     joinedRoomsCount.value = myRooms
   } catch (error) {
-    console.error('Error calculating stats:', error)
+    logger.error('Error calculating stats:', error)
   } finally {
     statsLoaded.value = true
   }

@@ -6,7 +6,6 @@ export interface User {
   level: number;
   strength: number;
   endurance: number;
-  consistencystreak: number;
   gold: number;
   role: string;
   consistencyStreak: number;

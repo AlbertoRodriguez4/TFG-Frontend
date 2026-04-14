@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import router from '@/router'
 import { useUserStore } from '@/stores/userStore'
 import type { User } from '@/components/Models/User'
+import { useAuthValidation } from '@/composables/useAuthValidation'
 
 const store = useUserStore()
 const errorMessage = ref('')
@@ -18,34 +19,17 @@ const snackbar = ref(false)
 const snackbarMessage = ref('')
 const snackbarColor = ref('error')
 
-// Validación de fortaleza de contraseña
-const getPasswordStrength = (pwd: string) => {
-  let strength = 0
-  const feedback: string[] = []
-
-  if (pwd.length >= 8) strength++
-  else feedback.push('Mínimo 8 caracteres')
-
-  if (/[a-z]/.test(pwd)) strength++
-  else feedback.push('Incluye minúsculas')
-
-  if (/[A-Z]/.test(pwd)) strength++
-  else feedback.push('Incluye mayúsculas')
-
-  if (/[0-9]/.test(pwd)) strength++
-  else feedback.push('Incluye números')
-
-  if (/[^A-Za-z0-9]/.test(pwd)) strength++
-  else feedback.push('Incluye símbolos (!@#$%)')
-
-  return { strength, feedback }
-}
-
-const passwordStrength = ref({ strength: 0, feedback: [] as string[] })
-
-const updatePasswordStrength = () => {
-  passwordStrength.value = getPasswordStrength(password.value)
-}
+const {
+  errors,
+  passwordStrength,
+  isPasswordValid,
+  validateEmail,
+  validatePassword,
+  validateConfirmPassword,
+  validateName,
+  updatePasswordStrength,
+  clearErrors
+} = useAuthValidation()
 
 const getStrengthColor = (strength: number) => {
   if (strength <= 1) return '#ef4444'
@@ -72,6 +56,7 @@ const showSnackbar = (message: string, color: string = 'error') => {
 const register = async () => {
   errorMessage.value = ''
   isLoading.value = true
+  clearErrors()
 
   const emailTrimmed = email.value.trim()
   const passwordTrimmed = password.value.trim()
@@ -86,14 +71,15 @@ const register = async () => {
     return
   }
 
-  // Validación de nombre
-  if (nameTrimmed.length < 3) {
-    errorMessage.value = 'Nombre muy corto (mín. 3 caracteres).'
-    showSnackbar('El nombre debe tener al menos 3 caracteres.', 'warning')
+  // Validaciones usando el composable
+  if (!validateName(nameTrimmed)) {
+    errorMessage.value = errors.name
+    showSnackbar(errors.name || 'Nombre inválido', 'warning')
     isLoading.value = false
     return
   }
 
+  // Validación adicional de longitud máxima de nombre
   if (nameTrimmed.length > 50) {
     errorMessage.value = 'Nombre muy largo (máx. 50 caracteres).'
     showSnackbar('El nombre no puede exceder 50 caracteres.', 'warning')
@@ -101,51 +87,25 @@ const register = async () => {
     return
   }
 
-  // Validación de email mejorada
-  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-  if (!emailRegex.test(emailTrimmed)) {
-    errorMessage.value = 'Email inválido.'
-    showSnackbar('Por favor, ingresa un correo electrónico válido.', 'warning')
+  if (!validateEmail(emailTrimmed)) {
+    errorMessage.value = errors.email
+    showSnackbar(errors.email || 'Email inválido', 'warning')
     isLoading.value = false
     return
   }
 
-  // Validar que el email no contenga espacios
-  if (/\s/.test(emailTrimmed)) {
-    errorMessage.value = 'El email no puede contener espacios.'
-    showSnackbar('El email no puede contener espacios.', 'warning')
+  updatePasswordStrength(passwordTrimmed)
+  if (!isPasswordValid.value) {
+    const missingRequirements = passwordStrength.value.feedback
+    errorMessage.value = `Contraseña débil. Falta: ${missingRequirements.join(', ')}`
+    showSnackbar(`Contraseña débil. Debe incluir: ${missingRequirements.join(', ')}`, 'warning')
     isLoading.value = false
     return
   }
 
-  // Validación de contraseña segura
-  if (passwordTrimmed.length < 8) {
-    errorMessage.value = 'Contraseña muy corta (mín. 8 caracteres).'
-    showSnackbar('La contraseña debe tener al menos 8 caracteres.', 'warning')
-    isLoading.value = false
-    return
-  }
-
-  const pwdStrength = getPasswordStrength(passwordTrimmed)
-  if (pwdStrength.strength < 3) {
-    errorMessage.value = `Contraseña débil. Falta: ${pwdStrength.feedback.join(', ')}`
-    showSnackbar(`Contraseña débil. Debe incluir: ${pwdStrength.feedback.join(', ')}`, 'warning')
-    isLoading.value = false
-    return
-  }
-
-  // Validar que la contraseña no contenga espacios
-  if (/\s/.test(passwordTrimmed)) {
-    errorMessage.value = 'La contraseña no puede contener espacios.'
-    showSnackbar('La contraseña no puede contener espacios.', 'warning')
-    isLoading.value = false
-    return
-  }
-
-  // Validación de coincidencia de contraseñas
-  if (passwordTrimmed !== confirmPasswordTrimmed) {
-    errorMessage.value = 'Las contraseñas no coinciden.'
-    showSnackbar('Las contraseñas no coinciden.', 'error')
+  if (!validateConfirmPassword(passwordTrimmed, confirmPasswordTrimmed)) {
+    errorMessage.value = errors.confirmPassword
+    showSnackbar(errors.confirmPassword || 'Las contraseñas no coinciden', 'error')
     isLoading.value = false
     return
   }
@@ -158,7 +118,6 @@ const register = async () => {
     level: 0,
     strength: 0,
     endurance: 0,
-    consistencystreak: 0,
     consistencyStreak: 0,
     gold: 0,
     role: 'userNormal',

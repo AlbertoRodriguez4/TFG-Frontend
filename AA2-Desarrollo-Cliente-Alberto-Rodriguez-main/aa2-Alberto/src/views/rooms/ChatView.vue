@@ -89,6 +89,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSubscriptionStore } from '@/stores/SubscriptionStore'
+import { logger } from '@/utils/logger'
 import ChatSidebar from '../../components/CoachAI/ChatSidebar.vue'
 import ChatHeader from '../../components/CoachAI/ChatHeader.vue'
 import ChatFeed from '../../components/CoachAI/ChatFeed.vue'
@@ -109,7 +110,7 @@ onMounted(async () => {
     await subscriptionStore.checkSubscription()
     isPremium.value = subscriptionStore.hasActiveSubscription
   } catch (error) {
-    console.error('Error checking premium status:', error)
+    logger.error('Error checking premium status:', error)
     isPremium.value = false
   } finally {
     isLoading.value = false
@@ -161,7 +162,7 @@ const getUserContext = () => {
     - Calorías de mantenimiento (TDEE): ${caloriesEntry?.tdee || 'No especificadas'} kcal.
     `;
   } catch (error) {
-    console.warn("No se pudieron cargar los datos físicos del usuario para el chatbot", error);
+    logger.warn("No se pudieron cargar los datos físicos del usuario para el chatbot", error);
   }
   return contextText;
 }
@@ -211,7 +212,7 @@ Listas con "• ". Respuestas concisas pero completas. Siempre en español.` + g
     messages.value.push({ id: Date.now() + 2, role: 'assistant', text: reply, time: now() })
 
   } catch (err) {
-    console.error(err)
+    logger.error(err)
     messages.value = messages.value.filter(m => m.id !== typingId)
     messages.value.push({
       id: Date.now() + 2,

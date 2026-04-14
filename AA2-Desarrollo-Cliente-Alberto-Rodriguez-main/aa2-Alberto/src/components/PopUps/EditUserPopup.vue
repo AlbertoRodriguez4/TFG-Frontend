@@ -2,6 +2,7 @@
 import { useUserStore } from '@/stores/userStore';
 import { computed, reactive, ref, watch } from 'vue';
 import type { User } from '../Models/User';
+import { logger } from '@/utils/logger';
 
 const store = useUserStore();
 const loggedUser = computed(() => store.loggedUser);
@@ -28,15 +29,15 @@ const editedUser = reactive<User>({
   level: 0,
   strength: 0,
   endurance: 0,
-  consistencystreak: 0,
+  consistencyStreak: 0,
   gold: 0,
   role: '',
-  consistencyStreak: 0,
   experience: 0,
   xpRequired: 0,
   xpRemaining: 0,
   equippedStrengthItemId: 0,
-  equippedEnduranceItemId: 0
+  equippedEnduranceItemId: 0,
+  avatarUrl: ''
 });
 
 watch(() => props.user, (newUser) => {
@@ -86,14 +87,14 @@ const handleEdit = async () => {
       strength: editedUser.strength,
       endurance: editedUser.endurance,
       gold: editedUser.gold,
-      consistencystreak: editedUser.consistencystreak,
-      consistencyStreak: editedUser.consistencystreak,
+      consistencyStreak: editedUser.consistencyStreak,
       role: loggedUser.value?.role || 'userNormal',
       experience: editedUser.experience,
       xpRequired: editedUser.xpRequired,
       xpRemaining: editedUser.xpRemaining,
       equippedStrengthItemId: editedUser.equippedStrengthItemId,
-      equippedEnduranceItemId: editedUser.equippedEnduranceItemId
+      equippedEnduranceItemId: editedUser.equippedEnduranceItemId,
+      avatarUrl: editedUser.avatarUrl
     };
 
     const result = await store.editUser(updatedUser.id, updatedUser);
@@ -107,7 +108,7 @@ const handleEdit = async () => {
   } catch (error: any) {
     const message = error?.data?.message;
     errorMessage.value = message || "Error inesperado al editar el usuario.";
-    console.error("Error al editar el usuario:", error);
+    logger.error("Error al editar el usuario:", error);
   }
 };
 
@@ -251,7 +252,7 @@ watch(internalVisible, (val) => {
                 <span class="streak-description">Días consecutivos entrenando</span>
               </div>
             </div>
-            <input v-model.number="editedUser.consistencystreak" type="number" min="0" class="streak-input" />
+            <input v-model.number="editedUser.consistencyStreak" type="number" min="0" class="streak-input" />
           </div>
         </div>
 
@@ -275,7 +276,7 @@ watch(internalVisible, (val) => {
             <div class="summary-item">
               <v-icon size="small" class="summary-item-icon">mdi-fire</v-icon>
               <span class="summary-item-label">Racha:</span>
-              <span class="summary-item-value">{{ editedUser.consistencystreak }} días</span>
+              <span class="summary-item-value">{{ editedUser.consistencyStreak }} días</span>
             </div>
           </div>
         </div>

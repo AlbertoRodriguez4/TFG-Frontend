@@ -203,6 +203,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useSubscriptionStore } from '@/stores/SubscriptionStore'
 import { useUserStore } from '@/stores/userStore'
+import { logger } from '@/utils/logger'
 
 const router = useRouter()
 const route = useRoute()
@@ -240,7 +241,7 @@ async function loadSubscriptionData() {
       await subscriptionStore.getSubscriptionHistory()
     }
   } catch (error) {
-    console.error('Error loading subscription:', error)
+    logger.error('Error loading subscription:', error)
     showSnackbarMessage('Error al cargar la información de suscripción', 'error')
   } finally {
     isLoading.value = false
@@ -257,7 +258,7 @@ async function renewSubscription() {
       showSnackbarMessage(result.error || 'Error al renovar', 'error')
     }
   } catch (error) {
-    console.error('Error renewing subscription:', error)
+    logger.error('Error renewing subscription:', error)
     showSnackbarMessage('Error al renovar la suscripción', 'error')
   } finally {
     isRenewing.value = false
@@ -283,7 +284,7 @@ async function cancelSubscription() {
       showSnackbarMessage(result.error || 'Error al cancelar', 'error')
     }
   } catch (error) {
-    console.error('Error cancelling subscription:', error)
+    logger.error('Error cancelling subscription:', error)
     showSnackbarMessage('Error al cancelar la suscripción', 'error')
   } finally {
     isCancelling.value = false

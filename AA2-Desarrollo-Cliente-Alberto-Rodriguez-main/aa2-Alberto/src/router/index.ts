@@ -140,7 +140,10 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const store = useUserStore()
   const subscriptionStore = useSubscriptionStore()
-  const isLogged = !!store.loggedUser?.email
+
+  // Verificar si hay token válido en localStorage (incluso si loggedUser no está poblado aún)
+  const token = localStorage.getItem('token')
+  const isLogged = !!store.loggedUser?.email || !!token
 
   if (to.meta.requiresGuest && isLogged) {
     // intenta ir a home/página pública estando logueado → homeLogged

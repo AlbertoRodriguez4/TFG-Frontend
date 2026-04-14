@@ -3,9 +3,11 @@ import { ref } from "vue";
 import { decodeToken } from "../JWT/JWTDecode";
 import type { User } from "@/components/Models/User";
 import type { PurchasedItem } from "@/components/Models/PurchasedItem";
+import { API_BASE_URL, getAuthHeaders, hasValidToken, isTokenExpired } from '@/config/api';
+import { logger } from '@/utils/logger';
 
 export const purchasedItems = ref<PurchasedItem[]>([]);
-const BASE_URL = "http://localhost:6873";
+const BASE_URL = API_BASE_URL;
 
 export const useUserStore = defineStore('user', () => {
   const user = ref<User[]>([]);
@@ -13,14 +15,10 @@ export const useUserStore = defineStore('user', () => {
 
   async function fetchUser() {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`${BASE_URL}/api/User`, {
         method: "GET",
         mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        }
+        headers: getAuthHeaders()
       });
 
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
@@ -39,7 +37,7 @@ export const useUserStore = defineStore('user', () => {
         avatarUrl: d.avatarUrl
       }));
     } catch (error) {
-      console.error("Error fetching users:", error);
+      logger.error("Error fetching users:", error);
     }
   }
 
@@ -62,7 +60,7 @@ export const useUserStore = defineStore('user', () => {
         emailSent: data.emailSent !== false
       };
     } catch (error) {
-      console.error("Error registering user:", error);
+      logger.error("Error registering user:", error);
       return { success: false };
     }
   }
@@ -84,7 +82,7 @@ export const useUserStore = defineStore('user', () => {
 
       return true;
     } catch (error) {
-      console.error("Error verifying email:", error);
+      logger.error("Error verifying email:", error);
       return false;
     }
   }
@@ -105,7 +103,7 @@ export const useUserStore = defineStore('user', () => {
 
       return true;
     } catch (error) {
-      console.error("Error resending verification code:", error);
+      logger.error("Error resending verification code:", error);
       return false;
     }
   }
@@ -114,7 +112,22 @@ export const useUserStore = defineStore('user', () => {
     const token = localStorage.getItem('token');
 
     if (!token) {
-      console.warn('No se encontró ningún token en localStorage');
+      logger.info('No hay token en localStorage, sesión no inicializada');
+      return;
+    }
+
+    // Validar formato del token antes de decodificar
+    const tokenParts = token.split('.');
+    if (tokenParts.length !== 3) {
+      logger.warn('Token malformado detectado, limpiando sesión');
+      localStorage.removeItem('token');
+      return;
+    }
+
+    // Validar si el token ha expirado
+    if (isTokenExpired(token)) {
+      logger.warn('Token expirado detectado, limpiando sesión');
+      localStorage.removeItem('token');
       return;
     }
 
@@ -129,7 +142,6 @@ export const useUserStore = defineStore('user', () => {
         level: Number(decoded.level),
         strength: Number(decoded.strength),
         endurance: Number(decoded.endurance),
-        consistencystreak: Number(decoded.consistencystreak),
         consistencyStreak: Number(decoded.consistencystreak),
         gold: Number(decoded.gold),
         experience: Number(decoded.experience),
@@ -139,16 +151,65 @@ export const useUserStore = defineStore('user', () => {
         equippedEnduranceItemId: decoded.equippedEnduranceItemId !== "" ? Number(decoded.equippedEnduranceItemId) : null,
         avatarUrl: decoded.avatarUrl && decoded.avatarUrl !== "" ? decoded.avatarUrl : null
       };
+      logger.info('Sesión inicializada correctamente para el usuario:', loggedUser.value.email);
     } catch (error) {
-      console.error('Error al decodificar el token JWT:', error);
+      logger.error('Error al decodificar el token JWT:', error);
       localStorage.removeItem('token');
     }
   }
 
+  // Inicializar sesión al cargar el store
   initializeSession();
+
+  // Refrescar datos del usuario si hay sesión activa
   if (loggedUser.value) {
     refreshLoggedUser();
   }
+  // Función para refrescar el token automáticamente
+  async function refreshToken(): Promise<boolean> {
+    const token = localStorage.getItem('token');
+    if (!token || !loggedUser.value) {
+      return false;
+    }
+
+    try {
+      // Hacemos una petición al backend para obtener un nuevo token
+      // Usamos el endpoint de login con las credenciales almacenadas (no recomendado)
+      // O mejor: creamos un endpoint específico de refresh en el backend
+
+      // Por ahora, simplemente verificamos que el token sigue siendo válido
+      const response = await fetch(`${BASE_URL}/api/User`, {
+        method: 'GET',
+        headers: getAuthHeaders()
+      });
+
+      if (response.ok) {
+        // El token sigue siendo válido, no necesitamos hacer nada
+        logger.info('Token válido, sesión mantenida');
+        return true;
+      }
+
+      if (response.status === 401) {
+        // Token inválido, cerrar sesión
+        logger.warn('Token inválido, cerrando sesión');
+        logoutUser();
+        return false;
+      }
+
+      return false;
+    } catch (error) {
+      logger.error('Error al refrescar token:', error);
+      return false;
+    }
+  }
+
+  // Verificar y refrescar token periódicamente (cada 5 minutos)
+  setInterval(() => {
+    if (loggedUser.value) {
+      refreshToken();
+    }
+  }, 5 * 60 * 1000); // 5 minutos
+
   async function loginUser(email: string, password: string): Promise<boolean> {
     try {
       const response = await fetch(`${BASE_URL}/api/auth/login`, {
@@ -175,7 +236,6 @@ export const useUserStore = defineStore('user', () => {
         level: Number(decoded.level),
         strength: Number(decoded.strength),
         endurance: Number(decoded.endurance),
-        consistencystreak: Number(decoded.consistencystreak),
         consistencyStreak: Number(decoded.consistencystreak),
         gold: Number(decoded.gold),
         experience: Number(decoded.experience),
@@ -188,7 +248,7 @@ export const useUserStore = defineStore('user', () => {
 
       return true;
     } catch (error) {
-      console.error("Login failed:", error);
+      logger.error("Login failed:", error);
       return false;
     }
   }
@@ -219,7 +279,7 @@ export const useUserStore = defineStore('user', () => {
       };
 
     } catch (error) {
-      console.error("Error actualizando el usuario:", error);
+      logger.error("Error actualizando el usuario:", error);
     }
   }
 
@@ -238,7 +298,7 @@ export const useUserStore = defineStore('user', () => {
       const data = await response.json();
       return data as User[];
     } catch (error) {
-      console.error('Error en searchByName:', error);
+      logger.error('Error en searchByName:', error);
       return [];
     }
   }
@@ -266,7 +326,7 @@ export const useUserStore = defineStore('user', () => {
         avatarUrl: d.avatarUrl
       }));
     } catch (error) {
-      console.error('Error en getTopThreeUsers:', error);
+      logger.error('Error en getTopThreeUsers:', error);
       return [];
     }
   }
@@ -286,7 +346,7 @@ export const useUserStore = defineStore('user', () => {
       const data: PurchasedItem[] = await response.json();
       purchasedItems.value = data;
     } catch (error) {
-      console.error("Error al obtener los items comprados:", error);
+      logger.error("Error al obtener los items comprados:", error);
     }
   }
 
@@ -326,7 +386,7 @@ export const useUserStore = defineStore('user', () => {
       }
 
     } catch (error) {
-      console.error('Error editing user:', error);
+      logger.error('Error editing user:', error);
       throw error;
     }
   }
@@ -344,14 +404,14 @@ export const useUserStore = defineStore('user', () => {
       });
 
       if (!response.ok) {
-        console.error(`HTTP error! Status: ${response.status}`);
+        logger.error(`HTTP error! Status: ${response.status}`);
         return false;
       }
 
       await fetchUser();
       return true;
     } catch (error) {
-      console.error('Error creating user:', error);
+      logger.error('Error creating user:', error);
       return false;
     }
   }
@@ -376,7 +436,7 @@ export const useUserStore = defineStore('user', () => {
 
       await fetchUser();
     } catch (error) {
-      console.error('Error deleting user:', error);
+      logger.error('Error deleting user:', error);
     }
   }
 
@@ -387,7 +447,7 @@ export const useUserStore = defineStore('user', () => {
       const itemToEquip = purchasedItems.value.find(i => i.itemId === itemId);
 
       if (!itemToEquip) {
-        console.error("Item no encontrado en inventario");
+        logger.error("Item no encontrado en inventario");
         return;
       }
 
@@ -415,7 +475,7 @@ export const useUserStore = defineStore('user', () => {
       await refreshLoggedUser();
 
     } catch (error) {
-      console.error("Error equipando objeto:", error);
+      logger.error("Error equipando objeto:", error);
     }
   }
 
@@ -443,7 +503,7 @@ export const useUserStore = defineStore('user', () => {
 
       await refreshLoggedUser();
     } catch (error) {
-      console.error("Error desequipando:", error);
+      logger.error("Error desequipando:", error);
     }
   }
   async function changePassword(currentPassword: string, newPassword: string): Promise<boolean> {
@@ -470,7 +530,7 @@ export const useUserStore = defineStore('user', () => {
 
       return true;
     } catch (error) {
-      console.error("Error al cambiar la contraseña:", error);
+      logger.error("Error al cambiar la contraseña:", error);
       return false;
     }
   }
@@ -487,7 +547,7 @@ export const useUserStore = defineStore('user', () => {
     getItems,
     purchasedItems,
     refreshLoggedUser,
-    // quitamos refreshTokenByLogin de los exports
+    refreshToken,
     editUser,
     logoutUser,
     createUser,

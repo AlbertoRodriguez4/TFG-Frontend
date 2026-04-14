@@ -79,6 +79,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import { logger } from '@/utils/logger'
 
 const store = useUserStore()
 const form = ref()
@@ -124,7 +125,7 @@ const saveChanges = async () => {
       })
       showSnackbar('¡Perfil actualizado exitosamente!', 'success')
     } catch (error) {
-      console.error('Error al guardar:', error)
+      logger.error('Error al guardar:', error)
       showSnackbar('Error al guardar los cambios. Inténtalo de nuevo.', 'error')
     } finally {
       saving.value = false

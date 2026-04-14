@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router';
 import { useMapStore } from '@/stores/mapStore';
 import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { logger } from '@/utils/logger';
 
 const mapStore = useMapStore();
 const map = ref<L.Map | null>(null);
@@ -95,7 +96,7 @@ async function searchByAddress() {
     const coords = await mapStore.getCooredadas(searchAddress.value);
     await searchGymsNearLocation(coords.lat, coords.lon);
   } catch (error) {
-    console.error('Error buscando dirección:', error);
+    logger.error('Error buscando dirección:', error);
     showSnackbar('No se pudo encontrar la dirección. Intenta con otra.', 'error');
   } finally {
     loading.value = false;
@@ -135,7 +136,7 @@ async function searchGymsNearLocation(lat: number, lon: number) {
       }
     });
   } catch (error) {
-    console.error('Error buscando gimnasios:', error);
+    logger.error('Error buscando gimnasios:', error);
   } finally {
     loading.value = false;
   }

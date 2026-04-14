@@ -5,6 +5,7 @@ import { useUserStore } from '@/stores/userStore'
 import { useRoomStore } from '@/stores/RoomStore'
 import { useUserRoomStore } from '@/stores/UsersRoomStore'
 import defaultAvatar from '@/assets/imgs/usuario.png'
+import { logger } from '@/utils/logger'
 
 const route = useRoute()
 const router = useRouter()
@@ -61,7 +62,7 @@ const roomUsers = computed(() => {
       strength: user.strength || 0,
       endurance: user.endurance || 0,
       experience: user.experience || 0,
-      consistency: user.consistencystreak || 0,
+      consistency: user.consistencyStreak || 0,
       avatarUrl: user.avatarUrl || null,  // ← campo real del backend
       status: 'online',
       equippedStrengthItem: user.equippedStrengthItem || null,
@@ -77,7 +78,7 @@ onMounted(async () => {
       await userRoomStore.fetchRoomsByUserId(loggedUser.value.id)
     }
   } catch (error) {
-    console.error('Error al cargar la información de la sala:', error)
+    logger.error('Error al cargar la información de la sala:', error)
   } finally {
     isLoading.value = false
   }
@@ -140,7 +141,7 @@ const closeJoinPopup = () => {
 
 const confirmJoinRoom = async () => {
   if (!loggedUser.value?.id) {
-    console.error('No hay usuario logueado')
+    logger.error('No hay usuario logueado')
     return
   }
 
@@ -152,7 +153,7 @@ const confirmJoinRoom = async () => {
     showJoinPopup.value = false
     showSnackbar('Te has unido a la sala correctamente', 'success')
   } catch (error: any) {
-    console.error('Error al unirse a la sala:', error)
+    logger.error('Error al unirse a la sala:', error)
     showSnackbar(error.message || 'No se pudo unir a la sala', 'error')
   }
 }

@@ -1,22 +1,21 @@
 import type { Routines } from "@/components/Models/Routines";
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { useUserStore } from "./userStore"; // Importar el store de usuario
+import { useUserStore } from "./userStore";
+import { API_BASE_URL, getAuthHeaders, hasValidToken } from '@/config/api';
+import { logger } from '@/utils/logger';
 
 export const useRoutineStore = defineStore('routine', () => {
     // --- State ---
     const selectedRoutineId = ref<number | null>(null);
     const routines = ref<Routines[]>([]);
-    
+
     async function getRoutines() {
         try {
-            const response = await fetch('http://localhost:6873/api/Task', {
+            const response = await fetch(`${API_BASE_URL}/api/Task`, {
                 method: 'GET',
                 mode: 'cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
+                headers: getAuthHeaders()
             });
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
@@ -24,19 +23,16 @@ export const useRoutineStore = defineStore('routine', () => {
             const data = await response.json();
             routines.value = data;
         } catch (error) {
-            console.error('Error fetching routines:', error);
+            logger.error('Error fetching routines:', error);
         }
     }
-    
+
     async function createRoutine(routineData: Routines) {
         try {
-            const response = await fetch('http://localhost:6873/api/Task', {
+            const response = await fetch(`${API_BASE_URL}/api/Task`, {
                 method: 'POST',
                 mode: 'cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
+                headers: getAuthHeaders(),
                 body: JSON.stringify(routineData)
             });
             if (!response.ok) {
@@ -45,19 +41,16 @@ export const useRoutineStore = defineStore('routine', () => {
             const newRoutine = await response.json();
             routines.value.push(newRoutine);
         } catch (error) {
-            console.error('Error creating routine:', error);
+            logger.error('Error creating routine:', error);
         }
     }
-    
+
     async function getRoutineByUserId(userId: number) {
         try {
-            const response = await fetch(`http://localhost:6873/api/Task/user/${userId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/Task/user/${userId}`, {
                 method: 'GET',
                 mode: 'cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
+                headers: getAuthHeaders()
             });
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
@@ -66,37 +59,34 @@ export const useRoutineStore = defineStore('routine', () => {
             routines.value = data;
         }
         catch (error) {
-            console.error('Error fetching routines by user ID:', error);
+            logger.error('Error fetching routines by user ID:', error);
         }
     }
 
     // FUNCIÓN CORREGIDA: Ahora actualiza los datos del usuario después de completar la tarea
     async function completeTask(taskId: number): Promise<void> {
         try {
-            const response = await fetch(`http://localhost:6873/api/Task/complete/${taskId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/Task/complete/${taskId}`, {
                 method: 'POST',
                 mode: 'cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
+                headers: getAuthHeaders()
             });
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
 
-            // Update the local state to reflect the completed task
+            // ACTUALIZAR LOS DATOS DEL USUARIO primero para obtener los nuevos valores
+            const userStore = useUserStore();
+            await userStore.refreshLoggedUser();
+
+            // Solo actualizamos el estado local si todo salió bien
             const taskIndex = routines.value.findIndex(task => task.id === taskId);
             if (taskIndex !== -1) {
                 routines.value[taskIndex].iscompleted = true;
             }
-
-            // ACTUALIZAR LOS DATOS DEL USUARIO después de completar la tarea
-            const userStore = useUserStore();
-            await userStore.refreshLoggedUser();
-            
         } catch (error) {
-            console.error('Error completing task:', error);
+            logger.error('Error completing task:', error);
+            throw error; // Propagar el error para que el componente lo maneje
         }
     }
 

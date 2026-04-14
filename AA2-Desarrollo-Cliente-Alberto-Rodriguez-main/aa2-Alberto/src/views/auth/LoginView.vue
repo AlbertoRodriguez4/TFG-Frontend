@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useRouter } from 'vue-router'
+import { useAuthValidation } from '@/composables/useAuthValidation'
 
 const REMEMBER_EMAIL_KEY = 'remember_email'
 const REMEMBER_FLAG_KEY = 'remember_me'
@@ -15,6 +16,7 @@ const rememberMe = ref(false)
 
 const store = useUserStore()
 const router = useRouter()
+const { validateEmail, validatePassword, clearErrors } = useAuthValidation()
 
 // Snackbar
 const snackbar = ref(false)
@@ -56,37 +58,19 @@ function applyRememberMe(emailValue: string) {
 async function handleLogin() {
   errorMessage.value = ''
   isLoading.value = true
+  clearErrors()
 
   const emailTrimmed = email.value.trim()
   const passwordTrimmed = password.value.trim()
 
-  if (!emailTrimmed || !passwordTrimmed) {
-    showSnackbar('Por favor, completa todos los campos.', 'warning')
+  if (!validateEmail(emailTrimmed)) {
+    showSnackbar(errors.email || 'Email inválido', 'warning')
     isLoading.value = false
     return
   }
 
-  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-  if (!emailRegex.test(emailTrimmed)) {
-    showSnackbar('Por favor, ingresa un correo electrónico válido.', 'warning')
-    isLoading.value = false
-    return
-  }
-
-  if (/\s/.test(emailTrimmed)) {
-    showSnackbar('El email no puede contener espacios.', 'warning')
-    isLoading.value = false
-    return
-  }
-
-  if (passwordTrimmed.length < 6) {
-    showSnackbar('La contraseña debe tener al menos 6 caracteres.', 'warning')
-    isLoading.value = false
-    return
-  }
-
-  if (/\s/.test(passwordTrimmed)) {
-    showSnackbar('La contraseña no puede contener espacios.', 'warning')
+  if (!validatePassword(passwordTrimmed)) {
+    showSnackbar(errors.password || 'Contraseña inválida', 'warning')
     isLoading.value = false
     return
   }

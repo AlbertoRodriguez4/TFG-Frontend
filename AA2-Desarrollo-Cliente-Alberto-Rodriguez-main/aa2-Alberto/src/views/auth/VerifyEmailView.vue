@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
+import { logger } from '@/utils/logger'
 
 const router = useRouter()
 const store = useUserStore()
@@ -12,6 +13,9 @@ const successMessage = ref('')
 const isLoading = ref(false)
 const isResending = ref(false)
 const countdown = ref(0)
+
+// Referencia al intervalo para limpiarlo en onBeforeUnmount
+let countdownInterval: number | null = null
 
 // Snackbar states
 const snackbar = ref(false)
@@ -62,7 +66,7 @@ const verifyEmail = async () => {
       showSnackbar('Código inválido o expirado. Intenta de nuevo.', 'error')
     }
   } catch (error) {
-    console.error(error)
+    logger.error(error)
     errorMessage.value = 'Error al verificar. Intenta más tarde.'
     showSnackbar('Error del servidor. Intenta más tarde.', 'error')
   } finally {
@@ -88,7 +92,7 @@ const resendCode = async () => {
       showSnackbar('Error al reenviar el código', 'error')
     }
   } catch (error) {
-    console.error(error)
+    logger.error(error)
     errorMessage.value = 'Error al reenviar. Intenta más tarde.'
     showSnackbar('Error del servidor. Intenta más tarde.', 'error')
   } finally {
@@ -97,11 +101,17 @@ const resendCode = async () => {
 }
 
 const startCountdown = () => {
+  // Limpiar intervalo anterior si existe
+  if (countdownInterval) {
+    clearInterval(countdownInterval)
+  }
+
   countdown.value = 60
-  const interval = setInterval(() => {
+  countdownInterval = window.setInterval(() => {
     countdown.value--
-    if (countdown.value <= 0) {
-      clearInterval(interval)
+    if (countdown.value <= 0 && countdownInterval) {
+      clearInterval(countdownInterval)
+      countdownInterval = null
     }
   }, 1000)
 }
@@ -121,6 +131,14 @@ onMounted(() => {
     setTimeout(() => {
       router.push({ name: 'homeLogged' })
     }, 1500)
+  }
+})
+
+onBeforeUnmount(() => {
+  // Limpiar el intervalo si el componente se desmonta
+  if (countdownInterval) {
+    clearInterval(countdownInterval)
+    countdownInterval = null
   }
 })
 </script>

@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSubscriptionStore } from '@/stores/SubscriptionStore'
+import { logger } from '@/utils/logger'
 
 interface ValidationState {
   cardNumber: boolean
@@ -121,7 +122,7 @@ const handleSubmit = async () => {
       showSuccess.value = false
     }
   } catch (err) {
-    console.error('Payment error:', err)
+    logger.error('Payment error:', err)
     errorMessage.value = 'Error de conexión. Inténtalo de nuevo.'
     showSuccess.value = false
   } finally {

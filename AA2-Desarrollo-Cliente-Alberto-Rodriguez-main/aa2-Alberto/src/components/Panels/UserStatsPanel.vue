@@ -11,7 +11,7 @@ interface User {
   level: number;
   strength: number;
   endurance: number;
-  consistencystreak: number;
+  consistencyStreak: number;
   gold: number;
   role: string;
   experience: number;
@@ -98,7 +98,7 @@ const formatNumber = (value: number): string => {
           <h3 class="user-name">{{ loggedUser.name }}</h3>
           <div class="streak-badge">
             <span class="streak-icon">🔥</span>
-            <span class="streak-text">{{ loggedUser.consistencystreak }} días</span>
+            <span class="streak-text">{{ loggedUser.consistencyStreak }} días</span>
           </div>
         </div>
 

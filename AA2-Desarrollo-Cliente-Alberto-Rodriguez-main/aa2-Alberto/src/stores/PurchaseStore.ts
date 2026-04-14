@@ -1,21 +1,16 @@
 import type { Item } from "../components/Models/Item"
 import { defineStore } from "pinia"
 import { ref } from "vue"
-import { useUserStore } from "./userStore"; // Importar el store de usuario
-
-const BASE_URL = "http://localhost:6873";
+import { useUserStore } from "./userStore"
+import { API_BASE_URL, getAuthHeaders } from '@/config/api'
+import { logger } from '@/utils/logger'
 
 export const usePurchaseStore = defineStore('purchase', () => {
-    const purchase = ref<Item[]>([]) 
-
-    const getAuthHeaders = () => ({
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem('token')}`
-    });
+    const purchase = ref<Item[]>([])
 
     async function fetchPurchase() {
         try {
-            const response = await fetch(`${BASE_URL}/api/Item`, {
+            const response = await fetch(`${API_BASE_URL}/api/Item`, {
                 method: "GET",
                 mode: "cors",
                 headers: getAuthHeaders()
@@ -31,7 +26,7 @@ export const usePurchaseStore = defineStore('purchase', () => {
                 price: d.price
             }))
         } catch (error) {
-            console.error("Error fetching plans:", error)
+            logger.error("Error fetching plans:", error)
         }
     }
 
@@ -44,7 +39,7 @@ export const usePurchaseStore = defineStore('purchase', () => {
         }
 
         try {
-            const response = await fetch(`${BASE_URL}/api/Purchase`, {
+            const response = await fetch(`${API_BASE_URL}/api/Purchase`, {
                 method: "POST",
                 mode: "cors",
                 headers: getAuthHeaders(),
@@ -65,7 +60,7 @@ export const usePurchaseStore = defineStore('purchase', () => {
             return result
 
         } catch (error) {
-            console.error("Error al agregar compra:", error)
+            logger.error("Error al agregar compra:", error)
             throw error
         }
     }

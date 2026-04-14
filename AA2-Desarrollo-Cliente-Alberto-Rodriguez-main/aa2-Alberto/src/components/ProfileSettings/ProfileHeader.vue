@@ -8,27 +8,10 @@
             <v-avatar size="120" class="avatar-main" v-if="!store.loggedUser?.avatarUrl">
               {{ userInitials }}
             </v-avatar>
-            <v-img
-              v-else
-              :src="store.loggedUser.avatarUrl"
-              class="avatar-image"
-              alt="User Avatar"
-            />
-            <v-btn
-              icon="mdi-camera"
-              size="small"
-              class="avatar-edit-btn"
-              variant="flat"
-              :loading="uploading"
-              @click="triggerFileInput"
-            />
-            <input
-              ref="fileInput"
-              type="file"
-              accept="image/*"
-              style="display: none"
-              @change="handleFileSelect"
-            />
+            <v-img v-else :src="store.loggedUser.avatarUrl" class="avatar-image" alt="User Avatar" />
+            <v-btn icon="mdi-camera" size="small" class="avatar-edit-btn" variant="flat" :loading="uploading"
+              @click="triggerFileInput" />
+            <input ref="fileInput" type="file" accept="image/*" style="display: none" @change="handleFileSelect" />
           </div>
 
           <!-- User Info -->
@@ -73,23 +56,13 @@
             <span class="xp-label">Experiencia</span>
             <span class="xp-text">{{ userExperience }} / {{ xpRequired }}</span>
           </div>
-          <v-progress-linear
-            :model-value="xpPercentage"
-            color="#ffcc00"
-            height="6"
-            rounded
-          />
+          <v-progress-linear :model-value="xpPercentage" color="#ffcc00" height="6" rounded />
         </div>
       </div>
     </v-container>
 
     <!-- Upload Status / Error Dialog -->
-    <v-snackbar
-      v-model="showNotification"
-      :color="notificationType"
-      :timeout="3000"
-      location="top"
-    >
+    <v-snackbar v-model="showNotification" :color="notificationType" :timeout="3000" location="top">
       {{ notificationMessage }}
     </v-snackbar>
 
@@ -112,31 +85,17 @@
           </div>
 
           <div class="upload-progress" v-if="uploading">
-            <v-progress-linear
-              :model-value="uploadProgress"
-              color="#ffcc00"
-              height="4"
-            />
+            <v-progress-linear :model-value="uploadProgress" color="#ffcc00" height="4" />
             <p class="progress-text">Subiendo... {{ uploadProgress }}%</p>
           </div>
         </v-card-text>
 
         <v-card-actions class="dialog-actions">
           <v-spacer />
-          <v-btn
-            variant="text"
-            @click="closePreviewDialog"
-            :disabled="uploading"
-          >
+          <v-btn variant="text" @click="closePreviewDialog" :disabled="uploading">
             Cancelar
           </v-btn>
-          <v-btn
-            color="#ffcc00"
-            text-color="#000"
-            variant="flat"
-            @click="uploadToCloudinary"
-            :loading="uploading"
-          >
+          <v-btn color="#ffcc00" text-color="#000" variant="flat" @click="uploadToCloudinary" :loading="uploading">
             <v-icon start>mdi-upload</v-icon>
             Subir
           </v-btn>
@@ -149,12 +108,14 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/userStore'
 import { computed, ref } from 'vue'
+import { logger } from '@/utils/logger'
 
 const store = useUserStore()
 
 // Cloudinary Configuration
 const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
 const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
+
 // Refs
 const fileInput = ref<HTMLInputElement>()
 const previewImage = ref<string>('')
@@ -285,7 +246,7 @@ const uploadToCloudinary = async () => {
       closePreviewDialog()
     }
   } catch (error) {
-    console.error('Error al subir imagen:', error)
+    logger.error('Error al subir imagen:', error)
     showErrorNotification('Error al subir la imagen. Intenta de nuevo.')
   } finally {
     uploading.value = false

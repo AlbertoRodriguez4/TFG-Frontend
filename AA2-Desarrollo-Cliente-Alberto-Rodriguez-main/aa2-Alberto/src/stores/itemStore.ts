@@ -1,19 +1,14 @@
 import type { Item } from "../components/Models/Item";
 import { defineStore } from "pinia";
 import { ref } from "vue";
-
-const BASE_URL = "http://localhost:6873";
+import { API_BASE_URL, getAuthHeaders } from '@/config/api'
+import { logger } from '@/utils/logger'
 
 export const useItemStore = defineStore('item', () => {
     const items = ref<Item[]>([]);
     const strengthItems = ref<Item[]>([]);
     const enduranceItems = ref<Item[]>([]);
     const generalItems = ref<Item[]>([]);
-
-    const getAuthHeaders = () => ({
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem('token')}`
-    });
 
     // Función auxiliar para mapear los datos y evitar repetir código
     // Asegúrate de que tu API de Items devuelve 'imageUrl'
@@ -28,7 +23,7 @@ export const useItemStore = defineStore('item', () => {
 
     async function fetchItems() {
         try {
-            const response = await fetch(`${BASE_URL}/api/Item`, {
+            const response = await fetch(`${API_BASE_URL}/api/Item`, {
                 method: "GET",
                 mode: "cors",
                 headers: getAuthHeaders()
@@ -40,13 +35,13 @@ export const useItemStore = defineStore('item', () => {
             // Usamos la función auxiliar mapItem
             items.value = data.map(mapItem);
         } catch (error) {
-            console.error("Error fetching items:", error);
+            logger.error("Error fetching items:", error);
         }
     }
 
     async function fetchDailyStrengthItems() {
         try {
-            const response = await fetch(`${BASE_URL}/api/Item/random-strength`, {
+            const response = await fetch(`${API_BASE_URL}/api/Item/random-strength`, {
                 method: "GET",
                 mode: "cors",
                 headers: getAuthHeaders()
@@ -56,13 +51,13 @@ export const useItemStore = defineStore('item', () => {
             const data = await response.json();
             strengthItems.value = data.map(mapItem);
         } catch (error) {
-            console.error("Error fetching daily strength items:", error);
+            logger.error("Error fetching daily strength items:", error);
         }
     }
 
     async function fetchDailyEnduranceItems() {
         try {
-            const response = await fetch(`${BASE_URL}/api/Item/random-endurance`, {
+            const response = await fetch(`${API_BASE_URL}/api/Item/random-endurance`, {
                 method: "GET",
                 mode: "cors",
                 headers: getAuthHeaders()
@@ -72,13 +67,13 @@ export const useItemStore = defineStore('item', () => {
             const data = await response.json();
             enduranceItems.value = data.map(mapItem);
         } catch (error) {
-            console.error("Error fetching daily endurance items:", error);
+            logger.error("Error fetching daily endurance items:", error);
         }
     }
 
     async function fetchDailyGeneralItems() {
         try {
-            const response = await fetch(`${BASE_URL}/api/Item/random-items`, {
+            const response = await fetch(`${API_BASE_URL}/api/Item/random-items`, {
                 method: "GET",
                 mode: "cors",
                 headers: getAuthHeaders()
@@ -88,13 +83,13 @@ export const useItemStore = defineStore('item', () => {
             const data = await response.json();
             generalItems.value = data.map(mapItem);
         } catch (error) {
-            console.error("Error fetching daily general items:", error);
+            logger.error("Error fetching daily general items:", error);
         }
     }
 
     async function editItem(itemid: number, item: Item): Promise<void> {
         try {
-            const response = await fetch(`${BASE_URL}/api/Item/${itemid}`, {
+            const response = await fetch(`${API_BASE_URL}/api/Item/${itemid}`, {
                 method: 'PUT',
                 mode: 'cors',
                 headers: getAuthHeaders(),
@@ -103,13 +98,13 @@ export const useItemStore = defineStore('item', () => {
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             await fetchItems();
         } catch (error) {
-            console.error('Error editing item:', error);
+            logger.error('Error editing item:', error);
         }
     }
 
     async function deleteItem(itemid: number): Promise<void> {
         try {
-            const response = await fetch(`${BASE_URL}/api/Item/${itemid}`, {
+            const response = await fetch(`${API_BASE_URL}/api/Item/${itemid}`, {
                 method: 'DELETE',
                 mode: 'cors',
                 headers: getAuthHeaders(),
@@ -119,7 +114,7 @@ export const useItemStore = defineStore('item', () => {
             const text = await response.text();
             if (text) return JSON.parse(text);
         } catch (error) {
-            console.error('Error deleting item:', error);
+            logger.error('Error deleting item:', error);
         }
     }
 
